@@ -403,7 +403,7 @@ def tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra):
     Q_m3h = v * A * 3600.0
     dp_bar = abs(dp) / 1e5
     sg = rho / 1000.0
-    kv = Q_m3h / math.sqrt(dp_bar * sg)
+    kv = Q_m3h * math.sqrt(sg / dp_bar)
     return kv
 
 @dataclass
