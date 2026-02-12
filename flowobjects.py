@@ -28,55 +28,11 @@ def gasFlowrate(Kv, P_1, P_2, T_1, gas, assumeChoked=False):
     Includes broadcasting to handle mix of scalar and array inputs.
     """
     
-    if np.isscalar(P_1) and np.isscalar(P_2) and np.isscalar(Kv) and np.isscalar(T_1):
-            P_1 = float(P_1)
-            P_2 = float(P_2)
-            Kv = float(Kv)
-            T_1 = float(T_1)
-            
-            # Constants for Standard Conditions (NTP: 0°C, 1 atm)
-            P_N_Pa = 101325.0       # Pa
-            T_N_K  = 273.15         # K
-            rho_n  = P_N_Pa / (gas.R * T_N_K) # Normal Density (kg/m^3)
-
-            # Convert Pressures to BAR for the Kv formula
-            p1_bar = P_1 / 1e5
-            p2_bar = P_2 / 1e5
-
-            if p2_bar > p1_bar:
-                pu = p2_bar
-                pd = p1_bar
-                sign = -1.0
-            else:
-                pu = p1_bar
-                pd = p2_bar
-                sign = 1.0
-
-            # Simplified Model assumes choking at P_down < P_up / 2
-            critical_ratio = 0.5
-            
-            # Determine if flow is choked
-            is_choked = (pd < (pu * critical_ratio)) or (assumeChoked == True) or (assumeChoked == 1)
-
-            if not is_choked:
-                dp_sub = pu - pd
-                # Protect against negative sqrt near zero
-                term = max(dp_sub * pd, 0.0)
-                q_n = 514.0 * Kv * math.sqrt(term / (rho_n * T_1))
-            else:
-                q_n = 257.0 * Kv * pu * math.sqrt(1.0 / (rho_n * T_1))
-
-            # Final Conversion to Mass Flow (kg/s)
-            m_dot = q_n * rho_n / 3600.0
-            return m_dot * sign
+    # P_1 = float(P_1)
+    # P_2 = float(P_2)
+    # Kv = float(Kv)
+    # T_1 = float(T_1)
     
-    # --- BROADCASTING FIX ---
-    # This ensures that if Kv is [1] and P_1 is length 5, Kv becomes length 5
-    try:
-        P_1, P_2, T_1, Kv = np.broadcast_arrays(P_1, P_2, T_1, Kv)
-    except ValueError:
-        raise ValueError("Input shapes (P, T, Kv) are incompatible and cannot be broadcast together.")
-
     # Constants for Standard Conditions (NTP: 0°C, 1 atm)
     P_N_Pa = 101325.0       # Pa
     T_N_K  = 273.15         # K
@@ -86,53 +42,32 @@ def gasFlowrate(Kv, P_1, P_2, T_1, gas, assumeChoked=False):
     p1_bar = P_1 / 1e5
     p2_bar = P_2 / 1e5
 
-    # --- 2. Flow Direction Logic ---
-    # Identify reverse flow (P2 > P1) and swap variables for calculation
-    reverse_mask = p2_bar > p1_bar
-    
-    pu = np.where(reverse_mask, p2_bar, p1_bar) # Upstream Pressure (bar)
-    pd = np.where(reverse_mask, p1_bar, p2_bar) # Downstream Pressure (bar)
+    if p2_bar > p1_bar:
+        pu = p2_bar
+        pd = p1_bar
+        sign = -1.0
+    else:
+        pu = p1_bar
+        pd = p2_bar
+        sign = 1.0
 
-    # --- 3. Choked Flow Determination ---
     # Simplified Model assumes choking at P_down < P_up / 2
     critical_ratio = 0.5
     
-    # Handle assumeChoked (scalar or array)
-    assumeChoked = np.atleast_1d(assumeChoked)
-    # Broadcast assumeChoked to shape of P_1 if necessary, or let numpy broadcasting handle the 'or' logic
-    
-    # Determine if flow is choked (physically choked OR forced by user)
-    # Note: We use bitwise OR (|) for boolean arrays
-    is_choked = (pd < (pu * critical_ratio)) | ((assumeChoked == True) | (assumeChoked == 1))
+    # Determine if flow is choked
+    is_choked = (pd < (pu * critical_ratio)) or (assumeChoked == True) or (assumeChoked == 1)
 
-    # --- 4. Flow Rate Calculation (Q_n in Nm^3/h) ---
-    q_n = np.zeros_like(pu)
-
-    # A. Subcritical Flow (P_down > P_up / 2)
-    sub_idx = ~is_choked
-    if np.any(sub_idx):
-        dp_sub = pu[sub_idx] - pd[sub_idx]
+    if not is_choked:
+        dp_sub = pu - pd
         # Protect against negative sqrt near zero
-        term = np.maximum(dp_sub * pd[sub_idx], 0) 
-        
-        q_n[sub_idx] = 514 * Kv[sub_idx] * np.sqrt(
-            term / (rho_n * T_1[sub_idx])
-        )
+        term = max(dp_sub * pd, 0.0)
+        q_n = 514.0 * Kv * math.sqrt(term / (rho_n * T_1))
+    else:
+        q_n = 257.0 * Kv * pu * math.sqrt(1.0 / (rho_n * T_1))
 
-    # B. Supercritical / Choked Flow (P_down < P_up / 2)
-    choked_idx = is_choked
-    if np.any(choked_idx):
-        q_n[choked_idx] = 257 * Kv[choked_idx] * pu[choked_idx] * np.sqrt(
-            1.0 / (rho_n * T_1[choked_idx])
-        )
-
-    # --- 5. Final Conversion to Mass Flow (kg/s) ---
+    # Final Conversion to Mass Flow (kg/s)
     m_dot = q_n * rho_n / 3600.0
-
-    # Apply sign for reverse flow
-    m_dot = np.where(reverse_mask, -m_dot, m_dot)
-
-    return m_dot
+    return m_dot * sign
 
 import numpy as np
 
@@ -153,41 +88,18 @@ def liquidFlowrate(Kv, P_1, P_2, liquid):
     # Ensure inputs match shapes (handles scalar Kv with array Pressure)
 
         # --- OPTIMIZATION: Scalar Fast Path ---
-    if np.isscalar(P_1) and np.isscalar(P_2) and np.isscalar(Kv):
-        P_1 = float(P_1)
-        P_2 = float(P_2)
-        Kv = float(Kv)
-        
-        dp = P_1 - P_2
-        CONST_LIQUID = 1.0 / 36000.0
-        
-        if dp >= 0:
-            return CONST_LIQUID * Kv * math.sqrt(dp * liquid.density)
-        else:
-            return -CONST_LIQUID * Kv * math.sqrt(-dp * liquid.density)
-
-    P_1 = np.atleast_1d(P_1).astype(float)
-    P_2 = np.atleast_1d(P_2).astype(float)
-    Kv  = np.atleast_1d(Kv).astype(float)
+    # P_1 = float(P_1)
+    # P_2 = float(P_2)
+    # Kv = float(Kv)
     
-    try:
-        P_1, P_2, Kv = np.broadcast_arrays(P_1, P_2, Kv)
-    except ValueError:
-        raise ValueError("Input shapes are incompatible.")
-
-    # --- 2. Calculate Pressure Drop ---
     dp = P_1 - P_2
+    CONST_LIQUID = 1.0 / 36000.0
     
-    # --- 3. Calculate Mass Flow ---
-    # Formula: m_dot = (Kv / 36000) * sqrt(rho * abs(dp))
-    # We use np.sign(dp) to handle reverse flow direction automatically
-    
-    # Constant derived from: 0.1 (unit conversions) / 3600 (hours to seconds)
-    CONST_LIQUID = 1 / 36000.0
-    
-    m_dot = (np.sign(dp) * CONST_LIQUID * Kv * np.sqrt(np.abs(dp) * liquid.density))
+    if dp >= 0:
+        return CONST_LIQUID * Kv * math.sqrt(dp * liquid.density)
+    else:
+        return -CONST_LIQUID * Kv * math.sqrt(-dp * liquid.density)
 
-    return m_dot
 
 from typing import Union, Callable, Any, List
 from numpy.typing import NDArray
@@ -238,9 +150,9 @@ class FlowComponent:
     name: str
     # kv can be a simple float OR a function that returns a float
     # The function signature is flexible: f(t, P_up, P_down)
-    kv: Union[FloatOrArray, Callable[[FloatOrArray, FloatOrArray, FloatOrArray, Union[FloatOrArray, None], Union[FloatOrArray, None]], FloatOrArray]]
+    kv: Union[FloatOrArray, Callable, FloatOrArray]
 
-    def get_kv(self, t: FloatOrArray, P_up: FloatOrArray, P_down: FloatOrArray, rho: Union[FloatOrArray, None], mu: Union[FloatOrArray, None]) -> FloatOrArray:
+    def get_kv(self, t: FloatOrArray, P_up: FloatOrArray, P_down: FloatOrArray, rho: Union[FloatOrArray, None], mu: Union[FloatOrArray, None], temp: Union[FloatOrArray, None], fluid: Union[Gas, Liquid, None]) -> FloatOrArray:
         """
         Returns the Kv value. 
         If inputs are arrays, returns an array. 
@@ -248,7 +160,8 @@ class FlowComponent:
         """
         if callable(self.kv):
             # The lambda handles the logic
-            return self.kv(t, P_up, P_down, rho, mu)
+            args = (t, P_up, P_down, rho, mu, temp, fluid)
+            return self.kv(args)
         else:
             # If kv is a constant (e.g., a pipe), just return it.
             # Note: If you multiply this scalar return value by an array 
@@ -257,8 +170,8 @@ class FlowComponent:
             return self.kv
         
 class TubeComponent(FlowComponent):
-    def __init__(self, name: str, D: float, L: float, roughness: float, bend_ang: float, K_extra: float): 
-        super().__init__(name, kv=lambda t, P_up, P_down, rho, mu: tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra))
+    def __init__(self, name: str, D: float, L: float, roughness: float, bend_ang: float = 0, K_extra: float = 0): 
+        super().__init__(name, kv=lambda args: tube_kv(args, D, L, roughness, bend_ang, K_extra))
         self.D = D
         self.L= L
         self.roughness = roughness
@@ -266,7 +179,7 @@ class TubeComponent(FlowComponent):
         self.K_extra = K_extra
     
 
-def timed_valve_kv(t, maxKv, t_open, t_close, t_ramp, leak_kv=1e-6):
+def timed_valve_kv(args, maxKv, t_open, t_close, t_ramp, leak_kv=1e-6):
     """
     Single function for a full valve cycle using Smooth Sigmoids (S-Curves).
     Best for ODE solvers (scipy.solve_ivp) as it has continuous derivatives.
@@ -279,62 +192,21 @@ def timed_valve_kv(t, maxKv, t_open, t_close, t_ramp, leak_kv=1e-6):
         t_ramp  : Time duration for the transition (approximate)
         leak    : Minimum Kv value (to prevent solver singularities)
     """
-    # 1. Standardize input
-    if np.isscalar(t):
-        t = float(t)
-        k = 12.0 / t_ramp
-        center_open = t_open + (t_ramp / 2.0)
-        center_close = t_close + (t_ramp / 2.0)
-        
-        # Opening: standard sigmoid
-        sig_open = 1.0 / (1.0 + math.exp(-k * (t - center_open)))
-        
-        # Closing: inverted sigmoid
-        sig_close = 1.0 - (1.0 / (1.0 + math.exp(-k * (t - center_close))))
-        
-        Kv = maxKv * sig_open * sig_close
-        return max(Kv, leak_kv)
-
-    # 1. Standardize input
-    is_scalar = np.isscalar(t) or np.ndim(t) == 0
-
-
-    is_scalar = np.isscalar(t) or np.ndim(t) == 0
-    t = np.atleast_1d(t).astype(float)
-    
-    # 2. Calculate Steepness (k)
-    # A 'k' factor of 12/t_ramp ensures the curve completes ~99% of its 
-    # transition within the t_ramp window.
+    t = args[0]
     k = 12.0 / t_ramp
-    
-    # 3. Calculate Centers
-    # We center the S-curve at the midpoint of the ramp
     center_open = t_open + (t_ramp / 2.0)
     center_close = t_close + (t_ramp / 2.0)
     
-    # 4. Generate Curves (0.0 to 1.0)
-    # Opening: standard sigmoid (low -> high)
-    # Equation: 1 / (1 + e^-k(t - center))
-    sig_open = 1.0 / (1.0 + np.exp(-k * (t - center_open)))
+    # Opening: standard sigmoid
+    sig_open = 1.0 / (1.0 + math.exp(-k * (t - center_open)))
     
-    # Closing: inverted sigmoid (high -> low)
-    # Equation: 1 - sigmoid
-    sig_close = 1.0 - (1.0 / (1.0 + np.exp(-k * (t - center_close))))
+    # Closing: inverted sigmoid
+    sig_close = 1.0 - (1.0 / (1.0 + math.exp(-k * (t - center_close))))
     
-    # 5. Combine
-    # We multiply them. If either is 0 (closed), the result is 0.
-    # This naturally creates a smooth bell-shape if the valve closes 
-    # before it finishes opening.
     Kv = maxKv * sig_open * sig_close
-    
-    # 6. Apply Leak (Clip)
-    Kv = np.maximum(Kv, leak_kv)
-    
-    if is_scalar:
-        return Kv.item()
-    return Kv
+    return max(Kv, leak_kv)
 
-def regulator_kv(P_up, P_down, set_pressure, reg_constant=300, leak_kv=1e-6):
+def regulator_kv(args, set_pressure, reg_constant=300, leak_kv=1e-6):
     """Calculates the Kv of a pressure regulator based on upstream and downstream pressures.
 
     Parameters:
@@ -352,124 +224,139 @@ def regulator_kv(P_up, P_down, set_pressure, reg_constant=300, leak_kv=1e-6):
     Returns:
         reg_kv      : Calculated Kv value of the regulator
     """
-    if np.isscalar(P_up) and np.isscalar(P_down):
-        P_up = float(P_up)
-        P_down = float(P_down)
-        
-        reg_dp = set_pressure - P_down
-        # if reg_dp > 0 and P_up > set_pressure:
-        if reg_dp > 0 and P_up > P_down:
-            reg_kv = reg_dp / reg_constant / 1e5
-        else:
-            reg_kv = leak_kv
-            
-        return max(reg_kv, leak_kv)
-
-    is_scalar = np.isscalar(P_up) or np.ndim(P_up) == 0
-    P_up = np.atleast_1d(P_up).astype(float)
-    P_down = np.atleast_1d(P_down).astype(float)
-
+    P_up, P_down = args[1], args[2]
+    # P_up = float(P_up)
+    # P_down = float(P_down)
+    
     reg_dp = set_pressure - P_down
-    # reg_kv = np.where((reg_dp > 0) & (P_up > set_pressure), reg_dp / reg_constant / 1e5, leak_kv)
-    reg_kv = np.where((reg_dp > 0) & (P_up > P_down), reg_dp / reg_constant / 1e5, leak_kv)
-    reg_kv = np.maximum(reg_kv, leak_kv)
-    if is_scalar:
-        return reg_kv.item()
-    return reg_kv
-
-def tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra):
-    dp = abs(P_up - P_down)
-    if dp < 1e-4:
-        return 1e-6 # Return a tiny leak if no pressure drop to avoid singularity
-
-    A = math.pi * (D/2)**2
-    K_minor = (bend_ang / 90.0) * 0.35 + K_extra # 0.35 is a typical K for a 90 degree bend, scaled by angle, should be from Crane TN410, but need to check
-
-    v = 5.0
-    rel_diff = 1
-    iterations = 0
-
-    while rel_diff > 1e-4:
-
-        Re = rho * v * D / mu
-
-        if Re < 1e-3: Re = 1e-3
-
-        f_lam = 64.0 / Re
-        f_turb = 0.25 / (math.log10((roughness/(3.7*D)) + (5.74/(Re**0.9))))**2
-
-        if Re < 2000: f = f_lam
-        elif Re > 4000: f = f_turb
-        else: f = f_lam + (f_turb - f_lam) * ((Re - 2000) / 2000)
-
-
-        K_total= K_minor + f * (L / D)
-
-        v_new = math.sqrt(2 * abs(dp) / (rho * K_total))
-        rel_diff = abs(v_new - v) / v
-
-        # print(f"tube_kv iteration {iterations}: P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re:.2e}, v={v:.4f} m/s, f={f:.4e}, K_total={K_total:.4f}")
+    # if reg_dp > 0 and P_up > set_pressure:
+    if reg_dp > 0 and P_up > P_down:
+        reg_kv = reg_dp / reg_constant / 1e5
+    else:
+        reg_kv = leak_kv
         
-        v = v_new
-        # v = 0.5 * v + 0.5 * v_new
+    return max(reg_kv, leak_kv)
+
+
+def reg_kv_simple(args, set_pressure, max_kv, p_band, leak_kv=1e-6):
+    P_up, P_down = args[1], args[2]
+        # P_up = float(P_up)
+        # P_down = float(P_down)
         
-        if iterations > 100:
-            print(f"Warning: tube_kv did not converge after 100 iterations. Returning last Kv value. P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re}, v={v}, f={f}, K_total={K_total}")
-            break
-
-        # Damping to ensure convergence
-        iterations += 1
-
-    # print(iterations)
-    Q_m3h = v * A * 3600.0
-    dp_bar = abs(dp) / 1e5
-    sg = rho / 1000.0
-    kv = Q_m3h * math.sqrt(sg / dp_bar)
-    return kv
-
-# def tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra): 
-#     dp = P_up - P_down
-#     if abs(dp) < 1e-4: return 1e-6
+    error = set_pressure - P_down
+    normalized_error = error / p_band
+    opening_pct = math.tanh(normalized_error)
     
-#     # Constants
-#     g = 9.81
-#     nu = mu / rho
+    kv = opening_pct * max_kv
+    return max(kv, leak_kv)
+
+# def tube_kv(args, D, L, roughness, bend_ang, K_extra):
+#     P_up, P_down, rho, mu = args[1], args[2], args[3], args[4]
+#     dp = abs(P_up - P_down)
+#     if dp < 1e-4:
+#         return 1e-6 # Return a tiny leak if no pressure drop to avoid singularity
+
 #     A = math.pi * (D/2)**2
-    
-#     # 1. Calculate Head Loss (h_f)
-#     # We must account for minor losses (K_minor) which makes it tricky.
-#     # Standard Swamee-Jain assumes ONLY pipe friction.
-#     # If K_minor is large, this approximation fails. 
-#     # If K_minor is small, we can just add an equivalent length: L_eq = L + (K_minor * D / 0.02)
-    
-#     K_minor = (bend_ang / 90.0) * 0.35 + K_extra
-#     L_equiv = L + (K_minor * D / 0.02) # approx friction factor 0.02 for converting K to L
-    
-#     h_f = abs(dp) / (rho * g)
-    
-#     # 2. Check Laminar Regime Limit (Re ~ 2000)
-#     # Laminar flow: Q = (pi * D^4 * dp) / (128 * mu * L)
-#     # v_lam = Q / A
-#     v_lam = (abs(dp) * D**2) / (32 * mu * L_equiv)
-    
-#     # 3. Turbulent Explicit Calculation (Swamee-Jain inversed)
-#     term1 = roughness / (3.7 * D)
-#     term2 = (2.51 * nu * L_equiv**0.5) / ((2 * g * D**3 * h_f)**0.5)
-    
-#     v_turb = -2 * math.sqrt(2 * g * D * h_f / L_equiv) * math.log10(term1 + term2)
-    
-#     # 4. Blend (Simple Min/Max logic usually works for speed)
-#     # If laminar velocity is lower than turbulent prediction, we are likely laminar.
-#     v = (v_lam**-2 + v_turb**-2)**(-0.5) # Harmonic mean to blend velocities
+#     K_minor = (bend_ang / 90.0) * 0.35 + K_extra # 0.35 is a typical K for a 90 degree bend, scaled by angle, should be from Crane TN410, but need to check
 
-#     # 5. Convert to Kv
+#     v = 5.0
+#     rel_diff = 1
+#     iterations = 0
+
+#     while rel_diff > 1e-4:
+
+#         Re = rho * v * D / mu
+
+#         if Re < 1e-3: Re = 1e-3
+
+#         f_lam = 64.0 / Re
+#         f_turb = 0.25 / (math.log10((roughness/(3.7*D)) + (5.74/(Re**0.9))))**2
+
+#         if Re < 2000: f = f_lam
+#         elif Re > 4000: f = f_turb
+#         else: f = f_lam + (f_turb - f_lam) * ((Re - 2000) / 2000)
+
+
+#         K_total= K_minor + f * (L / D)
+
+#         v_new = math.sqrt(2 * abs(dp) / (rho * K_total))
+#         rel_diff = abs(v_new - v) / v
+
+#         # print(f"tube_kv iteration {iterations}: P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re:.2e}, v={v:.4f} m/s, f={f:.4e}, K_total={K_total:.4f}")
+        
+#         v = v_new
+#         # v = 0.5 * v + 0.5 * v_new
+        
+#         if iterations > 100:
+#             print(f"Warning: tube_kv did not converge after 100 iterations. Returning last Kv value. P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re}, v={v}, f={f}, K_total={K_total}")
+#             break
+
+#         # Damping to ensure convergence
+#         iterations += 1
+
+#     # print(iterations)
 #     Q_m3h = v * A * 3600.0
 #     dp_bar = abs(dp) / 1e5
 #     sg = rho / 1000.0
+#     kv = Q_m3h * math.sqrt(sg / dp_bar)
+#     return kv
+
+def tube_kv(args, D, L, roughness, bend_ang, K_extra):
+    """
+    Calculates Tube Kv assuming fully turbulent flow.
+    NON-ITERATIVE: Uses the explicit Swamee-Jain solution for velocity.
+    """
+    P_up, P_down, rho, mu = args[1], args[2], args[3], args[4]
+    # 1. Physics Setup
+    dp = abs(P_up - P_down)
+    if dp < 1e-5: return 1e-6 # Protect against zero div
     
-#     if dp_bar <= 0 or sg <= 0: return 1e-6
+    g = 9.81
+    A = math.pi * (D/2)**2
+    nu = mu / rho # Kinematic Viscosity
     
-#     return Q_m3h * math.sqrt(sg / dp_bar)
+    # 2. Equivalent Length Method
+    # Convert bends/tees (K) into extra length of pipe (L_equiv).
+    # We assume a reference friction factor f=0.025 for this conversion,
+    # which is standard practice when exact f is unknown.
+    K_minor = (bend_ang / 90.0) * 0.35 + K_extra
+    L_eff = L + (K_minor * D / 0.025)
+
+    # 3. Explicit Solve for Velocity (Swamee-Jain)
+    # Head Loss h_f [m]
+    h_f = dp / (rho * g)
+    
+    # Term A: Relative Roughness
+    term_roughness = roughness / (3.7 * D)
+    
+    # Term B: Viscosity / High-Pressure Correction
+    # (2.51 * nu) / (D * sqrt(2 * g * D * h_f / L_eff)) simplified:
+    term_viscosity = (2.51 * nu * math.sqrt(L_eff)) / (math.sqrt(2 * g * D**3 * h_f) + 1e-9)
+
+    # The Formula
+    v = -2.0 * math.sqrt(2 * g * D * h_f / L_eff) * math.log10(term_roughness + term_viscosity)
+
+    # 4. Convert to Kv
+    Q_m3h = v * A * 3600.0
+    dp_bar = dp / 1e5
+    sg = rho / 1000.0
+    
+    if dp_bar <= 0 or sg <= 0: return 1e-6
+    
+    kv = Q_m3h * math.sqrt(sg / dp_bar)
+    
+    return kv
+
+
+def nozzle_kv(area, discharge_coeff=0.98):
+    # Kv = flow of 1000rho at 1 bar dp
+    # Q = A * v
+    # v = Cd * sqrt(2*dp/rho)
+    # sqrt(2*dp/rho) at 1 bar, 1000kg/m3 = 14.142m/s
+    # 14.142 * 3600 = 50911.8
+    return 50900 * area * discharge_coeff
+
+
 
 @dataclass(eq=False)
 class FluidNode:
@@ -549,12 +436,12 @@ def solve_network_pressures(all_nodes: list[FluidNode], t: float):
                 if component_is_upstream:
                     m_dot, _ = get_component_flows(t, connected_node, node, component)
                     if np.isnan(m_dot): m_dot = 0.0
-                    m_dot = float(m_dot)
+                    # m_dot = float(m_dot)
                     net_m += m_dot
                 else :
                     m_dot, _ = get_component_flows(t, node, connected_node, component)
                     if np.isnan(m_dot): m_dot = 0.0
-                    m_dot = float(m_dot)
+                    # m_dot = float(m_dot)
                     net_m -= m_dot
             net_flows.append(net_m)
 
@@ -595,16 +482,16 @@ def get_component_flows(t, node_up: FluidNode, node_down: FluidNode, component: 
     temp_higherpressure = node_up.temperature if P_up >= P_down else node_down.temperature
     if isinstance(fluid_higherpressure, Gas):
         if node_up.temperature is None or fluid_higherpressure is None:
-            kv = component.get_kv(t, P_up, P_down, None, None)
+            kv = component.get_kv(t, P_up, P_down, None, None, None, None)
         else:
             if node_up.pressure is None: raise ValueError(f"Upstream pressure is None for node '{node_up.name}' when calculating gas flow.")
             rho = node_up.pressure / (fluid_higherpressure.R * node_up.temperature)
-            kv = component.get_kv(t, P_up, P_down, rho, fluid_higherpressure.viscosity)
+            kv = component.get_kv(t, P_up, P_down, rho, fluid_higherpressure.viscosity, node_up.temperature, fluid_higherpressure)
     else:
         if temp_higherpressure is None or fluid_higherpressure is None:
-            kv = component.get_kv(t, P_up, P_down, None, None)
+            kv = component.get_kv(t, P_up, P_down, None, None, None, None)
         else:
-            kv = component.get_kv(t, P_up, P_down, fluid_higherpressure.density, fluid_higherpressure.viscosity)
+            kv = component.get_kv(t, P_up, P_down, fluid_higherpressure.density, fluid_higherpressure.viscosity, temp_higherpressure, fluid_higherpressure)
 
 
     # print(f"Node_up fluid: {node_up.fluid}, Node_down fluid: {node_down.fluid}, Fluid higher pressure: {fluid_higherpressure}")
@@ -631,8 +518,9 @@ def get_component_flows(t, node_up: FluidNode, node_down: FluidNode, component: 
 
 
 def dae_system(t, y, total_nodes, tanks):
-    # print(f"--- Iteration {iterated}, Time {t:.2f}s ---")
     masses = y
+    print(f"Time: {t:.2f} s, masses: {masses}", end='\r')
+
 
     # Update tank masses
     for i, tank in enumerate(tanks):
@@ -690,7 +578,7 @@ def dae_system(t, y, total_nodes, tanks):
             if component_is_upstream:
                 m_dot, fluid = get_component_flows(t, connected_node, tank_node, component)
                 # print(f"Component '{component.name}' upstream to tank '{tank.name}': m_dot={m_dot} kg/s, fluid={fluid}, Upstream Node: '{connected_node.name}' pressure={connected_node.pressure}, Downstream Node: '{tank_node.name}' pressure={tank_node.pressure}")
-                m_dot = float(m_dot)
+                # m_dot = float(m_dot)
                 if isinstance(fluid, Gas):
                     d_gas += m_dot
                 else:
@@ -698,7 +586,7 @@ def dae_system(t, y, total_nodes, tanks):
             else:
                 m_dot, fluid = get_component_flows(t, tank_node, connected_node, component)
                 # print(f"Component '{component.name}' downstream to tank '{tank.name}': m_dot={m_dot} kg/s, fluid={fluid}, Upstream Node: '{tank_node.name}' pressure={tank_node.pressure}, Downstream Node: '{connected_node.name}' pressure={connected_node.pressure}")
-                m_dot = float(m_dot)
+                # m_dot = float(m_dot)
                 if isinstance(fluid, Gas):
                     d_gas -= m_dot
                 else:
@@ -870,7 +758,7 @@ def plot_pressure_network(nodes: list[FluidNode]):
             mid_y = (start_y + end_y) / 2
             
             # Offset text slightly to avoid overlapping the line
-            ax.text(mid_x, mid_y, f"{velocity:.1f} m/s\n({component.name})", 
+            ax.text(mid_x, mid_y, f"P={node.pressure/1e5:.2f} bar\n{velocity:.1f} m/s, {mdot*1000:.1f} g/s\n({component.name})", 
                     fontsize=8, ha='center', va='bottom', color='darkgreen', rotation=0, 
                     bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.7, ec="none"))
 
@@ -894,3 +782,23 @@ def plot_pressure_network(nodes: list[FluidNode]):
     # make plot 5 tall 5 wide
     # plt.gcf().set_size_inches(25, 25)
     plt.show()
+
+def create_series_nodes(upstream_node: FluidNode, components: list[FlowComponent], downstream_node: FluidNode):
+    """
+    Creates intermediate nodes between components in series.
+    [Comp1, Comp2, Comp3] -> Upstream --(C1)--> Node1 --(C2)--> Node2 --(C3)--> Downstream
+    """
+    intermediate_nodes = []
+    current_node = upstream_node
+
+    for i, component in enumerate(components):
+        if i == len(components) - 1:
+            target_node = downstream_node
+        else:
+            target_node = FluidNode(name=f"Node_{i}_{component.name}")
+            intermediate_nodes.append(target_node)
+        current_node.connect_nodes([(target_node, component, False)])
+        target_node.connect_nodes([(current_node, component, True)])
+        current_node = target_node
+
+    return intermediate_nodes
