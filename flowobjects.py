@@ -382,29 +382,81 @@ def tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra):
 
         if Re < 1e-3: Re = 1e-3
 
-        if Re < 2000:
-            f = 64.0 / Re
-        else:
-            f = 0.25/ (math.log10((roughness/(3.7*D)) + (5.74/(Re**0.9))))**2
+        f_lam = 64.0 / Re
+        f_turb = 0.25 / (math.log10((roughness/(3.7*D)) + (5.74/(Re**0.9))))**2
+
+        if Re < 2000: f = f_lam
+        elif Re > 4000: f = f_turb
+        else: f = f_lam + (f_turb - f_lam) * ((Re - 2000) / 2000)
+
 
         K_total= K_minor + f * (L / D)
 
         v_new = math.sqrt(2 * abs(dp) / (rho * K_total))
         rel_diff = abs(v_new - v) / v
+
+        # print(f"tube_kv iteration {iterations}: P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re:.2e}, v={v:.4f} m/s, f={f:.4e}, K_total={K_total:.4f}")
+        
         v = v_new
+        # v = 0.5 * v + 0.5 * v_new
         
         if iterations > 100:
-            print(f"Warning: tube_kv did not converge after 100 iterations. Returning last Kv value. Final Re={Re}, v={v}, f={f}, K_minor={K_minor}, K_total={K_total}")
+            print(f"Warning: tube_kv did not converge after 100 iterations. Returning last Kv value. P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re}, v={v}, f={f}, K_total={K_total}")
             break
 
         # Damping to ensure convergence
-        # v = 0.5 * v + 0.5 * v_new
         iterations += 1
+
+    # print(iterations)
     Q_m3h = v * A * 3600.0
     dp_bar = abs(dp) / 1e5
     sg = rho / 1000.0
     kv = Q_m3h * math.sqrt(sg / dp_bar)
     return kv
+
+# def tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra): 
+#     dp = P_up - P_down
+#     if abs(dp) < 1e-4: return 1e-6
+    
+#     # Constants
+#     g = 9.81
+#     nu = mu / rho
+#     A = math.pi * (D/2)**2
+    
+#     # 1. Calculate Head Loss (h_f)
+#     # We must account for minor losses (K_minor) which makes it tricky.
+#     # Standard Swamee-Jain assumes ONLY pipe friction.
+#     # If K_minor is large, this approximation fails. 
+#     # If K_minor is small, we can just add an equivalent length: L_eq = L + (K_minor * D / 0.02)
+    
+#     K_minor = (bend_ang / 90.0) * 0.35 + K_extra
+#     L_equiv = L + (K_minor * D / 0.02) # approx friction factor 0.02 for converting K to L
+    
+#     h_f = abs(dp) / (rho * g)
+    
+#     # 2. Check Laminar Regime Limit (Re ~ 2000)
+#     # Laminar flow: Q = (pi * D^4 * dp) / (128 * mu * L)
+#     # v_lam = Q / A
+#     v_lam = (abs(dp) * D**2) / (32 * mu * L_equiv)
+    
+#     # 3. Turbulent Explicit Calculation (Swamee-Jain inversed)
+#     term1 = roughness / (3.7 * D)
+#     term2 = (2.51 * nu * L_equiv**0.5) / ((2 * g * D**3 * h_f)**0.5)
+    
+#     v_turb = -2 * math.sqrt(2 * g * D * h_f / L_equiv) * math.log10(term1 + term2)
+    
+#     # 4. Blend (Simple Min/Max logic usually works for speed)
+#     # If laminar velocity is lower than turbulent prediction, we are likely laminar.
+#     v = (v_lam**-2 + v_turb**-2)**(-0.5) # Harmonic mean to blend velocities
+
+#     # 5. Convert to Kv
+#     Q_m3h = v * A * 3600.0
+#     dp_bar = abs(dp) / 1e5
+#     sg = rho / 1000.0
+    
+#     if dp_bar <= 0 or sg <= 0: return 1e-6
+    
+#     return Q_m3h * math.sqrt(sg / dp_bar)
 
 @dataclass
 class FluidNode:
