@@ -1,10 +1,13 @@
 from platform import node
+from unicodedata import name
+from narwhals import Unknown
 import numpy as np
 from dataclasses import dataclass
 import math
 
 @dataclass
 class Gas:
+    name: str
     R: float # J/(kg·K)
     gamma: float 
     viscosity: float 
@@ -12,6 +15,7 @@ class Gas:
     
 @dataclass
 class Liquid:
+    name: str
     density: float # kg/m^3
     viscosity: float  # Pa·s
     
@@ -252,6 +256,15 @@ class FlowComponent:
             # Numpy broadcasting handles it automatically.
             return self.kv
         
+class TubeComponent(FlowComponent):
+    def __init__(self, name: str, D: float, L: float, roughness: float, bend_ang: float, K_extra: float): 
+        super().__init__(name, kv=lambda t, P_up, P_down, rho, mu: tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra))
+        self.D = D
+        self.L= L
+        self.roughness = roughness
+        self.bend_ang = bend_ang
+        self.K_extra = K_extra
+    
 
 def timed_valve_kv(t, maxKv, t_open, t_close, t_ramp, leak_kv=1e-6):
     """
@@ -365,8 +378,8 @@ def regulator_kv(P_up, P_down, set_pressure, reg_constant=300, leak_kv=1e-6):
     return reg_kv
 
 def tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra):
-    dp = P_up - P_down
-    if abs(dp) < 1e-4:
+    dp = abs(P_up - P_down)
+    if dp < 1e-4:
         return 1e-6 # Return a tiny leak if no pressure drop to avoid singularity
 
     A = math.pi * (D/2)**2
@@ -458,7 +471,7 @@ def tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra):
     
 #     return Q_m3h * math.sqrt(sg / dp_bar)
 
-@dataclass
+@dataclass(eq=False)
 class FluidNode:
     name: str
     pressure: float | None = None
@@ -616,11 +629,8 @@ def get_component_flows(t, node_up: FluidNode, node_down: FluidNode, component: 
     return m_dot, fluid_higherpressure
         
 
-iterated = 0
 
-def dae_system(t, y):
-    global iterated
-    iterated += 1
+def dae_system(t, y, total_nodes, tanks):
     # print(f"--- Iteration {iterated}, Time {t:.2f}s ---")
     masses = y
 
@@ -701,8 +711,30 @@ def dae_system(t, y):
     # print(dydt)
     return dydt
 
+def initialize_tanks(tanks: List[Tank]):
+    initial_masses = np.array([])
+    initial_temperatures = np.array([])
+    for tank in tanks:
+        initial_masses = np.append(initial_masses, tank.mass_gas)
+        if tank.gas_temp is not None:
+            initial_temperatures = np.append(initial_temperatures, tank.gas_temp)
+        else:
+            initial_temperatures = np.append(initial_temperatures, np.nan)
 
-def plot_pressure_ladder(nodes: List[FluidNode]):
+        if tank.liquid is not None:
+            initial_masses = np.append(initial_masses, tank.mass_liquid)
+
+            if tank.liquid_temp is not None:
+                initial_temperatures = np.append(initial_temperatures, tank.liquid_temp)
+            else:
+                raise ValueError("Liquid temperature must be provided if liquid is specified.")
+        else:
+            initial_masses = np.append(initial_masses, 0.0)
+        initial_temperatures = np.append(initial_temperatures, np.nan)
+
+    return initial_masses, initial_temperatures
+
+def print_pressure_ladder(nodes: List[FluidNode]):
     # import matplotlib.pyplot as plt
 
     sorted_nodes = sorted(nodes, key=lambda n: n.pressure if n.pressure is not None else -np.inf, reverse=True)
@@ -712,3 +744,153 @@ def plot_pressure_ladder(nodes: List[FluidNode]):
             print(f"Node '{node.name}': Pressure={node.pressure/1e5:.2f} bar, Fluid={'Gas' if isinstance(node.fluid, Gas) else 'Liquid' if isinstance(node.fluid, Liquid) else 'None'}")
         else:
             print(f"Node '{node.name}': Pressure=Undefined, Fluid={'Gas' if isinstance(node.fluid, Gas) else 'Liquid' if isinstance(node.fluid, Liquid) else 'None'}")
+
+        if node.nodeComponentTuples is not None:
+            for connected_node, component, component_is_upstream in node.nodeComponentTuples:
+                if not component_is_upstream:
+                    break
+
+                if isinstance(component, TubeComponent):
+                    mdot, fluid_higherpressure = get_component_flows(0, connected_node, node, component) # This will print the flow and component details due to the print statements in get_component_flows
+                    if isinstance(fluid_higherpressure, Gas):
+                        if node.pressure is None or node.temperature is None: 
+                            print(f"Cannot calculate density for node '{node.name}' due to undefined pressure or temperature.")
+                        else:
+                            density = node.temperature* fluid_higherpressure.R / node.pressure
+                            v = mdot / (density * math.pi * (component.D/2)**2)
+                            print(f"-> Tube '{component.name} from '{connected_node.name}' is carrying {fluid_higherpressure.name} at velocity {v:.2f} m/s")
+
+                    elif isinstance(fluid_higherpressure, Liquid):
+                        if node.pressure is None: 
+                            print(f"Cannot calculate density for node '{node.name}' due to undefined pressure.")
+                        else:
+                            density = fluid_higherpressure.density
+                            v = mdot / (density * math.pi * (component.D/2)**2)
+                            print(f"-> Tube '{component.name} from '{connected_node.name}' is carrying {fluid_higherpressure.name} at velocity {v:.2f} m/s")
+
+
+
+
+# Ensure you have your classes imported: FluidNode, Gas, Liquid, TubeComponent, etc.
+
+def plot_pressure_network(nodes: list[FluidNode]):
+    """
+    Visualizes the pressure network as a Hydraulic Grade Line plot.
+    Nodes are sorted by pressure to create a "Ladder" effect.
+    Connecting tubes are drawn as arrows with velocity annotations.
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import math
+    
+    # 1. Sort nodes by pressure (High -> Low) to define the X-axis order
+    #    Filter out undefined pressures
+    valid_nodes = [n for n in nodes if n.pressure is not None]
+    sorted_nodes = sorted(valid_nodes, key=lambda n: n.pressure, reverse=True)
+    
+    # Create a mapping of Node Object -> X-axis Index
+    node_x_map = {node: i for i, node in enumerate(sorted_nodes)}
+    node_names = [n.name for n in sorted_nodes]
+    pressures_bar = [n.pressure / 1e5 for n in sorted_nodes]
+
+    # --- PLOTTING SETUP ---
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    # 2. Plot the Nodes (Scatter points)
+    #    Color code: Red for Gas, Blue for Liquid
+    colors = []
+    for n in sorted_nodes:
+        if n.fluid and isinstance(n.fluid, Gas):
+            colors.append('#d62728') # Tab:Red
+        elif n.fluid and isinstance(n.fluid, Liquid):
+            colors.append('#1f77b4') # Tab:Blue
+        else:
+            colors.append('gray')
+
+    ax.scatter(range(len(sorted_nodes)), pressures_bar, color=colors, s=100, zorder=5)
+
+    # 3. Draw Connections (Arrows)
+    #    We iterate through every node and look for its DOWNSTREAM connections
+    for node in valid_nodes:
+        if not node.nodeComponentTuples:
+            continue
+            
+        for neighbor, component, component_is_upstream_of_me in node.nodeComponentTuples:
+            
+            # We only draw lines for flow leaving "node" and going to "neighbor"
+            # If component is upstream of ME, flow is coming IN. Skip it.
+            if component_is_upstream_of_me:
+                continue
+
+            # Skip if neighbor has no pressure (can't plot)
+            if neighbor not in node_x_map:
+                continue
+
+            # --- CALCULATE VELOCITY (Your Logic) ---
+            velocity = 0.0
+            
+            # Get mass flow (assuming get_component_flows handles the physics)
+            try:
+                # Note: get_component_flows returns (mdot, fluid_object)
+                # Since we are node -> neighbor, node is UP
+                mdot, fluid_obj = get_component_flows(0, node, neighbor, component)
+                
+                # Check for Tube to calculate velocity
+                # (Assuming 'D' is an attribute of the component, like in TubeComponent)
+                if hasattr(component, 'D') and component.D > 0:
+                    rho = 0.0
+                    if isinstance(fluid_obj, Gas):
+                        if node.pressure and node.temperature:
+                            rho = node.pressure / (fluid_obj.R * node.temperature)
+                    elif isinstance(fluid_obj, Liquid):
+                        rho = fluid_obj.density
+                    
+                    if rho > 0:
+                        area = math.pi * (component.D / 2)**2
+                        velocity = mdot / (rho * area)
+
+            except Exception as e:
+                print(f"Viz Warning: Could not calc flow for {component.name}: {e}")
+                velocity = 0.0
+
+            # --- DRAW ARROW ---
+            start_x = node_x_map[node]
+            end_x = node_x_map[neighbor]
+            start_y = node.pressure / 1e5
+            end_y = neighbor.pressure / 1e5
+            
+            # Draw line
+            ax.annotate("", 
+                        xy=(end_x, end_y), 
+                        xytext=(start_x, start_y), 
+                        arrowprops=dict(arrowstyle="->", color="black", lw=1.5, shrinkA=10, shrinkB=10))
+
+            # Add Velocity Label (Midpoint)
+            mid_x = (start_x + end_x) / 2
+            mid_y = (start_y + end_y) / 2
+            
+            # Offset text slightly to avoid overlapping the line
+            ax.text(mid_x, mid_y, f"{velocity:.1f} m/s\n({component.name})", 
+                    fontsize=8, ha='center', va='bottom', color='darkgreen', rotation=0, 
+                    bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.7, ec="none"))
+
+    # 4. Formatting
+    ax.set_xticks(range(len(sorted_nodes)))
+    ax.set_xticklabels(node_names, rotation=45, ha='right')
+    ax.set_ylabel("Pressure (Bar)")
+    ax.set_title("System Pressure Gradient & Flow Velocities")
+    ax.grid(True, which='both', linestyle='--', alpha=0.5)
+    
+    # Legend manually
+    from matplotlib.lines import Line2D
+    legend_elements = [
+        Line2D([0], [0], marker='o', color='w', markerfacecolor='#d62728', label='Gas Node', markersize=10),
+        Line2D([0], [0], marker='o', color='w', markerfacecolor='#1f77b4', label='Liquid Node', markersize=10),
+        Line2D([0], [0], color='black', lw=1.5, label='Flow Path')
+    ]
+    ax.legend(handles=legend_elements)
+
+    plt.tight_layout()
+    # make plot 5 tall 5 wide
+    # plt.gcf().set_size_inches(25, 25)
+    plt.show()
