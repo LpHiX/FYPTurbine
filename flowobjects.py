@@ -194,43 +194,20 @@ def timed_valve_kv(args, maxKv, t_open, t_close, t_ramp, leak_kv=1e-6):
     Kv = maxKv * sig_open * sig_close
     return max(Kv, leak_kv)
 
-def regulator_kv(args, set_pressure, reg_constant=300, leak_kv=1e-6):
-    """Calculates the Kv of a pressure regulator based on upstream and downstream pressures.
-
-    Parameters:
-        P_up        : Upstream pressure
-        P_down      : Downstream pressure
-        set_pressure: Set pressure of the regulator
-        reg_constant: Regulator constant (default: 300)
-        leak_kv     : Minimum Kv value to prevent singularities (default: 1e-8)
-
-    Huge assumptions are made:
-        - Regulator only allows flow from high to low pressure
-        - Linear relationship between pressure drop and Kv above set pressure
-        - Below set pressure, only leak flow is allowed
-        - No dynamic behavior (instantaneous response)
-    Returns:
-        reg_kv      : Calculated Kv value of the regulator
-    """
+def check_valve_kv(args, max_kv, p_band=1e3, leak_kv=1e-6):
     P_up, P_down = args[1], args[2]
-    # P_up = float(P_up)
-    # P_down = float(P_down)
-    
-    reg_dp = set_pressure - P_down
-    # if reg_dp > 0 and P_up > set_pressure:
-    if reg_dp > 0 and P_up > P_down:
-        reg_kv = reg_dp / reg_constant / 1e5
-    else:
-        reg_kv = leak_kv
-        
-    return max(reg_kv, leak_kv)
-
-
-def reg_kv_simple(args, set_pressure, max_kv, p_band, leak_kv=1e-6):
-    P_up, P_down = args[1], args[2]
-    
-    if P_up <= P_down:
+    k = 4.0 / p_band
+    dp = P_up - P_down
+    if dp * k > 50:
+        return max_kv
+    elif dp * k < -50:
         return leak_kv
+    else:
+        return leak_kv + (max_kv - leak_kv) / (1.0 + math.exp(-k * dp))
+
+
+def reg_kv(args, set_pressure, max_kv, p_band, leak_kv=1e-6):
+    P_up, P_down = args[1], args[2]
 
     error = set_pressure - P_down
 
@@ -441,7 +418,7 @@ def solve_network_pressures(all_nodes: list[FluidNode], t: float):
     
     # sol = root(residuals, x0, method='hybr', tol=1e-8)
     bounds_limits = (np.full_like(x0, 1e3), np.full_like(x0, 1e8))  # Example bounds: 1 kPa to 100 MPa
-    sol = least_squares(residuals, x0, bounds=bounds_limits, ftol=1e-8, xtol=1e-8, method='trf', max_nfev=100000)
+    sol = least_squares(residuals, x0, bounds=bounds_limits)
     if not sol.success:
         print(f"Warning: Pressure solver did not converge at time {t}s. Message: {sol.message}")
 
@@ -793,12 +770,17 @@ def plot_transient(solution, nodes, tanks):
                     node.fluid = node.tank.liquid
                 else:
                     node.fluid = node.tank.gas
+        for node in nodes:
+            if node.tank is None and not node.constant_pressure:
+                node.pressure = None
+                node.temperature = None
+                node.fluid = None
 
         # 3. Solve for intermediate pressures (e.g. between valves and regulator)
         solve_network_pressures(nodes, t_step)
 
         pressures[:, i] = [node.pressure for node in nodes]
-    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+    fig, ax = plt.subplots(1, 3, figsize=(12, 6))
     for j, node in enumerate(nodes):
         ax[0].plot(t, pressures[j, :] / 1e5, label=node.name)
     ax[0].set_xlabel('Time (s)')
@@ -809,12 +791,18 @@ def plot_transient(solution, nodes, tanks):
 
     for i, tank in enumerate(tanks):
         ax[1].plot(t, mass_results[2*i, :], label=f'{tank.name} Gas')
-        if tank.liquid is not None:
-            ax[1].plot(t, mass_results[2*i + 1, :], label=f'{tank.name} Liquid')
     ax[1].set_xlabel('Time (s)')
     ax[1].set_ylabel('Mass (kg)')
-    ax[1].set_title('Tank Masses Over Time')
+    ax[1].set_title('Tank Gas Masses Over Time')
     ax[1].legend()
     ax[1].grid(True)
+
+    for i, tank in enumerate(tanks):
+        ax[2].plot(t, mass_results[2*i + 1, :], label=f'{tank.name} Liquid')
+    ax[2].set_xlabel('Time (s)')
+    ax[2].set_ylabel('Mass (kg)')
+    ax[2].set_title('Tank Liquid Masses Over Time')
+    ax[2].legend()
+    ax[2].grid(True)
     plt.show()
 
