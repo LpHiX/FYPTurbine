@@ -1,6 +1,4 @@
-from platform import node
-from unicodedata import name
-from narwhals import Unknown
+from numba import njit
 import numpy as np
 from dataclasses import dataclass
 import math
@@ -22,20 +20,59 @@ class Liquid:
 
 import numpy as np
 
+P_N_Pa = 101325.0       # Pa
+T_N_K  = 273.15         # K
+
+# Constants pre-calculated for speed
+CONST_LIQ = 1.0 / 36000.0
+RHO_N_CONST = 101325.0 / 273.15  # ~370.95
+
+@njit(cache=True)
+def fast_gas_flow(Kv, P_up, P_down, T_up, gas_R):
+    # 1. Flow Direction
+    if P_up > P_down:
+        pu, pd = P_up, P_down
+        sign = 1.0
+    else:
+        pu, pd = P_down, P_up
+        sign = -1.0
+
+    # 2. Constants
+    rho_n = RHO_N_CONST / gas_R 
+    pu_bar = pu * 1e-5
+    pd_bar = pd * 1e-5
+
+    # 3. Choking (Simplified)
+    if pd < (pu * 0.5):
+        # Choked
+        q_n = 257.0 * Kv * pu_bar * math.sqrt(1.0 / (rho_n * T_up))
+    else:
+        # Subsonic
+        dp_sub = pu_bar - pd_bar
+        term = dp_sub * pd_bar
+        if term < 0: term = 0.0
+        q_n = 514.0 * Kv * math.sqrt(term / (rho_n * T_up))
+
+    # 4. Mass Flow (kg/s) -> q_n [Nm3/h] * rho_n [kg/Nm3] / 3600
+    return (q_n * rho_n / 3600.0) * sign
+
+@njit(cache=True)
+def fast_liquid_flow(Kv, P_up, P_down, liquid_rho):
+    dp = P_up - P_down
+    if dp >= 0:
+        return CONST_LIQ * Kv * math.sqrt(dp * liquid_rho)
+    else:
+        return -CONST_LIQ * Kv * math.sqrt(-dp * liquid_rho)
+
+@njit(cache=True)
 def gasFlowrate(Kv, P_1, P_2, T_1, gas, assumeChoked=False):
     """
     Calculates gas mass flow rate using the Simplified Kv Model (Tameson).
     Includes broadcasting to handle mix of scalar and array inputs.
     """
     
-    # P_1 = float(P_1)
-    # P_2 = float(P_2)
-    # Kv = float(Kv)
-    # T_1 = float(T_1)
-    
     # Constants for Standard Conditions (NTP: 0°C, 1 atm)
-    P_N_Pa = 101325.0       # Pa
-    T_N_K  = 273.15         # K
+
     rho_n  = P_N_Pa / (gas.R * T_N_K) # Normal Density (kg/m^3)
 
     # Convert Pressures to BAR for the Kv formula
@@ -71,6 +108,9 @@ def gasFlowrate(Kv, P_1, P_2, T_1, gas, assumeChoked=False):
 
 import numpy as np
 
+CONST_LIQUID = 1.0 / 36000.0
+
+@njit(cache=True)
 def liquidFlowrate(Kv, P_1, P_2, liquid):
     """
     Calculates liquid mass flow rate (kg/s) using Kv.
@@ -84,16 +124,8 @@ def liquidFlowrate(Kv, P_1, P_2, liquid):
     Returns:
         m_dot : Mass flow rate (kg/s). Negative value indicates reverse flow.
     """
-    # --- 1. Broadcast Inputs ---
-    # Ensure inputs match shapes (handles scalar Kv with array Pressure)
-
-        # --- OPTIMIZATION: Scalar Fast Path ---
-    # P_1 = float(P_1)
-    # P_2 = float(P_2)
-    # Kv = float(Kv)
     
     dp = P_1 - P_2
-    CONST_LIQUID = 1.0 / 36000.0
     
     if dp >= 0:
         return CONST_LIQUID * Kv * math.sqrt(dp * liquid.density)
@@ -250,56 +282,34 @@ def reg_kv_simple(args, set_pressure, max_kv, p_band, leak_kv=1e-6):
     kv = opening_pct * max_kv
     return max(kv, leak_kv)
 
-# def tube_kv(args, D, L, roughness, bend_ang, K_extra):
-#     P_up, P_down, rho, mu = args[1], args[2], args[3], args[4]
-#     dp = abs(P_up - P_down)
-#     if dp < 1e-4:
-#         return 1e-6 # Return a tiny leak if no pressure drop to avoid singularity
+@njit(cache=True)
+def fast_tube_kv(P_up, P_down, rho, mu, D, L, roughness, bend_ang, K_extra):
+    # Explicit Swamee-Jain (Turbulent)
+    dp = abs(P_up - P_down)
+    if dp < 1e-5: return 1e-6
+    
+    g = 9.81
+    A = math.pi * (D/2)**2
+    
+    # K to Length conversion (assuming f=0.025)
+    K_minor = (bend_ang / 90.0) * 0.35 + K_extra
+    L_eff = L + (K_minor * D / 0.025)
 
-#     A = math.pi * (D/2)**2
-#     K_minor = (bend_ang / 90.0) * 0.35 + K_extra # 0.35 is a typical K for a 90 degree bend, scaled by angle, should be from Crane TN410, but need to check
+    h_f = dp / (rho * g)
+    
+    term1 = roughness / (3.7 * D)
+    # 2.51 * nu / (D * sqrt(2gD * hf/L))
+    # nu = mu/rho
+    term2 = (2.51 * (mu/rho) * math.sqrt(L_eff)) / (math.sqrt(2 * g * D**3 * h_f) + 1e-9)
 
-#     v = 5.0
-#     rel_diff = 1
-#     iterations = 0
-
-#     while rel_diff > 1e-4:
-
-#         Re = rho * v * D / mu
-
-#         if Re < 1e-3: Re = 1e-3
-
-#         f_lam = 64.0 / Re
-#         f_turb = 0.25 / (math.log10((roughness/(3.7*D)) + (5.74/(Re**0.9))))**2
-
-#         if Re < 2000: f = f_lam
-#         elif Re > 4000: f = f_turb
-#         else: f = f_lam + (f_turb - f_lam) * ((Re - 2000) / 2000)
-
-
-#         K_total= K_minor + f * (L / D)
-
-#         v_new = math.sqrt(2 * abs(dp) / (rho * K_total))
-#         rel_diff = abs(v_new - v) / v
-
-#         # print(f"tube_kv iteration {iterations}: P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re:.2e}, v={v:.4f} m/s, f={f:.4e}, K_total={K_total:.4f}")
-        
-#         v = v_new
-#         # v = 0.5 * v + 0.5 * v_new
-        
-#         if iterations > 100:
-#             print(f"Warning: tube_kv did not converge after 100 iterations. Returning last Kv value. P_up={P_up}, P_down={P_down}, rho={rho}, mu={mu}, D={D}, L={L}, roughness={roughness}, bend_ang={bend_ang}, K_extra={K_extra}, Re={Re}, v={v}, f={f}, K_total={K_total}")
-#             break
-
-#         # Damping to ensure convergence
-#         iterations += 1
-
-#     # print(iterations)
-#     Q_m3h = v * A * 3600.0
-#     dp_bar = abs(dp) / 1e5
-#     sg = rho / 1000.0
-#     kv = Q_m3h * math.sqrt(sg / dp_bar)
-#     return kv
+    v = -2.0 * math.sqrt(2 * g * D * h_f / L_eff) * math.log10(term1 + term2)
+    
+    # v to Kv
+    Q_m3h = v * A * 3600.0
+    dp_bar = dp * 1e-5
+    sg = rho * 0.001
+    
+    return Q_m3h * math.sqrt(sg / dp_bar)
 
 def tube_kv(args, D, L, roughness, bend_ang, K_extra):
     """
@@ -361,17 +371,53 @@ def nozzle_kv(area, discharge_coeff=0.98):
 @dataclass(eq=False)
 class FluidNode:
     name: str
+    volume: float = 1e-6
     pressure: float | None = None
-    temperature: float| None = None
+    temperature: float| None = 300.0
     fluid: Gas | Liquid | None = None
     tank: Tank | None = None
     constant_pressure: bool = False
     nodeComponentTuples: list[tuple["FluidNode", FlowComponent, bool]] | None = None # (Connected Node, Component, component_is_upstream)
 
+    mass: float = field(init=False)
+
     def connect_nodes(self, nodeComponentTuples: list[tuple["FluidNode", FlowComponent, bool]]):
         if self.nodeComponentTuples is None:
             self.nodeComponentTuples = []
         self.nodeComponentTuples.extend(nodeComponentTuples)
+
+    def initialize_state(self):
+            if self.tank: # If attached to a tank, take tank properties
+                self.pressure = self.tank.pressure
+                self.mass = self.tank.mass_gas
+                self.volume = self.tank.volume
+            else:
+                # P * V = m * R * T  =>  m = P*V / R*T
+                self.mass = (self.pressure * self.volume) / (self.fluid.R * self.temperature)
+
+def assign_tube_volumes(nodes):
+    """
+    Estimates volume for intermediate nodes based on connected components.
+    Approximation: Each node gets half the volume of the tubes connected to it.
+    """
+    for node in nodes:
+        # If user manually set a large volume (Tank), skip
+        if node.volume > 1e-4: continue
+        node.volume = 5.0e-4
+        
+        # vol = 0.0
+        # count = 0
+        # for _, comp, _ in node.nodeComponentTuples:
+        #     if isinstance(comp, TubeComponent):
+        #         # V = Area * Length
+        #         r = comp.D / 2.0
+        #         v_tube = math.pi * (r**2) * comp.L
+        #         vol += v_tube * 0.5 # Assign half to this node, half to neighbor
+        #         count += 1
+        
+        # # If no volume found (e.g. just a valve), keep default tiny volume
+        # if vol > 1e-9:
+        #     node.volume = vol
 
 from scipy.optimize import least_squares    
 
@@ -470,52 +516,171 @@ def solve_network_pressures(all_nodes: list[FluidNode], t: float):
 
     
 
-def get_component_flows(t, node_up: FluidNode, node_down: FluidNode, component: FlowComponent):
+# def get_component_flows(t, node_up: FluidNode, node_down: FluidNode, component: FlowComponent):
 
+#     P_up = node_up.pressure
+#     P_down = node_down.pressure
+
+#     if P_up is None or P_down is None:
+#         raise ValueError("Both upstream and downstream pressures must be defined.")
+
+#     fluid_higherpressure = node_up.fluid if P_up >= P_down else node_down.fluid
+#     temp_higherpressure = node_up.temperature if P_up >= P_down else node_down.temperature
+#     if isinstance(fluid_higherpressure, Gas):
+#         if node_up.temperature is None or fluid_higherpressure is None:
+#             kv = component.get_kv(t, P_up, P_down, None, None, None, None)
+#         else:
+#             if node_up.pressure is None: raise ValueError(f"Upstream pressure is None for node '{node_up.name}' when calculating gas flow.")
+#             rho = node_up.pressure / (fluid_higherpressure.R * node_up.temperature)
+#             kv = component.get_kv(t, P_up, P_down, rho, fluid_higherpressure.viscosity, node_up.temperature, fluid_higherpressure)
+#     else:
+#         if temp_higherpressure is None or fluid_higherpressure is None:
+#             kv = component.get_kv(t, P_up, P_down, None, None, None, None)
+#         else:
+#             kv = component.get_kv(t, P_up, P_down, fluid_higherpressure.density, fluid_higherpressure.viscosity, temp_higherpressure, fluid_higherpressure)
+
+
+#     # print(f"Node_up fluid: {node_up.fluid}, Node_down fluid: {node_down.fluid}, Fluid higher pressure: {fluid_higherpressure}")
+#     # print(f"Component '{component.name}': P_up={P_up}, P_down={P_down}, kv={kv}, fluid={fluid_higherpressure}")
+
+#     # NOTE This check fails the solver
+#     # if P_up < 0 or P_down < 0:
+#     #     raise ValueError(f"Negative pressure encountered: P_up={P_up}, P_down={P_down} on component '{component.name}'")
+
+#     try:
+#         if isinstance(fluid_higherpressure, Gas):
+#             T_higherpressure = node_up.temperature if P_up >= P_down else node_down.temperature
+#             m_dot = gasFlowrate(kv, P_up, P_down, T_higherpressure, fluid_higherpressure)
+#             if np.isnan(m_dot):
+#                 raise ValueError(f"Calculated NaN mass flow rate for component '{component.name}' with P_up={P_up}, P_down={P_down}, T_higherpressure={T_higherpressure}, kv={kv}, fluid={fluid_higherpressure}")
+#         else:
+#             m_dot = liquidFlowrate(kv, P_up, P_down, fluid_higherpressure)
+#     except AttributeError as e:
+#         raise ValueError \
+#             (f"No fluid properties defined for component '{component.name}': {e}. Node up name: {node_up.name}, Node down name: {node_down.name}. Node_up fluid: {node_up.fluid}, Node_down fluid: {node_down.fluid} with pressures P_up={P_up}, P_down={P_down}")
+
+#     return m_dot, fluid_higherpressure
+
+def get_component_flows(t, node_up, node_down, component):
     P_up = node_up.pressure
     P_down = node_down.pressure
 
-    if P_up is None or P_down is None:
-        raise ValueError("Both upstream and downstream pressures must be defined.")
-
-    fluid_higherpressure = node_up.fluid if P_up >= P_down else node_down.fluid
-    temp_higherpressure = node_up.temperature if P_up >= P_down else node_down.temperature
-    if isinstance(fluid_higherpressure, Gas):
-        if node_up.temperature is None or fluid_higherpressure is None:
-            kv = component.get_kv(t, P_up, P_down, None, None, None, None)
-        else:
-            if node_up.pressure is None: raise ValueError(f"Upstream pressure is None for node '{node_up.name}' when calculating gas flow.")
-            rho = node_up.pressure / (fluid_higherpressure.R * node_up.temperature)
-            kv = component.get_kv(t, P_up, P_down, rho, fluid_higherpressure.viscosity, node_up.temperature, fluid_higherpressure)
+    # Optimize attribute access
+    if P_up >= P_down:
+        fluid = node_up.fluid
+        T = node_up.temperature
     else:
-        if temp_higherpressure is None or fluid_higherpressure is None:
-            kv = component.get_kv(t, P_up, P_down, None, None, None, None)
-        else:
-            kv = component.get_kv(t, P_up, P_down, fluid_higherpressure.density, fluid_higherpressure.viscosity, temp_higherpressure, fluid_higherpressure)
+        fluid = node_down.fluid
+        T = node_down.temperature
 
-
-    # print(f"Node_up fluid: {node_up.fluid}, Node_down fluid: {node_down.fluid}, Fluid higher pressure: {fluid_higherpressure}")
-    # print(f"Component '{component.name}': P_up={P_up}, P_down={P_down}, kv={kv}, fluid={fluid_higherpressure}")
-
-    # NOTE This check fails the solver
-    # if P_up < 0 or P_down < 0:
-    #     raise ValueError(f"Negative pressure encountered: P_up={P_up}, P_down={P_down} on component '{component.name}'")
-
-    try:
-        if isinstance(fluid_higherpressure, Gas):
-            T_higherpressure = node_up.temperature if P_up >= P_down else node_down.temperature
-            m_dot = gasFlowrate(kv, P_up, P_down, T_higherpressure, fluid_higherpressure)
-            if np.isnan(m_dot):
-                raise ValueError(f"Calculated NaN mass flow rate for component '{component.name}' with P_up={P_up}, P_down={P_down}, T_higherpressure={T_higherpressure}, kv={kv}, fluid={fluid_higherpressure}")
-        else:
-            m_dot = liquidFlowrate(kv, P_up, P_down, fluid_higherpressure)
-    except AttributeError as e:
-        raise ValueError \
-            (f"No fluid properties defined for component '{component.name}': {e}. Node up name: {node_up.name}, Node down name: {node_down.name}. Node_up fluid: {node_up.fluid}, Node_down fluid: {node_down.fluid} with pressures P_up={P_up}, P_down={P_down}")
-
-    return m_dot, fluid_higherpressure
+    # --- FAST PATH ---
+    # Check "R" attribute to distinguish Gas vs Liquid without slow isinstance
+    if hasattr(fluid, 'R'): 
+        # GAS LOGIC
+        rho = P_up / (fluid.R * T) if P_up >= P_down else P_down / (fluid.R * T)
         
+        # Check if it's a Tube (has 'D' attribute) to run the expensive calculation
+        # Otherwise it's a constant/simple Kv component
+        if hasattr(component, 'D'):
+            kv = fast_tube_kv(P_up, P_down, rho, fluid.viscosity, 
+                              component.D, component.L, component.roughness, 
+                              component.bend_ang, component.K_extra)
+        else:
+            # Valve/Regulator/Nozzle logic (handled by lambda or direct value)
+            # If it's a lambda, we still have Python overhead here unfortunately
+            if callable(component.kv):
+                # Unpack args manually for speed
+                args = (t, P_up, P_down, rho, fluid.viscosity, T, fluid)
+                kv = component.kv(args)
+            else:
+                kv = component.kv
 
+        m_dot = fast_gas_flow(kv, P_up, P_down, T, fluid.R)
+        
+    else:
+        # LIQUID LOGIC
+        if hasattr(component, 'D'):
+            kv = fast_tube_kv(P_up, P_down, fluid.density, fluid.viscosity, 
+                              component.D, component.L, component.roughness, 
+                              component.bend_ang, component.K_extra)
+        else:
+            if callable(component.kv):
+                args = (t, P_up, P_down, fluid.density, fluid.viscosity, T, fluid)
+                kv = component.kv(args)
+            else:
+                kv = component.kv
+                
+        m_dot = fast_liquid_flow(kv, P_up, P_down, fluid.density)
+
+    return m_dot, fluid
+
+def get_flow_rate(t, node_up, node_down, component):
+    P_up = node_up.pressure
+    P_down = node_down.pressure
+    fluid = node_up.fluid # Assume single fluid type for simplicity
+    T = node_up.temperature
+
+    # Density at High Pressure side
+    P_high = P_up if P_up > P_down else P_down
+    rho = P_high / (fluid.R * T)
+
+    # 1. Calculate Kv
+    if isinstance(component, TubeComponent):
+        kv = fast_tube_kv(P_up, P_down, rho, fluid.viscosity, 
+                          component.D, component.L, component.roughness, 
+                          component.bend_ang, component.K_extra)
+    elif callable(component.kv):
+        # Handle Regulator/Valve Lambda
+        # args expected: (t, P_up, P_down)
+        args = (t, P_up, P_down) 
+        kv = component.kv(args)
+    else:
+        kv = component.kv
+
+    # 2. Calculate Mass Flow
+    m_dot = fast_gas_flow(kv, P_up, P_down, T, fluid.R)
+    return m_dot
+
+iterated = 0
+def ode_system(t, y, nodes, node_map):
+    global iterated
+    iterated += 1
+    if iterated % 1000 == 0:
+        print(f"Time: {t:.2f} s", end='\r')
+    dydt = np.zeros(len(nodes))
+    
+    # 1. Update Pressures from Mass (State)
+    for i, node in enumerate(nodes):
+        m = max(y[i], 1e-12) # Clamp to avoid vacuum crash
+        node.mass = m
+        if not node.constant_pressure:
+            # P = mRT / V
+            node.pressure = (m * node.fluid.R * node.temperature) / node.volume
+    
+    # 2. Calculate Flows
+    # We iterate nodes, but we need to avoid double counting. 
+    # Logic: Only calculate if I am the "Upstream" definition of the connection.
+    
+    for i, node in enumerate(nodes):
+        for neighbor, comp, defined_as_upstream in node.nodeComponentTuples:
+            
+            # Only process this link if 'node' is the one defined as upstream in the setup
+            # This ensures we calculate flow for the link A-B exactly once.
+            if defined_as_upstream:
+                # Calculate flow based on current pressures (Auto-handles reverse flow)
+                m_dot = get_flow_rate(t, node, neighbor, comp)
+                
+                neighbor_idx = node_map[neighbor]
+                
+                # Apply Mass Balance
+                # m_dot is positive if flowing Node -> Neighbor
+                if not node.constant_pressure:
+                    dydt[i] -= m_dot
+                
+                if not neighbor.constant_pressure:
+                    dydt[neighbor_idx] += m_dot
+                    
+    return dydt
 
 def dae_system(t, y, total_nodes, tanks):
     masses = y
@@ -524,8 +689,8 @@ def dae_system(t, y, total_nodes, tanks):
 
     # Update tank masses
     for i, tank in enumerate(tanks):
-        mass_gas = masses[2*i]
-        mass_liquid = masses[2*i + 1]
+        mass_gas = max(masses[2*i], 1e-10)
+        mass_liquid = max(masses[2*i + 1], 0.0)
 
         volume_liquid = 0
 
