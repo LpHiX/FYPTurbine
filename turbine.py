@@ -198,16 +198,6 @@ class Turbine:
             rel_diff = abs((self.p3 - self.p_e) / self.p_e)
             self.p01 *= self.p_e / self.p3
 
-            # That was to match exit pressure at full thrust, for this FYP I'm going to set an arbitrary constraint that at 500W, the exit pressure matches p_e.
-
-            # Since M3 is constant for a given geometry and assuming gas properties are the same, power scales with mass flow, which according to chokes flow equations, scales with inlet pressure. So we can just scale inlet pressure to match power.
-
-            # pressure_ratio = 1 / (1 + 0.5 * (self.gam3 - 1) * self.M3**2)**(self.gam3/(self.gam3-1))
-            # power_ratio = 500 / self.P
-            # self.throttled_inlet_pressure = self.p01 * power_ratio
-            # self.throttled_outlet_pressure = self.throttled_inlet_pressure * pressure_ratio
-            # rel_diff = abs(( - self.p_e) / self.p_e)
-            # self.p01 *= self.p_e / self.throttled_outlet_pressure
             iteration += 1
             if iteration > 10:
                 break
@@ -225,9 +215,52 @@ class Turbine:
         
         self.blade_jet_speed_ratio = self.u / np.sqrt(2 * self.deltah_ambis)
     
-    def partload_rpm(self, partload_rpm):
-        # Assuming pump load, so power is proportional to the third power of the speed. Parameter is partload rpm because that is the limiting factor for my testing.
+    def check_supersonic_start(self, M_rel, gamma):
+        """
+        Checks if the rotor passage can swallow the starting shock (Kantrowitz Limit).
 
+        Derivation from First Principles (Metric):
+        1. Assume a normal shock forms at the rotor inlet due to starting transients.
+        2. Across the shock, total temperature T0 remains constant, but total pressure drops (P03 -> P0_shock).
+        3. For the shock to be swallowed, the mass flow captured at the inlet (mdot_in) 
+           must be able to pass through the rotor throat (At_rotor) at choked conditions (Mt=1).
+        4. Mass flow function: f(M) = mdot * sqrt(R*T0) / (A * P0 * sqrt(gamma))
+           f(M) = M * (1 + (gamma-1)/2 * M^2)^(-(gamma+1)/(2*(gamma-1)))
+        5. At the limit (Kantrowitz Limit):
+           A_in * P03 * f(M_rel) = At_rotor * P0_shock * f(1)
+           (At_rotor / A_in)_min = [f(M_rel) / f(1)] * (P03 / P0_shock)
+
+        6. Normal shock total pressure ratio (P0_shock / P03):
+           pr = [((gamma+1)*M^2)/((gamma-1)*M^2 + 2)]^(gamma/(gamma-1)) * [(gamma+1)/(2*gamma*M^2 - (gamma-1))]^(1/(gamma-1))
+
+        7. Actual geometric contraction ratio:
+           For an impulse turbine, we check the limit against a 1:1 ratio (constant area passage).
+           The margin tells us how much blockage (boundary layers, blade thickness) we can afford.
+        """
+        def f_mass(M, g):
+            if M <= 0: return 0
+            term = 1 + (g - 1) / 2 * M**2
+            return M * term**(-(g + 1) / (2 * (g - 1)))
+
+        def p0_ratio(M, g):
+            if M <= 1.0: return 1.0
+            term1 = ((g + 1) * M**2) / ((g - 1) * M**2 + 2)
+            term2 = (g + 1) / (2 * g * M**2 - (g - 1))
+            return (term1**(g / (g - 1))) * (term2**(1 / (g - 1)))
+
+        f_m1 = f_mass(M_rel, gamma)
+        f_1 = f_mass(1.0, gamma)
+        pr = p0_ratio(M_rel, gamma)
+
+        self.req_area_ratio = (f_m1 / f_1) / pr
+        
+        # Start margin against 1.0 (constant area passage)
+        self.start_margin = (1.0 / self.req_area_ratio) - 1
+        self.is_started = self.start_margin > 0
+
+        return self.is_started
+
+    def partload_rpm(self, partload_rpm):
         speed_ratio = partload_rpm / self.RPM
         partload_power = self.P * speed_ratio**3
         
@@ -239,20 +272,35 @@ class Turbine:
             partload_pressure = self.p01_n2 * speed_ratio**3
             partload_exit_pressure = partload_pressure / (1 + 0.5 * (self.gam_n2 - 1) * self.M3_n2**2)**(self.gam_n2/(self.gam_n2-1))
 
-            print(f"  N2 Mass flow: {partload_mdot*1000:.2f} g/s (vs {self.mdot_n2*1000:.2f} g/s)")
-            print(f"  N2 Inlet pressure: {partload_pressure/1e5:.2f} bar (vs {self.p01_n2/1e5:.2f} bar)")
-            print(f"  N2 Exit pressure: {partload_exit_pressure/1e5:.2f} bar (vs {self.p3_n2/1e5:.2f} bar)")
+            # Check starting at partload
+            u_part = partload_rpm * 2 * np.pi / 60 * self.d_mean / 2
+            w3u_part = self.c3u_n2 - u_part # Use n2 velocity
+            w3_part = np.sqrt(w3u_part**2 + self.c3m**2)
+            M_rel_part = w3_part / np.sqrt(self.gam_n2 * self.R_n2 * self.T3_n2)
+            started = self.check_supersonic_start(M_rel_part, self.gam_n2)
+
+            print(f"  N2 Mass flow: {partload_mdot*1000:.2f} g/s")
+            print(f"  N2 Inlet pressure: {partload_pressure/1e5:.2f} bar")
+            print(f"  N2 Exit pressure: {partload_exit_pressure/1e5:.2f} bar")
+            print(f"  Relative Mach Number (Mw3): {M_rel_part:.4f}")
+            print(f"  Supersonic Start Margin: {self.start_margin*100:.2f}% ({'Started' if started else 'BLOCKED'})")
         else:
             partload_mdot = self.mdot * speed_ratio**3
             partload_pressure = self.p01 * speed_ratio**3
             partload_exit_pressure = partload_pressure / (1 + 0.5 * (self.gam3 - 1) * self.M3**2)**(self.gam3/(self.gam3-1))
 
-            print(f"  Mass flow: {partload_mdot*1000:.2f} g/s (vs {self.mdot*1000:.2f} g/s)")
-            print(f"  Inlet pressure: {partload_pressure/1e5:.2f} bar (vs {self.p01/1e5:.2f} bar)")
-            print(f"  Exit pressure: {partload_exit_pressure/1e5:.2f} bar (vs {self.p3/1e5:.2f} bar)")
+            # Check starting at partload
+            u_part = partload_rpm * 2 * np.pi / 60 * self.d_mean / 2
+            w3u_part = self.c3u - u_part
+            w3_part = np.sqrt(w3u_part**2 + self.c3m**2)
+            M_rel_part = w3_part / self.a3
+            started = self.check_supersonic_start(M_rel_part, self.gam3)
 
-        
-
+            print(f"  Mass flow: {partload_mdot*1000:.2f} g/s")
+            print(f"  Inlet pressure: {partload_pressure/1e5:.2f} bar")
+            print(f"  Exit pressure: {partload_exit_pressure/1e5:.2f} bar")
+            print(f"  Relative Mach Number (Mw3): {M_rel_part:.4f}")
+            print(f"  Supersonic Start Margin: {self.start_margin*100:.2f}% ({'Started' if started else 'BLOCKED'})")
 
     def pretty_print(self):
         print(f"Turbine Results:---------------------------")
@@ -266,15 +314,23 @@ class Turbine:
         print(f"Outputs:")
         print(f"  {'GG Temperature (T01)':<30} {self.T01:<10.4g} K")
         print(f"  {'Nozzle Exit Gamma':<30} {self.gam3:<10.4g}")
-        # print(f"  {'Exit Heat Capacity':<30} {self.cp:<10.4g} J/Kg/K")
         print(f"  {'Nozzle Exit Gas Constant':<30} {self.R_3:<10.4g} J/kg/K")
         print(f"  {'GG Chamber Pressure':<30} {self.p01 / 1e5:<10.4g} bar")
-        # print(f"  {'GG Pressure Ratio (p01/p3)':<30} {self.p_ratio:<10.4g}")
         print(f"  {'Rotor surface speed (u)':<30} {self.u:<10.4g} m/s")
         print(f"  {'Specific heat delta (dh_use)':<30} {self.deltah_useful:<10.4g} J/kg")
         print(f"  {'Absolute Circ. Velocity (c3u)':<30} {self.c3u:<10.4g} m/s")
         print(f"  {'Absolute Meri. Velocity (c3m)':<30} {self.c3m:<10.4g} m/s")
         print(f"  {'Absolute Velocity (c3)':<30} {self.c3:<10.4g} m/s")
+
+        # Calculate relative Mach for starting check
+        w3u = self.c3u - self.u
+        w3 = np.sqrt(w3u**2 + self.c3m**2)
+        M_rel = w3 / self.a3
+        self.check_supersonic_start(M_rel, self.gam3)
+
+        print(f"  {'Relative Mach Number (Mw3)':<30} {M_rel:<10.4g}")
+        print(f"  {'Supersonic Start Margin':<30} {self.start_margin*100:<10.4g}% ({'Started' if self.is_started else 'BLOCKED'})")
+
         print(f"  {'Swirl Velocity (c4u)':<30} {self.c4u:<10.4g} m/s")
         print(f"  {'Absolute Velocity at exit (c4)':<30} {self.c4:<10.4g} m/s")
         print(f"  {'Exit Temperature (T3)':<30} {self.T3:<10.4g} K")
@@ -283,15 +339,12 @@ class Turbine:
         print(f"  {'Exit Density (rho_3)':<30} {self.rho_3:<10.4g} kg/m3")
         print(f"  {'Required Mach Number (M3)':<30} {self.M3:<10.4g}")
         print(f"  {'Required Blade Height (H_3)':<30} {self.Height*1000:<10.4g} mm")
-        # print(f"  {'Isen Ambient Temp (t_amb_is)':<30} {self.T_amb_is:<10.4g} K")
         print(f"  {'Turbine Efficiency (eff)':<30} {self.eff:<10.4g}")
         print(f"  {'Blade-Jet Speed Ratio':<30} {self.blade_jet_speed_ratio:<10.4g}")   
         print(f"  {'Throat Area (A)':<30} {self.A_throat*1e6:<10.4g} mm2")
         print(f"  {'Area Ratio (eps)':<30} {self.eps:<10.4g}")   
         print(f"  {'Nozzle throat length':<30} {self.nozzle_throat_length*1000:<10.4g} mm")
         print(f"  {'Nozzle exit length':<30} {self.nozzle_exit_length*1000:<10.4g} mm")
-        # print(f"  {'500W Inlet Pressure':<30} {self.throttled_inlet_pressure/1e5:<10.4g} bar")
-        # print(f"  {'500W Outlet Pressure':<30} {self.throttled_outlet_pressure/1e5:<10.4g} bar")
         if hasattr(self, 'p01_n2'):
             print(f"Nitrogen Testing Requirements:")
             print(f"  {'N2 Pressure (p01_n2)':<30} {self.p01_n2/1e5:<10.4g} bar")
@@ -303,4 +356,4 @@ class Turbine:
             print(f"  {'N2 Exit Density (rho3_n2)':<30} {self.rho3_n2:<10.4g} kg/m3")
             print(f"  {'N2 Exit Velocity (c3_n2)':<30} {self.c3_n2:<10.4g} m/s")
             print(f"  {'N2 Specific heat delta (dh_n2)':<30} {self.deltah_useful_n2:<10.4g} J/kg")
-            print(f"  {'N2 Power (P_n2)':<30} {self.P_n2/1000:<10.4g} kW") 
+            print(f"  {'N2 Power (P_n2)':<30} {self.P_n2/1000:<10.4g} kW")
