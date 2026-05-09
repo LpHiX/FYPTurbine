@@ -270,31 +270,92 @@ class BarskePump:
         ax.legend()
         ax.grid(True, alpha=0.3)
         plt.show()
+    def plot_partload(self, rpms=None, mdots=None):
+        """Combined part-load plotting.
 
-    def plot_partload_npsh(self, rpms):
-        """Plots NPSHR and Specific Speed across an RPM range to check for cavitation."""
-        npshr = []
-        n_q = []
-        
-        for n in rpms:
-            p = BarskePump(self.mdot_desired, self.p_desired, self.rho, self.visc, n, self.top_bearing, self.bot_bearing, self.mechanical_seal, self.d_1, self.d_2)
-            npshr.append(p.NPSHR)
-            n_q.append(p.n_q)
-            
-        fig, ax1 = plt.subplots(figsize=(10, 6))
-        
-        ax1.set_xlabel('Rotational Speed (RPM)')
-        ax1.set_ylabel('NPSHR (m)', color='tab:red')
-        ax1.plot(rpms, npshr, color='tab:red', linewidth=2, label='NPSHR')
-        ax1.tick_params(axis='y', labelcolor='tab:red')
-        ax1.grid(True, alpha=0.3)
-        
-        ax2 = ax1.twinx()
-        ax2.set_ylabel('Specific Speed (n_q)', color='tab:blue')
-        ax2.plot(rpms, n_q, color='tab:blue', linewidth=2, linestyle='--', label='n_q')
-        ax2.tick_params(axis='y', labelcolor='tab:blue')
-        
-        plt.title('Suction Performance & Specific Speed vs RPM')
-        fig.tight_layout()
+        Creates a grid of subplots with len(mdots) rows and 2 columns.
+        Left column: losses (disk friction, mechanical, total) and efficiency (twin y-axis).
+        Right column: suction performance (NPSHR) and specific speed (n_q) (twin y-axis).
+
+        Args:
+            rpms: iterable of RPM values. If None a default range is used.
+            mdots: iterable of mass flowrates (kg/s). Each mass flow becomes a new row.
+                   If None uses the current object's `mdot_desired` as a single row.
+        """
+        if rpms is None:
+            rpms = np.linspace(5000, 25000, 9)
+
+        if mdots is None:
+            mdots = [self.mdot_desired]
+
+        # Ensure list
+        mdots = list(mdots)
+        nrows = len(mdots)
+
+        fig, axes = plt.subplots(nrows, 2, figsize=(12, 3 * nrows), sharex='col')
+
+        # Normalize axes object shape when nrows == 1
+        if nrows == 1:
+            axes = np.array([axes])
+
+        for i, mdot in enumerate(mdots):
+
+            friction = []
+            mechanical = []
+            total = []
+            efficiency = []
+            npshr = []
+            n_q = []
+
+            for n in rpms:
+                p = BarskePump(mdot, self.p_desired, self.rho, self.visc, n,
+                               self.top_bearing, self.bot_bearing, self.mechanical_seal, self.d_1, self.d_2)
+                friction.append(p.power_friction)
+                mechanical.append(p.mechanical_loss)
+                total.append(p.power_loss)
+                efficiency.append(p.efficiency)
+                npshr.append(p.NPSHR)
+                n_q.append(p.n_q)
+
+            ax_loss = axes[i, 0]
+            ax_suction = axes[i, 1]
+
+            ax_loss.plot(rpms, friction, 'b--', label='Disk Friction Loss')
+            ax_loss.plot(rpms, mechanical, 'r--', label='Mechanical Loss (Seals/Bearings)')
+            ax_loss.plot(rpms, total, 'k-', linewidth=2, label='Total Power Loss')
+
+            ax_eff = ax_loss.twinx()
+            ax_eff.plot(rpms, efficiency, 'g-', linewidth=2, label='Efficiency')
+            ax_eff.set_ylabel('Efficiency', color='g')
+            ax_eff.tick_params(axis='y', labelcolor='g')
+
+            ax_loss.set_ylabel('Power Loss (W)')
+            ax_loss.set_title(f'Losses @ mdot={mdot:.4g} kg/s')
+            ax_loss.grid(True, alpha=0.3)
+
+            # Legends: combine from both axes
+            lines_loss, labels_loss = ax_loss.get_legend_handles_labels()
+            lines_eff, labels_eff = ax_eff.get_legend_handles_labels()
+            ax_loss.legend(lines_loss + lines_eff, labels_loss + labels_eff, loc='upper left')
+
+            # Suction / specific speed
+            ax_suction.plot(rpms, npshr, color='tab:red', linewidth=2, label='NPSHR (m)')
+            ax_suction.set_ylabel('NPSHR (m)', color='tab:red')
+            ax_suction.tick_params(axis='y', labelcolor='tab:red')
+            ax_suction.grid(True, alpha=0.3)
+
+            ax_nq = ax_suction.twinx()
+            ax_nq.plot(rpms, n_q, color='tab:blue', linewidth=2, linestyle='--', label='Specific Speed (n_q)')
+            ax_nq.set_ylabel('Specific Speed (n_q)', color='tab:blue')
+            ax_nq.tick_params(axis='y', labelcolor='tab:blue')
+
+            ax_suction.set_title(f'Suction & n_q @ mdot={mdot:.4g} kg/s')
+
+            # Only label x-axis on bottom row
+            if i == nrows - 1:
+                ax_loss.set_xlabel('Rotational Speed (RPM)')
+                ax_suction.set_xlabel('Rotational Speed (RPM)')
+
+        plt.tight_layout()
         plt.show()
     
