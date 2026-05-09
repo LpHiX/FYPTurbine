@@ -214,6 +214,137 @@ class BarskePump:
 
         plt.tight_layout()
         plt.show()
+
+    def find_optimal_rpm(self, rpms=None, mdots=None, plot=True):
+        """Find optimal RPM(s) for one or more mass flows and optionally plot results.
+
+        For each mdot in `mdots` this scans `rpms`, finds the RPM with maximum
+        efficiency and (if `plot`) creates a vertical stack of subplots. Each row shows:
+          - efficiency vs RPM (left axis)
+          - hydraulic/friction and mechanical losses vs RPM (right axis)
+          - outlet diameter `d_2` vs RPM on an outward right axis
+
+        Args:
+            rpms: iterable of RPMs to scan. If None uses `np.linspace(1000, 30000, 291)`.
+            mdots: scalar or iterable of mass flows (kg/s). If None uses `self.mdot_desired`.
+            plot: whether to show the figure.
+
+        Returns:
+            List of tuples [(mdot, opt_rpm, opt_efficiency), ...]
+        """
+        if rpms is None:
+            rpms = np.linspace(1000, 30000, 291)
+
+        if mdots is None:
+            mdots = [self.mdot_desired]
+
+        # ensure iterable
+        if not hasattr(mdots, '__iter__') or isinstance(mdots, (str, bytes)):
+            mdots = [mdots]
+
+        results = []
+
+        # helper to compute series for a given mdot
+        def compute_series(mdot):
+            eff = []
+            mech = []
+            friction = []
+            total = []
+            d2 = []
+            req_power = []
+            hydraulic = []
+            n_q = []
+            npshr = []
+            for n in rpms:
+                p = BarskePump(mdot, self.p_desired, self.rho, self.visc, n,
+                               self.top_bearing, self.bot_bearing, self.mechanical_seal)
+                eff.append(p.efficiency)
+                mech.append(p.mechanical_loss)
+                friction.append(p.power_friction)
+                total.append(p.power_loss)
+                d2.append(p.d_2)
+                req_power.append(p.required_power)
+                hydraulic.append(p.hydraulic_work)
+                n_q.append(p.n_q)
+                npshr.append(p.NPSHR)
+            return (np.array(eff), np.array(mech), np.array(friction), np.array(total),
+                    np.array(d2), np.array(req_power), np.array(hydraulic), np.array(n_q), np.array(npshr))
+
+        if plot:
+            n = len(mdots)
+            fig, axes = plt.subplots(n, 2, figsize=(12, 3 * n), sharex=True)
+            if n == 1:
+                axes = np.array([axes])
+
+        for i, mdot in enumerate(mdots):
+            eff, mech, friction, total, d2, req_power, hydraulic, n_q, npshr = compute_series(mdot)
+
+            # find optimum efficiency
+            idx = int(np.nanargmax(eff))
+            opt_rpm = float(rpms[idx])
+            opt_eff = float(eff[idx])
+            results.append((mdot, opt_rpm, opt_eff))
+
+            if plot:
+                ax_left = axes[i, 0]
+                ax_right = axes[i, 1]
+
+                # Left: efficiency (left) and losses (right twin)
+                ax_left.plot(rpms, eff, color='g', lw=2, label='Efficiency')
+                ax_left.set_ylabel('Efficiency', color='g')
+                ax_left.tick_params(axis='y', labelcolor='g')
+                ax_left.grid(True, alpha=0.3)
+
+                ax_losses = ax_left.twinx()
+                ax_losses.plot(rpms, friction, color='tab:blue', linestyle='--', label='Hydraulic friction')
+                ax_losses.plot(rpms, mech, color='tab:red', linestyle='--', label='Mechanical loss')
+                ax_losses.set_ylabel('Power (W)')
+
+                # annotate optimum on left
+                ax_left.axvline(opt_rpm, color='r', linestyle='--')
+                ax_left.plot(opt_rpm, opt_eff, 'ro')
+                ax_left.annotate(f'{opt_rpm:.0f} rpm\n{opt_eff:.3f}', xy=(opt_rpm, opt_eff), xytext=(8, -28), textcoords='offset points', arrowprops=dict(arrowstyle='->'))
+
+                # Left legend: combine efficiency + losses
+                l1, lab1 = ax_left.get_legend_handles_labels()
+                l2, lab2 = ax_losses.get_legend_handles_labels()
+                ax_left.legend(l1 + l2, lab1 + lab2, loc='upper left')
+
+                # Right: d2 (left axis), specific speed and NPSHR on twins
+                ax_r = ax_right
+                ax_r.plot(rpms, d2 * 1000.0, color='m', linestyle='-', label='Outlet d2 (mm)')
+                ax_r.set_ylabel('d2 (mm)', color='m')
+                ax_r.tick_params(axis='y', labelcolor='m')
+
+                ax_nq = ax_r.twinx()
+                ax_nq.plot(rpms, n_q, color='tab:blue', linestyle='--', label='Specific speed (n_q)')
+                ax_nq.set_ylabel('Specific speed (n_q)', color='tab:blue')
+                ax_nq.tick_params(axis='y', labelcolor='tab:blue')
+
+                ax_npshr = ax_r.twinx()
+                ax_npshr.spines.right.set_position(('outward', 60))
+                ax_npshr.plot(rpms, npshr, color='tab:red', linestyle=':', label='NPSHR (m)')
+                ax_npshr.set_ylabel('NPSHR (m)', color='tab:red')
+                ax_npshr.tick_params(axis='y', labelcolor='tab:red')
+
+                # Right legend
+                lines = []
+                labels = []
+                for A in (ax_r, ax_nq, ax_npshr):
+                    l, lab = A.get_legend_handles_labels()
+                    lines += l
+                    labels += lab
+                ax_r.legend(lines, labels, loc='upper left')
+
+                ax_left.set_title(f'Mdot={mdot:.4g} kg/s — optimal {opt_rpm:.0f} rpm')
+
+        if plot:
+            axes[-1, 0].set_xlabel('Rotational Speed (RPM)')
+            axes[-1, 1].set_xlabel('Rotational Speed (RPM)')
+            plt.tight_layout()
+            plt.show()
+
+        return results
     def plot_pump_map(self, rpms):
         fig, ax = plt.subplots(figsize=(10, 6), sharex=True)
 
@@ -241,46 +372,16 @@ class BarskePump:
         ax.grid(True)
         ax.legend()
         plt.show()
-    def plot_partload_losses(self, rpms):
-        """Plots Friction vs Mechanical losses across an RPM range."""
-        friction = []
-        mechanical = []
-        total = []
-        efficiency = []
-        
-        for n in rpms:
-            p = BarskePump(self.mdot_desired, self.p_desired, self.rho, self.visc, n, self.top_bearing, self.bot_bearing, self.mechanical_seal, self.d_1, self.d_2)
-            friction.append(p.power_friction)
-            mechanical.append(p.mechanical_loss)
-            total.append(p.power_loss)
-            efficiency.append(p.efficiency)
-            
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(rpms, friction, 'b--', label='Disk Friction Loss')
-        ax.plot(rpms, mechanical, 'r--', label='Mechanical Loss (Seals/Bearings)')
-        ax.plot(rpms, total, 'k-', linewidth=2, label='Total Power Loss')
-        ax_eff = ax.twinx()
-        ax_eff.plot(rpms, efficiency, 'g-', linewidth=2, label='Efficiency')
-        ax_eff.set_ylabel('Efficiency', color='g')
-        ax_eff.tick_params(axis='y', labelcolor='g')
-
-        ax.set_xlabel('Rotational Speed (RPM)')
-        ax.set_ylabel('Power Loss (W)')
-        ax.set_title('Power Loss Breakdown vs RPM')
-        ax.legend()
-        ax.grid(True, alpha=0.3)
-        plt.show()
     def plot_partload(self, rpms=None, mdots=None):
-        """Combined part-load plotting.
+        """Compact part-load plotting.
 
-        Creates a grid of subplots with len(mdots) rows and 2 columns.
-        Left column: losses (disk friction, mechanical, total) and efficiency (twin y-axis).
-        Right column: suction performance (NPSHR) and specific speed (n_q) (twin y-axis).
+        Left: losses (disk friction, mechanical, total) and efficiency (twin y-axis).
+        Right: suction performance (NPSHR) and specific speed (n_q) overlaid for each `mdot`.
 
         Args:
             rpms: iterable of RPM values. If None a default range is used.
-            mdots: iterable of mass flowrates (kg/s). Each mass flow becomes a new row.
-                   If None uses the current object's `mdot_desired` as a single row.
+            mdots: iterable of mass flowrates (kg/s). Each mass flow produces an overlaid curve.
+                   If None uses the current object's `mdot_desired` as a single curve.
         """
         if rpms is None:
             rpms = np.linspace(5000, 25000, 9)
@@ -292,21 +393,14 @@ class BarskePump:
         mdots = list(mdots)
         nrows = len(mdots)
 
-        fig, axes = plt.subplots(nrows, 2, figsize=(12, 3 * nrows), sharex='col')
-
-        # Normalize axes object shape when nrows == 1
-        if nrows == 1:
-            axes = np.array([axes])
-
-        for i, mdot in enumerate(mdots):
-
+        # small helper to compute series for a given mdot
+        def compute_series(mdot):
             friction = []
             mechanical = []
             total = []
             efficiency = []
             npshr = []
             n_q = []
-
             for n in rpms:
                 p = BarskePump(mdot, self.p_desired, self.rho, self.visc, n,
                                self.top_bearing, self.bot_bearing, self.mechanical_seal, self.d_1, self.d_2)
@@ -316,45 +410,54 @@ class BarskePump:
                 efficiency.append(p.efficiency)
                 npshr.append(p.NPSHR)
                 n_q.append(p.n_q)
+            return np.array(friction), np.array(mechanical), np.array(total), np.array(efficiency), np.array(npshr), np.array(n_q)
+        # compact-only mode: create a single 1x2 figure so there are no empty subplots
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharex='col')
+        ax_loss = axes[0]
+        ax_right = axes[1]
 
-            ax_loss = axes[i, 0]
-            ax_suction = axes[i, 1]
+        # compute mdot-independent losses at a representative mdot
+        rep_mdot = mdots[0]
+        friction, mechanical, total, _, _, _ = compute_series(rep_mdot)
 
-            ax_loss.plot(rpms, friction, 'b--', label='Disk Friction Loss')
-            ax_loss.plot(rpms, mechanical, 'r--', label='Mechanical Loss (Seals/Bearings)')
-            ax_loss.plot(rpms, total, 'k-', linewidth=2, label='Total Power Loss')
+        ax_loss.plot(rpms, friction, 'b--', label='Disk Friction Loss')
+        ax_loss.plot(rpms, mechanical, 'r--', label='Mechanical Loss (Seals/Bearings)')
+        ax_loss.plot(rpms, total, 'k-', linewidth=2, label='Total Power Loss')
+        ax_loss.set_ylabel('Power Loss (W)')
+        ax_loss.set_title('Losses (independent of mdot)')
+        ax_loss.grid(True, alpha=0.3)
 
-            ax_eff = ax_loss.twinx()
-            ax_eff.plot(rpms, efficiency, 'g-', linewidth=2, label='Efficiency')
-            ax_eff.set_ylabel('Efficiency', color='g')
-            ax_eff.tick_params(axis='y', labelcolor='g')
+        ax_eff = ax_loss.twinx()
+        ax_eff.set_ylabel('Efficiency', color='g')
+        ax_eff.tick_params(axis='y', labelcolor='g')
 
-            ax_loss.set_ylabel('Power Loss (W)')
-            ax_loss.set_title(f'Losses @ mdot={mdot:.4g} kg/s')
-            ax_loss.grid(True, alpha=0.3)
+        # prepare color map for mdots
+        cmap = plt.get_cmap('viridis')
+        colors = [cmap(i / max(1, (nrows - 1))) for i in range(nrows)]
 
-            # Legends: combine from both axes
-            lines_loss, labels_loss = ax_loss.get_legend_handles_labels()
-            lines_eff, labels_eff = ax_eff.get_legend_handles_labels()
-            ax_loss.legend(lines_loss + lines_eff, labels_loss + labels_eff, loc='upper left')
+        ax_right.set_xlabel('Rotational Speed (RPM)')
+        ax_right.set_title('Suction (NPSHR) and Specific Speed (n_q) for mdots')
+        ax_right.grid(True, alpha=0.3)
 
-            # Suction / specific speed
-            ax_suction.plot(rpms, npshr, color='tab:red', linewidth=2, label='NPSHR (m)')
-            ax_suction.set_ylabel('NPSHR (m)', color='tab:red')
-            ax_suction.tick_params(axis='y', labelcolor='tab:red')
-            ax_suction.grid(True, alpha=0.3)
+        ax_nq = ax_right.twinx()
 
-            ax_nq = ax_suction.twinx()
-            ax_nq.plot(rpms, n_q, color='tab:blue', linewidth=2, linestyle='--', label='Specific Speed (n_q)')
-            ax_nq.set_ylabel('Specific Speed (n_q)', color='tab:blue')
-            ax_nq.tick_params(axis='y', labelcolor='tab:blue')
+        # plot mdot-varied curves on the right axes and efficiency on the left twin
+        for idx, mdot in enumerate(mdots):
+            friction, mechanical, total, efficiency, npshr, n_q = compute_series(mdot)
+            color = colors[idx]
+            ax_right.plot(rpms, npshr, color=color, linestyle='-', label=f'NPSHR @ mdot={mdot:.4g} kg/s')
+            ax_nq.plot(rpms, n_q, color=color, linestyle='--', label=f'n_q @ mdot={mdot:.4g} kg/s')
+            ax_eff.plot(rpms, efficiency, color=color, linestyle=':', label=f'Eff @ mdot={mdot:.4g} kg/s')
 
-            ax_suction.set_title(f'Suction & n_q @ mdot={mdot:.4g} kg/s')
+        # left legend: losses + efficiency
+        lines_loss, labels_loss = ax_loss.get_legend_handles_labels()
+        lines_eff, labels_eff = ax_eff.get_legend_handles_labels()
+        ax_loss.legend(lines_loss + lines_eff, labels_loss + labels_eff, loc='upper left')
 
-            # Only label x-axis on bottom row
-            if i == nrows - 1:
-                ax_loss.set_xlabel('Rotational Speed (RPM)')
-                ax_suction.set_xlabel('Rotational Speed (RPM)')
+        # right legend: NPSHR + n_q
+        lines_right, labels_right = ax_right.get_legend_handles_labels()
+        lines_nq, labels_nq = ax_nq.get_legend_handles_labels()
+        ax_right.legend(lines_right + lines_nq, labels_right + labels_nq, loc='upper left')
 
         plt.tight_layout()
         plt.show()
