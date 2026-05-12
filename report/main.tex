@@ -5,18 +5,53 @@
 	
 \input{ltx/titlepage}
 
-% \pagenumbering{roman}
+\pagenumbering{roman}
+\setcounter{page}{2}
 
-
-\sloppy
-
-
+\input{ltx/0_abstract}
 \newpage
 
-\section{MPI Parallelisation Approach}
+\input{ltx/0_acknowledgements}
+\newpage
 
+\tableofcontents
+\newpage
 
+\phantomsection
+\addcontentsline{toc}{section}{List of Figures}
+\listoffigures
+\newpage
 
+\phantomsection
+\addcontentsline{toc}{section}{List of Tables}
+\listoftables
+\newpage
 
+\input{ltx/0_nomenclature}
+\newpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\sloppy
+
+\input{ltx/1_introduction}
+\input{ltx/2_background}
+
+% Add your main chapters here, for example:
+% \input{ltx/3_methodology}
+% \input{ltx/4_results}
+% \input{ltx/5_discussion}
+
+\input{ltx/3_conclusion}
+
+\newpage
+% Bibliography setup
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{unsrt} 
+\bibliography{references}
+
+\newpage
+\appendix
+\input{ltx/app_a}
 
 \end{document}
