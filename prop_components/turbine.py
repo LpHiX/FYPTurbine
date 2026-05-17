@@ -302,6 +302,208 @@ class Turbine:
             print(f"  Relative Mach Number (Mw3): {M_rel_part:.4f}")
             print(f"  Supersonic Start Margin: {self.start_margin*100:.2f}% ({'Started' if started else 'BLOCKED'})")
 
+    def calculate_blade_stress(self, N, chord, t_max, t_shroud, w_shroud=None, r_hub=0.01, h_hub=0.015, h_tip=None, rho_mat=1150, E_mat=2.2e9, v_mat=0.3):
+        """
+        Calculate static bending and centrifugal stresses on the turbine blade and shroud ring.
+        Assumes a face-extruded geometry: blades are extruded in the Z-axis from the face 
+        of the disc at r_mean, and capped by a shroud ring.
+        Uses a doubly-fixed beam model for blades (fixed at disc and shroud) under radial centrifugal UDL.
+        Uses Stodola's stepwise method for a tapered disc.
+        Assumes Formlabs Tough 2000 by default (rho=1150 kg/m^3, E=2.2 GPa, v=0.3).
+        """
+        r_mean = self.d_mean / 2
+        r_outer = r_mean + chord / 2  # Disc must extend past mean radius to mount blades
+        
+        if h_tip is None:
+            h_tip = chord
+            
+        if w_shroud is None:
+            w_shroud = chord
+        
+        # 1. Doubly-fixed blade analysis
+        # Centrifugal load as a UDL acting radially (N/m of axial height)
+        q = rho_mat * (chord * t_max) * self.w**2 * r_mean
+        
+        # Root and tip bending moment (fixed-fixed beam)
+        M_root = q * self.Height**2 / 12
+        
+        # Area moment of inertia resisting radial bending (assuming chord is approx radial)
+        I_bend = t_max * chord**3 / 12
+        sigma_b_pa = M_root * (chord / 2) / I_bend if I_bend > 0 else float('inf')
+        sigma_b_mpa = sigma_b_pa / 1e6
+        
+        # Tip deflection at midspan
+        delta_max = (q * self.Height**4) / (384 * E_mat * I_bend) if I_bend > 0 else float('inf')
+        
+        # Tip and root reaction forces (per blade)
+        R_tip = q * self.Height / 2
+        R_root = q * self.Height / 2
+        
+        # 2. Shroud ring analysis
+        # Shroud's own centrifugal hoop stress
+        sigma_hoop_centrifugal = rho_mat * self.w**2 * r_mean**2
+        
+        # Hoop stress induced by blade tip reactions pulling radially outward
+        A_shroud = w_shroud * t_shroud
+        sigma_hoop_blades = (N * R_tip) / (2 * np.pi * A_shroud) if A_shroud > 0 else float('inf')
+        
+        sigma_shroud_total_pa = sigma_hoop_centrifugal + sigma_hoop_blades
+        sigma_shroud_total_mpa = sigma_shroud_total_pa / 1e6
+        
+        # 3. Tapered Disc Analysis (Stodola method)
+        # Blade centrifugal reaction applied as an effective radial pressure at the disc's outer rim
+        p_root = (N * R_root) / (2 * np.pi * r_outer * h_tip) if h_tip > 0 else 0
+        
+        def solve_stodola(r_inner, r_outer, h_inner, h_outer, rho, w, v, sigma_r_out_target, num_elements=50):
+            C = (3 + v) / 8 * rho * w**2
+            D = (1 + 3 * v) / 8 * rho * w**2
+            
+            radii = np.linspace(r_inner, r_outer, num_elements + 1)
+            h_profile = np.linspace(h_inner, h_outer, num_elements + 1)
+            h_elements = (h_profile[:-1] + h_profile[1:]) / 2
+            
+            def propagate(guess):
+                if r_inner < 1e-9:
+                    S_r = guess
+                    S_t = guess
+                else:
+                    S_r = 0.0 # Free bore
+                    S_t = guess
+                    
+                max_S_t = S_t
+                max_S_r = S_r
+                
+                for i in range(num_elements):
+                    r_in = radii[i]
+                    r_out_elem = radii[i+1]
+                    h_i = h_elements[i]
+                    
+                    if i > 0:
+                        h_prev = h_elements[i-1]
+                        S_r_new = S_r * (h_prev / h_i)
+                        S_t_new = S_t + v * (S_r_new - S_r)
+                        S_r, S_t = S_r_new, S_t_new
+                        
+                    if r_in < 1e-9:
+                        A = 0
+                        B = S_r
+                    else:
+                        B = (S_r + S_t + (C + D) * r_in**2) / 2
+                        A = (r_in**2 / 2) * (S_r - S_t + (C - D) * r_in**2)
+                    
+                    S_r = A / r_out_elem**2 + B - C * r_out_elem**2
+                    S_t = -A / r_out_elem**2 + B - D * r_out_elem**2
+                    
+                    max_S_t = max(max_S_t, S_t)
+                    max_S_r = max(max_S_r, S_r)
+                    
+                S_r_final = S_r * (h_elements[-1] / h_outer)
+                return S_r_final, max_S_t, max_S_r
+                
+            S_r_0, _, _ = propagate(0.0)
+            S_r_1, _, _ = propagate(1.0)
+            m = S_r_1 - S_r_0
+            
+            if m == 0:
+                correct_guess = 0.0
+            else:
+                correct_guess = (sigma_r_out_target - S_r_0) / m
+                
+            S_r_final, max_S_t, max_S_r = propagate(correct_guess)
+            return max_S_t, max_S_r
+
+        if r_hub >= r_outer:
+            r_hub = 0.0 # safety fallback
+        max_sigma_t_pa, max_sigma_r_pa = solve_stodola(r_hub, r_outer, h_hub, h_tip, rho_mat, self.w, v_mat, p_root)
+        
+        sigma_disc_max_mpa = max(max_sigma_t_pa, max_sigma_r_pa) / 1e6
+        
+        print(f"Structural Analysis (N={N}, Face-Extruded):")
+        print(f"  Blade UDL (q):             {q:.2f} N/m")
+        print(f"  Blade Bending Stress:      {sigma_b_mpa:.2f} MPa")
+        print(f"  Blade Midspan Deflection:  {delta_max*1000:.3f} mm")
+        print(f"  Shroud Total Hoop Stress:  {sigma_shroud_total_mpa:.2f} MPa")
+        print(f"  Tapered Disc Max Stress:   {sigma_disc_max_mpa:.2f} MPa")
+        
+        return sigma_b_mpa, delta_max, sigma_shroud_total_mpa, sigma_disc_max_mpa
+
+    def sweep_blade_count(self, s_nd, b_ax_nd, c_nd, t_te_nd, w_throat_nd, mu=1.7e-5, N_min=20, N_max=60, min_print_res=0.5e-3):
+        """
+        Sweep blade number N and calculate physical dimensions, checking against constraints:
+        1. Aspect ratio (AR >= 0.4)
+        2. Manufacturing limit (t_te >= min_print_res)
+        3. Kantrowitz limit (effective throat considering boundary layer displacement)
+        """
+        print(f"{'N':<5} | {'s (mm)':<8} | {'c (mm)':<8} | {'b_ax (mm)':<9} | {'t_te (mm)':<9} | {'AR':<6} | {'Margin%':<8} | {'Status'}")
+        print("-" * 75)
+        
+        best_N = None
+        best_loss = float('inf')
+        
+        if hasattr(self, 'p01_n2'):
+            rho = self.rho3_n2
+            w3u = self.c3u_n2 - self.u
+            W_rel = np.sqrt(w3u**2 + self.c3m**2)
+            M_rel = W_rel / np.sqrt(self.gam_n2 * self.R_n2 * self.T3_n2)
+            gamma = self.gam_n2
+        else:
+            rho = self.rho_3
+            w3u = self.c3u - self.u
+            W_rel = np.sqrt(w3u**2 + self.c3m**2)
+            M_rel = W_rel / self.a3
+            gamma = self.gam3
+            
+        self.check_supersonic_start(M_rel, gamma)
+        req_area_ratio = self.req_area_ratio
+        
+        valid_Ns = []
+        
+        for N in range(N_min, N_max + 1):
+            s_phys = np.pi * self.d_mean / N
+            scale = s_phys / s_nd
+            
+            b_ax = b_ax_nd * scale
+            c = c_nd * scale
+            t_te = t_te_nd * scale
+            w_throat = w_throat_nd * scale
+            
+            AR = self.Height / c if c > 0 else 0
+            
+            x = c / 2  # approximate distance to throat
+            Re_x = rho * W_rel * x / mu
+            if Re_x > 0:
+                delta_star = (0.046 * x / (Re_x**(1/5))) * (1 + 0.72 * M_rel**2)
+            else:
+                delta_star = 0
+                
+            w_eff = w_throat - 2 * delta_star
+            
+            effective_area_ratio = w_eff / w_throat if w_throat > 0 else 0
+            start_margin = effective_area_ratio / req_area_ratio - 1 if req_area_ratio > 0 else -1
+            
+            status = "OK"
+            if AR < 0.4:
+                status = "REJECT: AR < 0.4"
+            elif t_te < min_print_res:
+                status = f"REJECT: t_te < {min_print_res*1000:.1f}mm"
+            elif start_margin < 0:
+                status = "REJECT: BLOCKED"
+            else:
+                valid_Ns.append(N)
+                loss_proxy = N 
+                if loss_proxy < best_loss:
+                    best_loss = loss_proxy
+                    best_N = N
+                
+            print(f"{N:<5} | {s_phys*1000:<8.2f} | {c*1000:<8.2f} | {b_ax*1000:<9.2f} | {t_te*1000:<9.2f} | {AR:<6.2f} | {start_margin*100:<8.2f} | {status}")
+            
+        print("-" * 75)
+        if best_N:
+            print(f"Recommended N: {best_N}")
+        else:
+            print("No valid N found within limits.")
+        return valid_Ns, best_N
+
     def pretty_print(self):
         print(f"Turbine Results:---------------------------")
         print(f"Inputs:")
