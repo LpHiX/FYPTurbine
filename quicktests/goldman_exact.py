@@ -149,7 +149,7 @@ def compute_transition_arc(M_inlet, M_surface, beta_inlet, dv=0.001, side='lower
     return np.array(xs), np.array(ys), np.array(machs), alpha
 
 
-def build_blade_surface(M_inlet, M_surface, beta_inlet_rad, side='lower', dv=0.001):
+def build_blade_surface(M_inlet, M_surface, beta_inlet_rad, side='lower', dv=0.001, M_other=None):
     """
     Build complete blade surface from inlet to outlet.
 
@@ -160,6 +160,21 @@ def build_blade_surface(M_inlet, M_surface, beta_inlet_rad, side='lower', dv=0.0
     xs_t, ys_t, machs_t, alpha_in = compute_transition_arc(
         M_inlet, M_surface, beta_inlet_rad, dv=dv, side=side
     )
+    
+    straight_len = 0.0
+    if M_other is not None:
+        xs_o, ys_o, _, alpha_o = compute_transition_arc(
+            M_inlet, M_other, beta_inlet_rad, dv=dv, side='upper' if side == 'lower' else 'lower'
+        )
+        def rot(x, y, ang):
+            return x * np.cos(ang) - y * np.sin(ang), x * np.sin(ang) + y * np.cos(ang)
+        
+        x_in, _ = rot(xs_t[-1], ys_t[-1], alpha_in)
+        x_oth, _ = rot(xs_o[-1], ys_o[-1], alpha_o)
+        
+        if side == 'upper':
+            dx = x_oth - x_in
+            straight_len = abs(dx / np.cos(beta_inlet_rad))
 
     # Transition arc is ordered: vortex end (index 0) -> inlet end (index -1)
     # For the blade surface (inlet -> outlet), reverse for inlet transition
@@ -210,6 +225,13 @@ def build_blade_surface(M_inlet, M_surface, beta_inlet_rad, side='lower', dv=0.0
         [ys_outlet[-1] + (ys_outlet[-1] - ys_outlet[-2]) * 0.1]
     ])
 
+    # Rotate transitions to align with cascade angle
+    def rot(x, y, ang):
+        return x * np.cos(ang) - y * np.sin(ang), x * np.sin(ang) + y * np.cos(ang)
+
+    xs_inlet, ys_inlet = rot(xs_inlet, ys_inlet, alpha_in)
+    xs_outlet, ys_outlet = rot(xs_outlet, ys_outlet, -alpha_in)
+
     # Circular arc between inlet and outlet transitions
     angle_start = np.arctan2(xs_inlet[-1], ys_inlet[-1])
     angle_end = np.arctan2(xs_outlet[0], ys_outlet[0])
@@ -220,12 +242,9 @@ def build_blade_surface(M_inlet, M_surface, beta_inlet_rad, side='lower', dv=0.0
     ys_arc = R_s * np.cos(arc_angles)
     M_arc = np.full(n_arc, M_surface)
 
-    # Short inlet straight (2% of passage width)
+    # Short inlet straight
     inlet_dir = np.array([np.sin(beta_inlet_rad), np.cos(beta_inlet_rad)])
-    passage_width = np.sqrt((xs_inlet[-1] - xs_outlet[-1])**2
-                            + (ys_inlet[-1] - ys_outlet[-1])**2)
-    straight_len = 0.02 * passage_width
-    n_str = 5
+    n_str = max(5, int(straight_len * 100))
     ts = np.linspace(straight_len, 0, n_str)
     xs_str_in = xs_inlet[0] + inlet_dir[0] * ts
     ys_str_in = ys_inlet[0] + inlet_dir[1] * ts
@@ -397,8 +416,8 @@ def run_single_case(M_in, M_lower, M_upper, beta_deg, Re_chord):
     """Run BL on both surfaces for one design point."""
     beta_rad = np.deg2rad(beta_deg)
 
-    s_lo, Me_lo, c_lo = build_blade_surface(M_in, M_lower, beta_rad, side='lower')
-    s_up, Me_up, c_up = build_blade_surface(M_in, M_upper, beta_rad, side='upper')
+    s_lo, Me_lo, c_lo = build_blade_surface(M_in, M_lower, beta_rad, side='lower', M_other=M_upper)
+    s_up, Me_up, c_up = build_blade_surface(M_in, M_upper, beta_rad, side='upper', M_other=M_lower)
 
     s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_bl(s_lo, Me_lo, Re_chord, M_in)
     s_up_bl, th_up, Hi_up, Me_up_bl = solve_bl(s_up, Me_up, Re_chord, M_in)
@@ -413,12 +432,12 @@ def main():
     beta_deg = 70.0
     Re_chord = 35000
 
-    # Typical case: nu_l=34 deg, nu_u=49 deg
-    nu_l_rad = np.deg2rad(34.0)
+    # Typical case: nu_l=22 deg, nu_u=49 deg (matches Fig 5 M_lower ~ 1.84)
+    nu_l_rad = np.deg2rad(22.0)
     nu_u_rad = np.deg2rad(49.0)
     M_lower = M_from_nu(nu_l_rad)
     M_upper = M_from_nu(nu_u_rad)
-    print(f"Typical case: M_lower={M_lower:.3f} (nu=34), M_upper={M_upper:.3f} (nu=49)")
+    print(f"Typical case: M_lower={M_lower:.3f} (nu=22), M_upper={M_upper:.3f} (nu=49)")
 
     results = run_single_case(M_in, M_lower, M_upper, beta_deg, Re_chord)
     s_lo, Hi_lo, Me_lo, th_lo = results[0], results[1], results[2], results[3]
@@ -476,7 +495,7 @@ def main():
         Ml = M_from_nu(np.deg2rad(nu_l_deg))
         Ml_range = np.linspace(Ml, Ml, 1)  # just for print
         try:
-            sl, Mel, cl = build_blade_surface(M_in, Ml, np.deg2rad(beta_deg), side='lower')
+            sl, Mel, cl = build_blade_surface(M_in, Ml, np.deg2rad(beta_deg), side='lower', M_other=M_from_nu(np.deg2rad(49.0)))
             s_bl, _, Hi_bl, _ = solve_bl(sl, Mel, Re_chord, M_in)
             hmax = np.max(Hi_bl)
             Hi_max_lower.append(hmax)
@@ -519,7 +538,7 @@ def main():
     for nu_u_deg in nu_u_range_deg:
         Mu = M_from_nu(np.deg2rad(nu_u_deg))
         try:
-            su, Meu, cu = build_blade_surface(M_in, Mu, np.deg2rad(beta_deg), side='upper')
+            su, Meu, cu = build_blade_surface(M_in, Mu, np.deg2rad(beta_deg), side='upper', M_other=M_from_nu(np.deg2rad(34.0)))
             s_bl, _, Hi_bl, _ = solve_bl(su, Meu, Re_chord, M_in)
             hmax = np.max(Hi_bl)
             Hi_max_upper.append(hmax)
