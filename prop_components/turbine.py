@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.optimize import root_scalar
+from scipy.integrate import quad
 from rocketcea.cea_obj_w_units import CEA_Obj
 
 class Turbine:
@@ -559,3 +560,416 @@ class Turbine:
             print(f"  {'N2 Exit Velocity (c3_n2)':<30} {self.c3_n2:<10.4g} m/s")
             print(f"  {'N2 Specific heat delta (dh_n2)':<30} {self.deltah_useful_n2:<10.4g} J/kg")
             print(f"  {'N2 Power (P_n2)':<30} {self.P_n2/1000:<10.4g} kW")
+
+
+class SupersonicStartingGoldman:
+    """
+    NASA TN D-4421 (Goldman, 1968) supersonic starting analysis.
+
+    Vortex flow (VR = const) between blade surfaces gives a 2D correction
+    factor C that makes the starting limit more restrictive than 1D Kantrowitz.
+
+    Notation follows the paper:
+        M*  = V / V_cr  (critical velocity ratio)
+        M*_l = lower surface (pressure side, outer radius), slower
+        M*_u = upper surface (suction side, inner radius), faster
+        K*  = dimensionless vortex constant, eq (23)
+        Q   = vortex flow parameter, eq (34a)
+        C   = 2D flow reduction factor, eq (34b)
+    """
+
+    def __init__(self, gamma):
+        self.gamma = gamma
+        self.gm1 = gamma - 1.0
+        self.gp1 = gamma + 1.0
+        self._exp = 1.0 / self.gm1
+        self._Mstar_lim = np.sqrt(self.gp1 / self.gm1)
+
+    # ── Conversions ──────────────────────────────────────────────
+
+    @staticmethod
+    def mstar_from_mach(M, gamma):
+        return np.sqrt((gamma + 1) * M**2 / (2 + (gamma - 1) * M**2))
+
+    @staticmethod
+    def mach_from_mstar(Ms, gamma):
+        return np.sqrt(2 * Ms**2 / ((gamma + 1) - (gamma - 1) * Ms**2))
+
+    @staticmethod
+    def prandtl_meyer_rad(M, gamma):
+        gm1, gp1 = gamma - 1, gamma + 1
+        return (np.sqrt(gp1 / gm1) * np.arctan(np.sqrt(gm1 / gp1 * (M**2 - 1)))
+                - np.arctan(np.sqrt(M**2 - 1)))
+
+    @staticmethod
+    def mach_from_pm_rad(nu, gamma):
+        gm1, gp1 = gamma - 1, gamma + 1
+        def res(M):
+            return (np.sqrt(gp1 / gm1) * np.arctan(np.sqrt(gm1 / gp1 * (M**2 - 1)))
+                    - np.arctan(np.sqrt(M**2 - 1)) - nu)
+        return root_scalar(res, bracket=[1.0001, 80], method='brentq').root
+
+    # ── Normal shock ─────────────────────────────────────────────
+
+    def normal_shock_p0_ratio(self, M):
+        """p02/p01 across normal shock. < 1 for M > 1."""
+        g, gm1, gp1 = self.gamma, self.gm1, self.gp1
+        t1 = (gp1 * M**2 / (gm1 * M**2 + 2)) ** (g / gm1)
+        t2 = (gp1 / (2 * g * M**2 - gm1)) ** (1.0 / gm1)
+        return t1 * t2
+
+    # ── Eq (27): K*_max ──────────────────────────────────────────
+
+    def _solve_Kstar_max(self, Msl, Msu):
+        """
+        Solve eq (27) for K*_max that maximises weight flow through
+        the vortex passage bounded by M*_l (outer) and M*_u (inner).
+
+        LHS = ∫_{M*_l}^{M*_u} [1 - (K/M*_l)^2 M*^2]^{1/(γ-1)} dM*/M*
+        RHS = (1 - K^2)^{1/(γ-1)} - [1 - K^2 (M*_u/M*_l)^2]^{1/(γ-1)}
+        """
+        e = self._exp
+        r2 = (Msu / Msl) ** 2
+
+        def residual(K):
+            a = (K / Msl) ** 2
+
+            def integ(Ms):
+                v = 1.0 - a * Ms**2
+                return v**e / Ms if v > 1e-15 else 0.0
+
+            lhs, _ = quad(integ, Msl, Msu, limit=200)
+
+            v1 = max(1.0 - K**2, 0.0)
+            v2 = max(1.0 - K**2 * r2, 0.0)
+            rhs = v1**e - v2**e
+            return lhs - rhs
+
+        ub = Msl / Msu * (1 - 1e-9)
+        if ub < 1e-14:
+            return None
+        try:
+            return root_scalar(residual, bracket=[1e-14, ub], method='brentq').root
+        except (ValueError, RuntimeError):
+            return None
+
+    # ── Eq (34a): Q ──────────────────────────────────────────────
+
+    def _compute_Q(self, Msl, Msu):
+        """Vortex flow parameter for post-shock weight flow."""
+        e = self._exp
+        gp1h, gm1h = self.gp1 / 2, self.gm1 / 2
+
+        def integ(Ms):
+            v = gp1h - gm1h * Ms**2
+            return v**e / Ms if v > 1e-15 else 0.0
+
+        I, _ = quad(integ, Msl, Msu, limit=200)
+        return Msl * Msu / (Msu - Msl) * I
+
+    # ── Eq (34b): C ──────────────────────────────────────────────
+
+    def _compute_C(self, Msl, Msu, Kmax):
+        """
+        2D flow reduction factor.
+        Uses the analytical I_R from the eq (27) identity:
+          I_L = I_R = (1-K^2)^e - [1-K^2(M*_u/M*_l)^2]^e
+        so no extra quadrature is needed.
+        """
+        e = self._exp
+        r2 = (Msu / Msl) ** 2
+
+        v1 = max(1.0 - Kmax**2, 0.0)
+        v2 = max(1.0 - Kmax**2 * r2, 0.0)
+        I_R = v1**e - v2**e
+
+        coeff = np.sqrt(self.gp1 / self.gm1) * (self.gp1 / 2) ** e
+        return 1.0 - coeff * Kmax * Msu / (Msl * (Msu - Msl)) * I_R
+
+    # ── (M*_i)_max from eqs (33) + (35) ─────────────────────────
+
+    def max_inlet_mach(self, Msl, Msu):
+        """
+        Maximum inlet Mach number for supersonic starting.
+
+        Parameters
+        ----------
+        Msl : float   lower-surface M* at passage throat (> 1)
+        Msu : float   upper-surface M* at passage throat (> Msl)
+
+        Returns
+        -------
+        float or None
+        """
+        if Msu <= Msl or Msl <= 0 or Msu >= self._Mstar_lim * 0.999:
+            return None
+
+        Kmax = self._solve_Kstar_max(Msl, Msu)
+        if Kmax is None:
+            return None
+
+        Q = self._compute_Q(Msl, Msu)
+        C = self._compute_C(Msl, Msu, Kmax)
+
+        if C >= 1.0:
+            return None
+
+        req = Q / (1.0 - C)
+        if req >= 1.0 or req <= 0:
+            return None
+
+        def res(Mi):
+            return self.normal_shock_p0_ratio(Mi) - req
+
+        if res(1.001) < 0:
+            return None
+        try:
+            return root_scalar(res, bracket=[1.001, 80], method='brentq').root
+        except (ValueError, RuntimeError):
+            return None
+
+    def max_inlet_pm_deg(self, Msl, Msu):
+        """(ν_i)_max in degrees."""
+        Mi = self.max_inlet_mach(Msl, Msu)
+        if Mi is None:
+            return None
+        return np.degrees(self.prandtl_meyer_rad(Mi, self.gamma))
+
+    # ── Practical check ──────────────────────────────────────────
+
+    def check_starting(self, M_inlet, Msl, Msu):
+        """
+        Check if blade passage can swallow the starting shock.
+
+        Returns dict with all intermediate quantities from eqs (27)-(35).
+        """
+        Kmax = self._solve_Kstar_max(Msl, Msu)
+        Q = self._compute_Q(Msl, Msu)
+        C = self._compute_C(Msl, Msu, Kmax) if Kmax is not None else None
+
+        Mi_max = self.max_inlet_mach(Msl, Msu)
+        nu_i = np.degrees(self.prandtl_meyer_rad(M_inlet, self.gamma))
+        nu_i_max = np.degrees(self.prandtl_meyer_rad(Mi_max, self.gamma)) if Mi_max else None
+
+        started = (M_inlet <= Mi_max) if Mi_max else False
+        margin = (nu_i_max - nu_i) if nu_i_max else None
+
+        return {
+            'started': started,
+            'M_inlet': M_inlet,
+            'M_inlet_max': Mi_max,
+            'nu_i_deg': nu_i,
+            'nu_i_max_deg': nu_i_max,
+            'margin_deg': margin,
+            'Kstar_max': Kmax,
+            'Q': Q,
+            'C': C,
+            'req_p0_ratio': Q / (1 - C) if (C is not None and C < 1) else None,
+        }
+
+    # ── 1D Kantrowitz (for comparison) ───────────────────────────
+
+    def kantrowitz_1d_max_mach(self, area_ratio=1.0):
+        """
+        1D Kantrowitz starting limit for a given A_throat / A_inlet.
+        Default area_ratio=1.0 is constant-area passage.
+        Returns max inlet Mach for starting.
+        """
+        g, gm1, gp1 = self.gamma, self.gm1, self.gp1
+
+        def f_mass(M):
+            return M * (1 + gm1 / 2 * M**2) ** (-(gp1) / (2 * gm1))
+
+        f1 = f_mass(1.0)
+
+        def res(Mi):
+            pr = self.normal_shock_p0_ratio(Mi)
+            return f_mass(Mi) / f1 * (1.0 / pr) - area_ratio
+
+        try:
+            return root_scalar(res, bracket=[1.001, 80], method='brentq').root
+        except (ValueError, RuntimeError):
+            return None
+
+    # ── Plotting ─────────────────────────────────────────────────
+
+    @staticmethod
+    def plot_starting_limits(gammas=None, save_path=None):
+        """
+        Reproduce TN D-4421 starting-limit figure.
+
+        X-axis: ν_l (PM angle on lower blade surface at throat)
+        Y-axis: (ν_i)_max (maximum inlet PM angle for starting)
+        Curves: M*_u/M*_l ratios (1.0 limit = 1D Kantrowitz)
+        """
+        import matplotlib.pyplot as plt
+
+        if gammas is None:
+            gammas = [1.3, 1.4, 1.667]
+
+        n = len(gammas)
+        fig, axes = plt.subplots(1, n, figsize=(5.5 * n, 5), sharey=True)
+        if n == 1:
+            axes = [axes]
+
+        ratios = [1.005, 1.02, 1.05, 1.1, 1.2, 1.5, 2.0]
+        cmap = plt.cm.viridis(np.linspace(0.1, 0.9, len(ratios)))
+
+        for ax, gamma in zip(axes, gammas):
+            ss = SupersonicStartingGoldman(gamma)
+            Mslim = ss._Mstar_lim
+
+            Msl_arr = np.linspace(1.005, Mslim * 0.88, 80)
+
+            for ratio, col in zip(ratios, cmap):
+                nul, nui = [], []
+
+                for Msl in Msl_arr:
+                    Msu = Msl * ratio
+                    if Msu >= Mslim * 0.98:
+                        continue
+                    nu_max = ss.max_inlet_pm_deg(Msl, Msu)
+                    if nu_max is None or nu_max <= 0:
+                        continue
+                    Ml = ss.mach_from_mstar(Msl, gamma)
+                    if Ml <= 1:
+                        continue
+                    nul.append(np.degrees(ss.prandtl_meyer_rad(Ml, gamma)))
+                    nui.append(nu_max)
+
+                if len(nul) > 1:
+                    lbl = '1D limit' if ratio < 1.01 else f'{ratio:.2f}'
+                    ls = '--' if ratio < 1.01 else '-'
+                    ax.plot(nul, nui, color=col, ls=ls, label=lbl)
+
+            ax.set_xlabel(r'$\nu_\ell$ (deg)')
+            ax.set_title(f'$\\gamma$ = {gamma}')
+            ax.legend(title=r'$M^*_u / M^*_\ell$', fontsize=7, loc='upper left')
+            ax.grid(True, alpha=0.3)
+            ax.set_xlim(left=0)
+            ax.set_ylim(bottom=0)
+
+        axes[0].set_ylabel(r'$(\nu_i)_{\max}$ for starting (deg)')
+        fig.suptitle('Supersonic Starting Limits — NASA TN D-4421', fontsize=12)
+        plt.tight_layout()
+
+        if save_path:
+            plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        plt.show()
+
+    @staticmethod
+    def plot_starting_envelope(gamma, nu_l_deg, nu_u_deg, nu_i_actual_deg=None,
+                               save_path=None):
+        """
+        Plot starting envelope for a specific blade design point.
+
+        Shows where the design sits relative to the starting boundary.
+        """
+        import matplotlib.pyplot as plt
+
+        ss = SupersonicStartingGoldman(gamma)
+
+        Ml = ss.mach_from_pm_rad(np.radians(nu_l_deg), gamma)
+        Mu = ss.mach_from_pm_rad(np.radians(nu_u_deg), gamma)
+        Msl = ss.mstar_from_mach(Ml, gamma)
+        Msu = ss.mstar_from_mach(Mu, gamma)
+
+        ratio = Msu / Msl
+        Mslim = ss._Mstar_lim
+
+        Msl_arr = np.linspace(1.005, Mslim * 0.88, 80)
+        nul, nui = [], []
+        for ms in Msl_arr:
+            msu = ms * ratio
+            if msu >= Mslim * 0.98:
+                continue
+            nm = ss.max_inlet_pm_deg(ms, msu)
+            if nm is None or nm <= 0:
+                continue
+            M = ss.mach_from_mstar(ms, gamma)
+            if M <= 1:
+                continue
+            nul.append(np.degrees(ss.prandtl_meyer_rad(M, gamma)))
+            nui.append(nm)
+
+        fig, ax = plt.subplots(figsize=(7, 5))
+        ax.plot(nul, nui, 'b-', lw=2,
+                label=f'Starting boundary ($M^*_u/M^*_\\ell$ = {ratio:.3f})')
+        ax.fill_between(nul, nui, 0, alpha=0.1, color='green')
+        ax.fill_between(nul, nui, max(nui) * 1.2, alpha=0.1, color='red')
+
+        nu_i_max_design = ss.max_inlet_pm_deg(Msl, Msu)
+        ax.plot(nu_l_deg, nu_i_max_design, 'rs', ms=10,
+                label=f'Design point: $\\nu_{{i,max}}$ = {nu_i_max_design:.2f}°')
+
+        if nu_i_actual_deg is not None:
+            ax.axhline(nu_i_actual_deg, color='k', ls='--', lw=1,
+                       label=f'Actual $\\nu_i$ = {nu_i_actual_deg:.2f}°')
+            started = nu_i_actual_deg <= nu_i_max_design if nu_i_max_design else False
+            status = 'STARTED' if started else 'BLOCKED'
+            ax.text(0.98, 0.02, status, transform=ax.transAxes,
+                    fontsize=14, fontweight='bold', ha='right', va='bottom',
+                    color='green' if started else 'red')
+
+        ax.set_xlabel(r'$\nu_\ell$ (deg)')
+        ax.set_ylabel(r'$(\nu_i)_{\max}$ (deg)')
+        ax.set_title(f'Starting Envelope — $\\gamma$ = {gamma}')
+        ax.legend(fontsize=9)
+        ax.grid(True, alpha=0.3)
+        ax.set_xlim(left=0)
+        ax.set_ylim(bottom=0)
+        plt.tight_layout()
+
+        if save_path:
+            plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        plt.show()
+
+
+if __name__ == '__main__':
+    import matplotlib
+    matplotlib.use('TkAgg')
+
+    gamma = 1.4
+
+    ss = SupersonicStartingGoldman(gamma)
+
+    # ── Sanity check: effect of M*_u/M*_l ratio on starting limit ──
+    print("=== Vortex ratio effect on starting limit (gamma=1.4) ===")
+    print("  (1D Kantrowitz has NO limit for constant-area passage;")
+    print("   the vortex flow is what creates the restriction.)\n")
+
+    Msl_base = 1.2
+    for ratio in [1.005, 1.01, 1.05, 1.1, 1.2, 1.5]:
+        Msu = Msl_base * ratio
+        if Msu >= ss._Mstar_lim * 0.99:
+            print(f"  ratio={ratio:.3f}  M*_u exceeds limit")
+            continue
+        Kmax = ss._solve_Kstar_max(Msl_base, Msu)
+        Q = ss._compute_Q(Msl_base, Msu)
+        C_val = ss._compute_C(Msl_base, Msu, Kmax) if Kmax else None
+        Mi_max = ss.max_inlet_mach(Msl_base, Msu)
+        if Mi_max:
+            nu_max = np.degrees(ss.prandtl_meyer_rad(Mi_max, gamma))
+            print(f"  ratio={ratio:.3f}  K*_max={Kmax:.6f}  Q={Q:.6f}  "
+                  f"C={C_val:.6f}  M_i_max={Mi_max:.4f}  nu_i_max={nu_max:.2f}°")
+        else:
+            print(f"  ratio={ratio:.3f}  K*_max={Kmax}  Q={Q:.6f}  C={C_val}  NO STARTING SOLUTION")
+
+    # ── Example blade check ──
+    print("\n=== Example blade starting check ===")
+    M_inlet = 2.0
+    Msl_ex = 1.3
+    Msu_ex = 1.6
+    result = ss.check_starting(M_inlet, Msl_ex, Msu_ex)
+    for k, v in result.items():
+        if isinstance(v, float):
+            print(f"  {k:20s} = {v:.6f}")
+        else:
+            print(f"  {k:20s} = {v}")
+
+    # ── Generate TN D-4421 figure ──
+    print("\n=== Generating TN D-4421 starting limit plots ===")
+    SupersonicStartingGoldman.plot_starting_limits(
+        gammas=[1.3, 1.4, 1.667],
+        save_path='tnd4421_starting_limits.png'
+    )
