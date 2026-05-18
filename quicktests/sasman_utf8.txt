@@ -1,0 +1,744 @@
+﻿VOL. 4, NO. 1, JANUARY 1966 AIAA JOURNAL 19
+Compressible Turbulent Boundary Layer with Pressure
+Gradient and Heat Transfer
+a =
+C f =
+Cp =
+g =
+h =
+H =
+Hi =
+Htr =
+A:
+L
+M
+N
+Nu
+p
+q
+R
+T
+u
+UT
+U
+v
+x
+X
+y
+F
+7
+A
+PHILIP K. SASMAN* AND ROBERT J.
+Polytechnic Institute of Brooklyn, Freeport, N. Y.
+The compressible turbulent boundary layer is expressed in terms of the momentum integral
+and moment-of-momentum integral equations for arbitrary pressure gradient. Upon simpli-
+fication of this equation set with a Mager-type transformation, the two coupled differential
+equations are solved simultaneously to provide boundary-layer momentum thickness, dis-
+placement thickness, skin-friction coefficient, and related quantities as a function of the body
+surface coordinate. The analysis includes surface heat-transfer effects. Results of the
+analysis are presented for adiabatic, non-adiabatic, two-dimensional, and axisymmetric flow-
+fields in a Mach number range between 2 and 8. Flows with favorable and adverse pressure
+gradients are also examined. The present analysis is compared with available experimental
+and theoretical results. The analysis is found to yield satisfactory results for flows with and
+without heat transfer. In addition, for flows in the pressure of large adverse pressure gradients
+in which the boundary layer is known to be well-behaved, spurious separation is not indi-
+cated; instead, rather good agreement with available experimental data is observed.
+Nomenclature
+speed of sound
+local skin-friction coefficient
+coefficient of specific heat at constant pressure
+normalized enthalpy, h/ho
+enthalpy
+form factor, d*/e
+transformed plane form factor for adiabatic flow
+transformed plane form factor for nonadiabatic flow,
+A*/e0, 1 for 2-dimensional and axisymmetric flow, respectively
+coefficient of thermal conductivity
+reference length, 1 in.
+Mach number
+exponent of power law profile, (y/8)N, for the physical
+plane
+exponent of power law profile, (F/A)^*, for the trans-
+formed plane
+Nusselt number, qwCp0L/kQ(ho ù hw)
+pressure
+local heat-transfer rate
+radius of axisymmetric body
+temperature
+longitudinal velocity
+friction velocity, (rw/p)112
+transformed longitudinal velocity
+normal velocity
+coordinate along body surface
+transformed coordinate along body surface
+normal coordinate
+transformed normal coordinate
+ratio of specific heats
+transformed boundary-layer thickness
+/╗ 8 / pu \displacement thickness, I ( 1 ù ùù J dyJO \ PeUe/
+/òA IV U \
+= transformed displacement thickness, I ( 1 ù ù ) +
+dy,-, ò i C5 pu /ä u\6 = momentum thickness, I ùù I 1 ù ù )__________ J 0 PeUe \ Ue/
+Received December 8, 1964; revision received September 13,
+1965. This research was sponsored by the Aerospace Research
+Laboratories, Office of Aerospace Research, U. S. Air Force,
+Contract AF 33(657)-8286 under the technical cognizance of
+Lieutenant A. J. Wennerstrom.
+* Research Assistant.
+t Associate Professor of Aerospace Engineering. Member
+AIAA.
+e
+M
+v
+P
+= transformed momentum thickness, I ù ( 1 ù ù ) dYJo Ue\ Ue/
+= viscosity coefficient
+= kinematic viscosity coefficient,
+= mass density
+= Prandtl number, Cp^/k
+= shearing stress
+= stream function
+= transformed stream function
+Subscripts
+e = local external flow conditions
+s = local stagnation conditions
+w = wall or surface conditions
+o = freestream stagnation conditions
+Superscripts
+(~~) = evaluated at reference conditions, Eq. (9)
+I. Introduction
+THE turbulent boundary layer has long been the subject
+of investigation in fluid mechanics. In recent years the
+understanding of detailed phenomena relating thereto has
+been advanced significantly with concepts such as the law of
+the wall and the law of the wake. However, despite these
+new techniques, a general treatment of the compressible tur-
+bulent boundary layer employing these methods has yet to be
+accomplished.
+From a pragmatic point of view, it is highly desirable to
+couch the solution to the forementioned problem only in
+terms of known variables of body geometry and the associated
+inviscid flowfield conditions, rather than to appeal to pa-
+rameters, such as the velocity defect, which have a funda-
+mental importance in turbulent boundary-layer analysis.
+Indeed, many investigators, motivated on grounds of prac-
+ticality and attracted by the apparent conceptual simplicity,
+have expressed their analyses and results of turbulent bound-
+ary-layer behavior in terms of the boundary-layer form factor
+(H) and momentum thickness (8). It should be observed,
+however, that the boundary-layer form factor can be regarded
+as something less than an ideal parameter for turbulent
+boundary-layer analysis, since it is generally an unestablished
+function of pressure distribution and skin friction.1 None-
+theless, withstanding such apparent shortcomings, in the
+past a significant amount of work has been accomplished with
+the aid of the form factor parameter. For incompressible
+flows, for example, Von Doenhoff and Tetervin2 used the
+Downloaded by Imperial College London - Access Management on May 17, 2026 | http://arc.aiaa.org | DOI: 10.2514/3.3378 
+
+20 P. K. SASMAN AND R. J. CRESCI AIAA JOURNAL
+momentum equation together with an empirical auxiliary
+equation to calculate boundary-layer form factor distribution.
+More recently, Tetervin and Lin3 systematically expressed
+the boundary-layer momentum, moment-of-momentum, and
+energy integral equations using the form factor concept and
+applied these results with reasonable success in the prediction
+of turbulent separation on subsonic airfoils. Maskell4 has
+also extended this process of turbulent boundary-layer analysis
+by describing the variation of H with x by a series of empirical
+functions that conveniently uncouple the variation of H from
+the momentum integral equation.
+For turbulent boundary layers in compressible flow,
+Reshotko and Tucker5 again used the momentum and
+moment-of-momentum integral equations in terms of the form
+factor and the momentum thickness. The Stewartson trans-
+formation was used together with the results of Maskell to
+express the equations in an incompressible form and to un-
+couple the two governing equations. This analysis resulted
+in equations that should tentatively describe turbulent bound-
+ary layers in compressible flow with heat transfer. The
+Reshotko-Tucker analysis, which has enjoyed success for
+favorable and mild adverse pressure gradient, however,
+possesses some shortcomings when applied to flows with large
+adverse gradients. One of the more serious of these is an in-
+dicated boundary-layer separation in regions where the actual
+boundary layer is reasonably well-behaved. In particular, the
+unsatisfactory behavior of the analysis, when applied to a
+flat plate followed by a curved compression surface, has been
+demonstrated by McLafferty and Barber.6 Reference 6 has
+also presented an empirical method of analysis which pro-
+vides reasonable agreement with their experimental results.
+The analysis presented herein attempts to eliminate some
+shortcomings of the earlier methods by incorporating more
+recently available results of turbulent boundary-layer
+analyses. This analysis is similar, in some respects, to the
+work of Ref. 5; the boundary-layer momentum integral
+equation is used in conjunction with the moment-of-momen-
+tum equation. The wall shearing stress is given by the Lud-
+wieg-Tillmann7 formulation. However, unlike previous in-
+vestigations no attempt is made to uncouple the momentum
+and moment-of-momentum integral equations. Instead, the
+set of two differential equations is solved simultaneously after
+introduction of normalized boundary-layer shearing stress
+distributions. The shear distributions are established from
+numerical results of equilibrium turbulent boundary-layer
+analysis.
+II. Development of Analysis
+A. Basic Equations
+For steady, compressible turbulent flow the Prandtl
+boundary-layer equations, in which flow variables appear as
+time-averaged quantities, are expressible by
+d(pu)/dx + d(pv)/dy + j(pu/R)(dR/dx) = 0 (1)
+and
+pu(bu/~bx} + pv(du/by) = ù (dp/dx) + brfdy (2)
+To simplify the final boundary-layer integral equations a
+Mager-type8 transformation is employed, which is of the form
+X = CXb(x)dxJ o
+and
+where
+Y = c(x) ù dyPo
+(3)
+(4)
+and where X and Y represent the transformed coordinates.
+Consistent with the transformation in which ^ = \f/, it is
+useful to observe that
+u = cU H = [1 + (7 - l)Me*/2]Htr + (7 -
+and
+5* = (0 + L
+It may be recalled that the functional dependence of b (x)
+and c(x) for the transformation of form (3) and (4) remains
+arbitrary until several additional conditions are imposed
+beyond the initial requirement that the Jacobian of the trans-
+formation be nonvanishing, and likewise that requirements
+are generally dictated such that the resulting equations are
+simplified if not made completely analogous to the incom-
+pressible flow equations. In this context it may be observed
+that the foregoing explicit transformation differs slightly from
+that used by Mager in that he postulates that the apparent
+turbulent shear stress associated with an elemental mass re-
+main invariant under transformation; this postulate has been
+subject to question, as commented on, for example, by Coles.9
+The transformed momentum integral equation (5) follows
+from the governing equations (1) and (2) after applying the
+preceding transformation.
+6 dR
+R dX T
+T_ \
+Tj p.Ut (5)
+where
+and
+In a manner similar to Ref, 5, the accompanying moment-
+of-momentum integral equation corresponding to Eq. (5) is
+obtained. Although the general derivation procedure is given
+in Ref. 5 for completeness, the mechanics of the development
+shall be restated here briefly; the differential form of Eq. (5)
+is multiplied by F, and the result integrated with respect to Y
+from F = 0 to Y = A. To aid in the reduction of the resulting
+equation to manageable form, the results of Tetervin and Lin3
+are utilized. It may be observed that the resulting Eq. (6) is
+ostensibly the same as that of Ref. 5, except for the modifica-
+tion of the transformation employed:
+dX
+J. dU_e
+Ue dx
+1 +
+- I)' X
+1)02
+X
+T\T\p.U.*
+It - I) (Hi
+e x
+B. Boundary-Layer Shear Relationships
+The Ludwieg-Tillman skin-friction relation for incompressi-
+ble turbulent flow was selected for use in the analysis. For,
+in addition to its convenient formulation, the expression for
+Downloaded by Imperial College London - Access Management on May 17, 2026 | http://arc.aiaa.org | DOI: 10.2514/3.3378 
+
+JANUARY 1966 TURBULENT BOUNDARY LAYER 21
+Cf is valid over a wide range of pressure gradients as various
+authors have noted.1 The formulation for incompressible
+flow from Ref. 7 is given by
+o o.ooi < cf/2 * 0.002
+ù ~ Aù Tw/z (7)
+The corresponding skin-friction coefficient for compressible
+flow is obtained upon application of the reference enthalpy
+concept. As noted by Tetervin,10 the reference enthalpy
+method is quite easily applied to a C/ law with a Ree de-
+pendence without resorting to a flat-plate momentum equa-
+tion when it is recognized that 6 likewise contains a base
+density. Indeed, if a flat-plate equation were used, the
+reference method might appear restricted to zero pressure
+gradient flows.
+Therefore, adapting Eq. (7) for compressible flow
+rw/pue2 = O.^Se-^M^A)"0'268
+And since p/pe = Te/T
+Tw/peu? = 0.l23e-1^^i(ueO/p)-░-2G8(Te/T)1^ (8)
+where (~~) refers to conditions evaluated at the reference tem-
+perature given by Eckert,11
+T/To = 0.5TW/T0 + 0.220-1/3 + (0.5 - 0.220-1/3)(77e/770) (9)
+Since 6 = (T0/Te)*Q and ue = (Te/TQ)u*UeioT 7 = 1.4, then
+Cf/2 = Tw/peiie* = 0.123e-1-561^(C/e0Ao)-░-268 X
+68 (10)
+Evaluation of the normalized boundary-layer shear dis-
+tribution arising in Eq. (6) is also required for the solution of
+Eqs. (3) and (4). To this end, the results of equilibrium tur-
+bulent boundary-layer analysis are incorporated. In par-
+ticular, as shown by Libby et al.,12
+)"'/ä'½.//.-where F ù ue/uT[(u/ue) ù 1] and 77 = y/d for an incom-
+pressible flowfield. If a wide range of both adverse and
+favorable equilibrium pressure distributions are considered,
+then the shear integral may be expressed in the approximate
+form
+fJo *,- 0.011H, 2 (12)
+where C/ is the appropriate skin-friction coefficient for the
+incompressible flow. In this sense, care should be exercised
+in relating C/ to the flowfield it is assumed to represent.
+The functional dependence of
+C1 T
+JQ Tw
+upon Hi as given by the preceding analysis is presented in
+Fig. 1. Also shown is the shear distribution assumed in
+Ref. 5; this has a much smaller range of validity due to,
+among other reasons, the assumed functional dependence
+only upon Hi. The available experimental results (cf. Refs.
+13-15) are also included in Fig. 1. All the data have been
+obtained for an incompressible flow, and in the majority of
+cases adverse pressure gradients are present. As may be
+noted, there exists an underabundance of detailed experi-
+mental turbulent boundary-layer data even for the incom-
+pressible case and essentially none for the compressible case.
+C. Extension to Nonadiabatic Flow
+For unity Prandtl number, the integrals
+- l)dY and f * (g - l)YdYJQ
+A 0.0005
+m o.oooiO REF. (15)
+╗ REF (13)
+ò REF (14)
+ùùùùREF(5)
+0.001
+0.0004
+Fig. 1 Shear integral for incompressible turbulent
+boundary layers.
+arising in Eqs. (5) and (6) are equal to zero for adiabatic flow.
+To evaluate these integrals for an arbitrary but constant sur-
+face temperature, the Crocco relation is employed with a
+power law assumption for the velocity profiles, assuming the
+Prandtl and Lewis numbers are unity. Specifically, when
+(hs - hw)/(h0 - hw) = u/ue =
+then
+and
+U/U, = (F/A)N*
+- l)dY = (13)
+J/ (g - l)YdY = (gw - 1) ^f^t^.'ox 62 (14)
+where
+2(Ht -
+i = 2Ni + 1
+3)
+It is interesting to note that a Mager-type transformation
+causes increased distortion of the velocity profiles with increas-
+ing external Mach number. As noted in Ref. 16, if Ni is as-
+sumed constant as in a typical power law velocity profile,
+then the physical profile parameter N will vary with the nor-
+mal coordinate y.
+Although there is some question concerning the applicability
+of the Crocco relation for flows with heat transfer and pres-
+sure gradient, this was utilized in the present analysis in place
+of solving the energy integral equation directly. A more in-
+volved approach would be to solve the energy integral equa-
+tion simultaneously with the momentum and moment-of-
+momentum integral equations. This has been done in pre-
+vious analyses (e.g., Ref. 22), and the results, in general, indi-
+cated that the additional complexity did not improve the
+solution over that obtained by utilizing the Crocco relation.
+As a result, it is felt that the enthalpy integral evaluation of
+Eqs. (13) and (14) should be sufficiently accurate for the range
+of validity of the analysis.
+Downloaded by Imperial College London - Access Management on May 17, 2026 | http://arc.aiaa.org | DOI: 10.2514/3.3378 
+
+22 P. K. SASMAN AND R. J. CRESCI AIAA JOURNAL
+ùùù PRESENT ANALYSIS
+ùùùù RESHOTKO-TUCKER {REF5)
+:ùùùù FPRE(REF.H)
+VAN DRIEST (REF 17)
+===fP0-2N6psf
+!ùù T0=6!0░R
+, M.-7.0 4
+;=|>P0½2.45xlOpsf
+VI800-R
+Fig. 2 Skin-friction variation on an adiabatic flat plate
+(*. = 1-0).
+The relation between the actual form factor (H) and the in-
+compressible form factor (Hi) is, therefore, given by
+H = thffi[l + (7 - 1)^7/2] + (7 - l)M.*/2 (15)
+Incorporating the results of the preceding sections, the
+momentum integral equation (5) may be written
+dS/dX + (Q/U.)(dU./dX)[2 + gwHi] + j(Q/K)(dR/dX) =
+O.me-i-^M^eAo) -░'Ö(T,/T0) (/I/Mo)0-268 (16)
+and the moment-of-momentum equation (6) may be written
+dX We d.
+[l + fa. - 1) (Hi + I) (Hi +
+~HiTW (Hi + 1)
+e
+In the past, investigators4'5 have uncoupled the momentum
+equation from the preceding equation set using semiempirical
+approximations. With the present capability of computing
+machines, and in order to maintain the coupling effect of Hi
+and 6, it was deemed highly desirable to retain the momen-
+tum equation in the form of Eq. (16) and to solve this numeri-
+cally in conjunction with Eq. (17).
+It may be seen that both Eqs. (16) and (17) of the equation
+set appear to have singularities at 6 = 0. It can be observed
+that Eq. (17) has a nonremovable singularity in contrast to
+Eq. (16), which may be rewritten in the form
+1.268-
+j(f/R)(dR/dX) =
+where
+(f/Ue)(dUe/dX)[l
+(18)
+Equations (17) and (18) may also be expressed in the form
+df/dx = L2Q8{(-f/Me)(dM,/dx)[(l + gjli) -
+(JV/R)(dR/dx) + A]} (19)
+and
+dx - 2Me dx [Hi(Hi +
+i - 1)] X
+[l + (Qw - 1)
+A
+(ff,+ !)(#< +3) J /
+0.011 (Hi + I) (Hi - I)2 2
+/ =
+where
+and
+,4. =
+Hence, upon specification of a body shape and the ac-
+companying external flowfield, simultaneous solution of the
+preceding differential equations yield H(x) and B(x) for the
+boundary layer in question. Typical initial conditions for
+these equations are discussed in the numerical examples that
+follow.
+III. Comparison of Analysis with Theoretical
+and Experimental Results
+Application of the analysis and comparison with other
+theoretical results is afforded by several examples given below.
+PRESENT ANALYSIS
+ùùù RESHOTKO-TUCKER (REF. 5)
+20
+20
+Fig. 3 Nusselt number distribution on a flat plate (gw 
+0.3).
+Fig. 4 Variation of integral thicknesses on a flat plate
+Gr½, - 1.0).
+Downloaded by Imperial College London - Access Management on May 17, 2026 | http://arc.aiaa.org | DOI: 10.2514/3.3378 
+
+JANUARY 1966 TURBULENT BOUNDARY LAYER 23
+The numerical results are obtained by a Runga-Kutta inte-
+gration technique programed on a Bendix G-15 digital com-
+puter. Reference quantities are determined by Eckert's
+reference enthalpy formulation for Prandtl number equal to
+0.72; viscosity ratios are determined by the Sutherland
+formula.
+A. Flow over Flat Plates
+Adiabatic and nonadiabatic flat-plate flows for Mach
+numbers of 3 and 7 are examined in Figs. 2-5. Inasmuch as
+one of the integral equations is singular at a; = 0, Hi was set
+equal to 1.3 in the vicinity of the leading edge. At a small
+distance downstream of the leading edge both equations were
+solved simultaneously, yielding rapid convergence to the
+actual value of Hi.
+For gw = 1, Fig. 2 shows the variation of skin friction with
+Rex obtained from different analyses. For comparison, the
+methods of Reshotko-Tucker,5 van Driest,17 and the flat-plate
+reference enthalpy method18 (FPRE) are also presented. The
+van Driest formulation using the Prandtl mixing length
+hypothesis is employed. All of the analyses shown are in
+close agreement at low external Mach numbers but tend to
+diverge as the Mach number increases.
+For gw = 0.3, Fig. 3 shows the Nusselt number dependence
+on Rex. Here, as in the remainder of the examples, use is
+made of Reynolds7 analogy for <r = 0.72. Again, it is noted
+that generally close agreement is obtained for all analyses.
+The momentum and displacement thickness for the various
+flat plates considered are given in Figs. 4 and 5. Dependence
+of 0 and 5* on Rex are compared with the predictions of
+Ref. 5 under the same flow conditions. It is noted that as ex-
+ternal Mach numbers increase, the variation in 5* and 6 be-
+tween the results of Ref. 5 and the present analysis becomes
+more pronounced, although qualitatively the behavior of the
+boundary-layer thicknesses is similar.
+B. Axisymmetric Flow with Mild Adverse Pressure
+Gradient
+Zakkay and Callahan19 obtained, among others, experi-
+mental heat-transfer data over a cone-cylinder-flare con-
+figuration shown schematically in Fig. 6. A mild adverse
+Rex x 106
+Fig. 5 Variation of integral thicknesses on a flat plate
+(#½, = 0.3).
+E: 5.5" ___-^i
+I ä3.875"
+i
+| ùùùùùùù 17.375" ùùùùùùùù -
+ùùù 12.000" ùùùùù -
+T5.950"
+1
+Me
+l░0^- 0.6
+O EXPER.DATA(REF.I9)
+ùùù PRESENT ANALYSIS
+ùùù FPRE (REF. 18)
+1.0 1.4 1.8
+X(FT)
+Fig. 6 Mach number and Nusselt number distributions
+on axisymmetric configuration.19
+pressure gradient is present on the aft portion of the model as
+indicated by the resulting Mach number distribution given in
+Fig. 6.
+The present analysis is applied to the configuration of Ref.
+19 using the test condition corresponding to the largest extent
+of fully turbulent flow achieved in the test series. These
+conditions are presented in Fig. 6. The analysis is initiated in
+the laminar-transitional region of the body, using an initial
+value of momentum thickness computed from laminar theory
+in Ref. 19. Although the starting value of Hi equal to 1.9 is
+that associated with a laminar boundary layer, the solution
+rapidly converges to the fully developed turbulent boundary-
+layer solution ; this is readily seen in the plot of Nusselt num-
+ber vs surface distance (Fig. 6). The heat transfer predicted
+by the present analysis rapidly converges to values expected
+from a fully turbulent boundary-layer flow, as indicated by
+the FPRE method. It is seen that on the aft portion of the
+body, where the flow is fully turbulent, good agreement is ob-
+tained between experimental data and the present analysis.
+It is also significant that the behavior of the solution indicates
+that the results are relatively insensitive to the starting values
+used in the analysis.
+Here, Reynolds analogy has again been employed in the
+form
+Nu = (21)
+where 0-1/3 is the empirical correction for nonunity Prandtl
+number, and where the adiabatic wall enthalpy (haw) is de-
+fined in terms of the recovery factor
+(kaw - he) /(ho ~ he) = O-1/3
+Equation (21) has been applied in this case to the pressure-
+gradient flow of Ref. 19 to provide a means of comparison.
+It was found, as in Ref. 22, that the accuracy of Nu prediction
+did not increase significantly for calculations made by extend-
+ing Reynolds analogy to include pressure gradient terms.
+C. Flows with Strong Adverse Pressure Gradient
+The adiabatic flows of Ref. 6 are of particular interest for
+they contain large adverse pressure gradients, as can be seen
+Downloaded by Imperial College London - Access Management on May 17, 2026 | http://arc.aiaa.org | DOI: 10.2514/3.3378 
+
+24 P. K. SASMAN AND R. J. CRESCI AIAA JOURNAL
+4.12"
+INJECTIONPLENUM
+1.6
+3.2
+3.0
+2.4
+2.2
+2.0
+1.8
+x=0 T0=6IO░R
+P0=2II6 psf
+½½
+0.4
+^
+A
+r=^L
+| 0 EXPER. D
+f ùùù PRESE
+/I ùùù RESHC
+/ùj ùùùùùùùùù
+A /_ ù ù -"""Tr"^
+/
+ATA, FLOW I, REF 6
+\TA.FLOWH, REF 6
+:NT ANALYSIS
+)TKO- TUCKER (REF 5)
+A
+I
+X
+CD
+0.10 020 0.30
+0.05 0.10 0.15 0.20 0.25 0.30
+X(FT)
+X (FT)
+b) MOMENTUM THICKNESS
+Fig. 7 Two-dimensional model configuration and Mach
+number distribution.6
+from Fig. 7. The two flowfields shown, denoted in the present
+figures by flow I and II, respectively, were obtained by com-
+pressing an initially uniform Mach 3 flow over a flat plate
+by insertion of a compression surface. The geometry of the
+two-dimensional tunnel model is also shown in Fig. 7. To
+vary the boundary-layer thickness at x = 0, a small amount
+of air was injected into the boundary layer upstream of the
+surface under consideration. Additional details can be found
+in Ref. 6.
+Employing the experimentally determined external flow-
+fields and initial conditions cited by this reference, the result-
+Fig. 9 Variation of boundary-layer thicknesses on two-
+dimensional model.
+ing variations of Hi and 0 and consequently 0, d*, and C//2
+are obtained by the present analysis. The skin friction and
+boundary-layer thicknesses are presented in Figs. 8 and 9,
+along with the experimental data for flow I and II. Ex-
+amination of Figs. 9a and 9b reveals good agreement between
+the analysis and the experimentally measured values of 5*
+and 8. Again, for purposes of comparison with other methods,
+results of the Reshotko-Tucker analysis are also included.
+Although no direct measurement of C/ was made in Ref. 6, by
+inspection of the C//2 vs x curves in Fig. 8, it is seen that the
+present analysis yields a variation in skin-friction coefficient
+1:0
+0.8
+0.6
+0.4
+0.2
+ùùùùù PRESENT ANALYSIS
+ùùùùù RESHOTKO - TUCKER (REF. 5)
+I \rt
+6.0
+4.0
+2.0
+n
+0 EXPER. DATA, FLOWI, REF. 21
+A EXPER. DATA, FLOWI, REF. 21
+-^
+^ ùù - ùù ùùù
+_
+a) MACH NUMBER
+0 O.I 0.2 0.3
+X (FT)
+Fig. 8 Variation of skin-friction coefficient on two-di-
+mensional model.
+4.0 8.0 12.0
+X (FT)
+c) MOMENTUM THICKNESS
+Fig. 10 Variation of Mach number and boundary-layer
+thicknesses on a nozzle.20
+Downloaded by Imperial College London - Access Management on May 17, 2026 | http://arc.aiaa.org | DOI: 10.2514/3.3378 
+
+JANUARY, 1966 TURBULENT BOUNDARY LAYER 25
+O EXPER. DATA , REF. 21
+ùùù PRESENT ANALYSIS
+ùùù ANALYSIS OF REF 21
+Fig. 11 Variation of skin friction and momentum thick-
+ness on axisymmetric configuration.21
+that does not approach zero and, therefore, is consistent with
+the experimental observation that separation did not occur
+for this flow.
+D. Flows with Favorable Pressure Gradient
+Several favorable and favorable-adverse pressure gradient
+flows were also considered. The first case in point is repre-
+sented by data from two California Institute of Technology
+Jet Propulsion Laboratory supersonic nozzles, as shown in
+Fig. 10. Calculations were initiated at the nozzle throats
+using initial 0 values listed in Ref. 20. It may be seen that
+both <5* and 6 agree closely with the experimental points ob-
+tained by Dayman20 for the Mach 5 and the Mach 2 adiabatic
+nozzles.
+Secondly, Mach 2 flow past an axisymmetric waisted body
+of Ref. 21 is examined (Fig. 11). Calculation was initiated in
+the boundary-layer transition region. Again, it may be ob-
+served that 6 is in good agreement with data points, as is
+Cf/2, which falls within the range of experimental error stated
+in Ref. 21. Also shown are the analysis curves of this ref-
+erence. The analysis curves were obtained by approximating
+the very difficult task of simultaneous integration of both
+momentum and energy integral equations through preliminary
+correlations of the adiabatic data to be analyzed subsequently.
+Such an analysis, in which direct consideration is given to the
+energy equation, might indeed be promising if the initial dif-
+ficulties of this approach can be transcended. As shown in
+Ref. 21, extension of such an approach to other than adiabatic
+flows within a small Mach number range appears to be
+reasonably difficult.
+IV. Conclusions
+The results of the present analysis indicate that the simul-
+taneous solution of the boundary-layer integral equations,
+without attempting to uncouple the same, may indeed be a
+possible method for treatment of the general compressible
+turbulent boundary layer. The present method yields skin-
+friction coefficients and other boundary-layer parameters in
+close agreement with experimental and theoretical results over
+a wide range of zero, favorable, and adverse pressure-gradient
+flows. Favorable results for nonadiabatic flows with zero
+and mild pressure gradients are also obtained.
+In addition, it was found that this method of analysis did
+not give spurious indication of separation in the presence of
+large adverse pressure gradients, but yielded boundary-layer
+parameters in good agreement with experimentally obtained
+data.
+References
+1 Clauser, F., "The turbulent boundary layer," Advances in
+Applied Mechanics (Academic Press Inc., New York, 1956), Vol.
+IV.
+2Von Doenhoff, A. E. and Tetervin, N., "Determination of
+general relations for the behavior of turbulent boundary layers,"
+NACA Rept, 772 (1943).
+3 Tetervin, N. and Lin, C. C., "A general integral form of the
+boundary-layer equation for incompressible flow with an ap-
+plication to the calculation of the separation point of turbulent
+boundary layers," NACA Kept. 1046 (1951).
+4 Maskell, E. C., "Approximate calculation of the turbulent
+boundary layer in two-dimensional incompressible flow," British
+Royal Aircraft Establishment Rept. Aero 2443 (1951).
+5 Reshotko, E. and Tucker, M., "Approximate calculation of
+the compressible turbulent boundary layer with heat transfer and
+arbitrary pressure gradient," NACA TN 4154 (1957).
+6 McLafferty, G. H. and Barber, R. E., "The effect of adverse
+pressure gradients on the characteristics of turbulent boundary
+layers in supersonic streams," J. Aerospace Sci. 29, 1-18 (1962).
+7 Ludwieg, H. and Tillmann, W., "Investigations of the wall
+shearing-stress in turbulent boundary layers," NACA TN 1285
+(1950).
+8 Mager, A., Transformation of the compressible turbulent
+boundary layer," J. Aerospace Sci. 25, 305-311 (1958).
+9 Coles, D. E., The turbulent boundary layer in a compressible
+fluid," Phys. Fluids 7, 1403-1423 (September 1964).
+10 Tetervin, N., "The application of the reference-enthalpy
+method to friction formulas," J. Aerospace Sci. 29, 493 (1962).
+11 Eckert, E. R. G., "Engineering relations for friction and heat
+transfer to surfaces in high velocity flow," J. Aeronaut. Sci. 22,
+585-586(1955).
+12 Libby, P. A., Baronti, P. O., and Napolitano, P., "Study of
+the incompressible turbulent boundary layer with pressure
+gradient," AIAA J. 2, 445-452 (1964).
+13 Sandborn, V. A. and Slogan, R. J., "Study of the momentum
+distribution of turbulent boundary layers in adverse pressure
+gradients," NACA TN 3264 (1955).
+14 Newman, M. A., "Some contributions to the study of the
+turbulent boundary-layer near separation," Australian Aero-
+nautical Research Consultative Committee, Rept. ACA-53
+(1951).
+15 Schubauer, G. B. and Klebanoff, P. S., "Investigation of
+separation of the turbulent boundary layer," NACA TN 2133
+(1950).
+16 Reshotko, E. and Tucker, M., "Effect of a discontinuity on
+turbulent boundary-layer thickness parameters with application
+to shock-induced separation," NACA TN 3454 (1955).
+17 van Driest, E. R., "The problem of aerodynamic heating,"
+Aeronaut. Eng. Rev. 15, 26-41 (October 1956).
+18 Cresci, 11. J., MacKenzie, D. A., and Libby, P. A., "An in-
+vestigation of laminar, transitional, and turbulent heat transfer
+on blunt-nosed bodies in hypersonic flow," J. Aerospace Sci. 27,
+401-414(1960).
+19 Zakkay, V. and Callahan, C. J., "Laminar, transitional and
+turbulent heat transfer to a cone-cylinder-flare body at Mach
+8.0," J. Aerospace Sci. 29,1403-1420 (1962).
+20 Dayman, B., "Comparison of calculated with measured
+boundary-layer thicknesses on the curved walls of the JPL 20 inch
+supersonic wind tunnel two-dimensional nozzle," California Insti-
+tute of Technology Jet Propulsion Laboratory TR 32-349 (March
+1963).
+21 Winter, K. G., Smith, K. G., and Rotta J. C., "Turbulent
+boundary-layer studies on a waisted body of revolution in sub-
+sonic and supersonic flow,' AGARDograph 97, Pt. II (May
+1965).
+22 Libby, P. A. and Cresci, R. J., "Evaluation of several hyper-
+sonic turbulent heat transfer analyses by comparison with experi-
+mental data," Polytechnic Institute of Brooklyn Aerospace Lab.
+PIBAL 387, Wright Air Development Center WADC TN 57-72
+(July 1957).
+Downloaded by Imperial College London - Access Management on May 17, 2026 | http://arc.aiaa.org | DOI: 10.2514/3.3378 
+

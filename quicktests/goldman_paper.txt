@@ -1,0 +1,529 @@
+- - --- - 
+a _ 
+- 
+- NASA TECHM-!GAL 
+MEM0R.AMBU.M 
+BLADE EFFICIENCY FOR TWO-DI-NSI'ONAL 
+~~~*yg@;z&.g@%&qg 
+a- .-L 
+R@MP;c~ Gmm 
+a&ekM 4135 
+lysis was conducted to determine the blade efficiency for two-dimensional, supersonic 
+characteristics were calculated and used to obtain the conditions downstream of the rotor 
+blades after the flow had mixed to a uniform state. Subsonic and supersonic aftermixing axial 
+Mach number solutions were obtained for this loss model. The effect of the surface Mach 
+number levels on both blade efficiency and boundary layer separation were investigated. In 
+addition, the effects of inlet flow angle and inlet Mach number on blade efficiencies were obtained. 
+Supersonic flow 
+"For sale by the Clearinghouse for Federal Scientific and Technical Information 
+Springfield, Virginia 22151 
+ANALYTICAL INVESTIGATION OF BLADE EFFICIENCY FOR PWO-DIMEN SIONAL 
+SUPERSONIC TURBINE ROTOR BLADE SECTIONS 
+Lewis Research Center 
+SUMMARY 
+An analysis was conducted to determine the blade efficiency for two-dimensional, 
+supersonic rotor blade sections designed to produce vortex flow within the blade passage. 
+Boundary layer characteristics were calculated and used to obtain the conditions down- 
+stream of the rotor blades after the flow had mixed to a uniform state. The boundary 
+layer calculations were also used to give some indication as to whether flow separation 
+would occur. 
+Subsonic and supersonic aftermixing axial Mach number solutions were obtained 
+when the free-stream axial Mach number at the rotor exit (before mixing) was super- 
+sonic. The subsonic solution corresponds to mixing plus oblique shock losses, whereas 
+the supersonic solution corresponds to shockless mixing. The effect of the lower- and 
+upper-blade-surface Mach numbers on both blade efficiency and boundary layer separa- 
+tion were investigated. In addition, the effects of inlet flow angle and inlet Mach number 
+on blade efficiencies were obtained. 
+The analysis indicated that either decreasing the lower-blade-surface Mach number 
+or increasing the upper-blade-surface Mach number resulted in higher rotor blade effi- 
+ciencies and also increased tendency for boundary layer separation. For this reason, the 
+optimum blade performance would be expected to occur for rotor blades designed so 
+that flow separation is imminent or has occurred slightly on both surfaces. 
+The rotor blade efficiency for the supersonic solution was found to be higher than for 
+the subsonic solutionbecause of the absence of shock losses in the supersonic solution. 
+For the supersonic solution, it was found that the aftermixing flow angle deflects to- 
+wards the axial direction resulting in further flow expansion on mixing. This results in 
+higher aftermixing Mach numbers and higher total- to static-pressure ratios for the 
+supersonic solution than for the subsonic solution. 
+Decreasing the inlet flow angle results in lower rotor blade efficiencies for the sub- 
+sonic solution because of increased oblique shock losses. For the superSonic solution, 
+little effect was noted. Increasing the inlet Mach number results in a significant de- 
+crease in efficiency. 
+INTRODUCTION 
+Supersonic turbines have potential application in turbopump and open- cycle auxiliary 
+power systems (ref. 1) where high-energy fluids are used and high pressure ratios are 
+available. This has resulted in a need for design procedures applicable to this type of 
+turbine. The relatively small amount of experimental data on the overall performance 
+of supersonic turbines (refs. 2 to 4) does not contain sufficient information to assess the 
+individual performance of either the stator or the rotor. Because of this, both are 
+usually designed by theoretical methods. 
+Supersonic stators and rotors can be designed by the method of characteristics as 
+applied to the isentropic flow of a perfect gas. Computer programs for the design of 
+two-dimensional supersonic nozzles and rotor blades have been reported in references 5 
+and 6, respectively. The design of blading by these procedures must then be supple- 
+mented by a knowledge of the loss characteristics of both the stator and the rotor, The 
+efficiency of supersonic stators with sharp-edge throats were studied analytically in 
+reference 7. Boundary layer characteristics were calculated (in ref. 7) and used to 
+obtain the conditions downstream of the stators after the flow had mixed to a uniform 
+state. 
+The purpose of this report is to study analytically the blade efficiency for super- 
+sonic rotor blades designed for conditions applicable to auxiliary space power systems. 
+The rotor blades are designed so as to produce vortex flow within the blade passage. To 
+obtain a theoretical estimate of the efficiency, the following calculations are required: 
+(1) isentropic design of the supersonic rotor blades, (2) calculation of the boundary layer 
+characteristics (momentum and displacement thicknesses) for the blades, and (3) deter - 
+mination of the losses due to mixing downstream of the rotor. The isentropic rotor 
+blade design is obtained from the computer program of reference 6. The boundary layer 
+parameters are calculated (assuming the flow entering the rotor is turbulent) by the 
+computer program described in reference 8. For turbulent flow, the program uses the 
+method given by Sasman and Cresci in reference 9. Finally, the aftermixing losses are 
+found by the procedure given by Stewart (ref. 10) for turbomachine blades. 
+The blade efficiency for two-dimensional supersonic impulse rotor blades were 
+primarily investigated for an inlet Mach number of 2.5. The effect of the lower- and 
+upper-surface Mach number levels on both blade efficiency and boundary layer separa- 
+tion were studied. In addition, the effects of inlet flow angle and inlet Mach number on 
+blade efficiency were obtained. 
+SYMBOLS 
+6: blade chord, ft; m 
+2 
+blade spacing, ft; m 
+incompressible form factor, displacement thickness divided by momentum thick- 
+ness 
+Mach number 
+2 pressure, psia; ?X/m abs 
+Reynolds number, P~V~C/P~ 
+tangential direction 
+velocity, ft/sec; m/sec 
+axial direction 
+relative flow angle measured from axial direction, deg 
+rotor blade efficiency, (V;/V~, 
+viscosity based on relative total inlet temperature, lb/(ft) (sec); kg/(m) (see) 
+Prandtl-Meyer angle, angle through which flow must turn in expanding from 
+Mach 1 to given Mach number, deg 
+density, lb/ft3; kg/m3 
+blade solidity, C/G 
+Subscripts : 
+id 
+in 
+2 
+out 
+1% 
+0 
+1 
+2 
+ideal 
+inlet to rotor 
+lower surface of blade 
+outlet of rotor 
+upper surface of blade 
+station at rotor inlet 
+station at rotor exit 
+station downstream of rotor 
+Superscripts: 
+t conditions relative to rotor 
+' ' total relative conditions 
+METHOD OF ANALYSIS 
+The calculation of the blade efficiency for two-dimensional supersonic rotor 
+blades designed to produce vortex flow within the blade passage is described herein, 
+The rotor blades were designed for conditions applicable to an auxiliary space power 
+system similar to that described in reference 1. 
+The rotor blade efficiencies were obtained by first designing a series of loss- 
+free passages for given values of lower- and upper-surface Mach numbers. The boundary 
+layer characteristics (momentum and displacement thicknesses) for the ideal passages 
+were then obtained and the passage corrected to include the effect of the displacement 
+thickness. Since the final blade profile must have equal outlet and inlet spacing (for con- 
+stant mean diameter turbine), this requires that the ideal passage be designed so that the 
+outlet spacing is less than the inlet spacing. This is discussed further in the section 
+Rotor Blade Description and Design. The exit Mach number, flow angle, pressure ratio, 
+and kinetic energy loss were calculated assuming that the flow mixes to uniform condi- 
+tions downstream of the rotor. In addition, the boundary layer characteristics were used 
+to give some indication as to whether flow separation would occur in the rotor. 
+The efficiencies obtained in this analysis are for two-dimensional blade rows. In an 
+actual design, three-dimensional effects would have to be included. A method of esti- 
+mating three-dimensional efficiency from two-dimensional efficiency has been described 
+in reference 11. 
+Rotor Blade Description and Design 
+The design of the loss-free (isentropic) blade passage is based on establishing vortex 
+flow within the blade passage by a procedure analogous to that given in reference 6. A 
+typical passage, designed by the method of characteristics, is shown in figure 1. The 
+passage consists essentially of three major parts: (1) inlet transition arcs, (2) circular 
+arcs, and (3) outlet transition arcs. The inlet transition arcs (lower and upper) are re- 
+quired to convert the assumed uniform parallel flow at the passage inlet into vortex flow. 
+The concentric circular arcs turn and maintain the vortex flow conditions. The outlet 
+transition arcs reconvert the vortex flow into uniform parallel flow at the passage exit. 
+Straight-line segments parallel to the inlet and outlet flow direction complete the passage. 
+It is seen from figure 1, that the ideal passage has an outlet spacing Gout less than 
+the inlet spacing Gin. This is done purposely. It will be required that the corrected 
+passage (i. e., the passage corrected by the boundary layer displacement thicknesses) 
+have equal outlet and inlet spacing (see fig. 2). This is possible only if for the ideal pas- 
+sage Gout is less than Gin. For an ideal passage designed for impulse conditions 
+Characteristic 
+- Vortex 
+------ transition 
+A 
+Figure 1. - Design of ideal supersonic flow passage by method of characteristics. 
+,-Displacement thickness 
+----I' 
+Figure 2. - Design of supersonic rotor blade section. 
+(ecgual inlet and outlet Mach liumbersj this is accomplished by having less circular turn- 
+ing for the outlet portion of the passage. That is, the outlet circular arcr; JK and BE 
+(fig. 1) are less than the corresponding inlet circular arcs IJ and GD, An iterative pro- 
+cedure is required to find out just how much less to make JK and BE. This was done 
+automatically using a modified version of the computer program described in reference 6. 
+For the low flow rate open-cycle auxiliary space power systems of current interest 
+(ref. I), the flow through the turbine is likely to be laminar. The calculation of laminar 
+boundary layer parameters in strong adverse pressure gradients, as exist in the rotor 
+passage, does not appear to be possible with existing theory because of boundary layer 
+separation. In order to get an estimation of the losses in the rotor, the boundary layer 
+characteristics for the ideal passages were calculated assuming the flow is turbulent. 
+If the flow is actually laminar, the larger friction losses occurring would result in lower 
+efficiencies than presented herein. However, the effect of the design variable on blade 
+efficiency would be expected to follow similar trends. 
+The boundary layer parameters were obtained using the computer program de- 
+scribed in reference 8. For turbulent flow, the program uses the compressible boundary 
+layer theory given in reference 9. In this method, the boundary layer parameters are 
+obtained by simultaneous solutions of the transformed momentum and moment-of- 
+momentum integral equations. The final blade passage is obtained by adding the dis- 
+placement thicknesses to the loss-free passage coordinates. Figure 2 shows a typical 
+blade section designed by this procedure. The dashed line represents the loss-free 
+passage. The displacement and momentum thicknesses at the blade exit (station 1, 
+fig. 2) were used to calculate the conditions downstream of the blades. 
+Blade Efficiency 
+The calculation of the losses due to mixing downstream of turbomachine blade rows 
+has been described in terms of boundary layer characteristics in reference 10. In this 
+loss model, the flow sufficiently downstream of the blade row is assumed to be uniform 
+and parallel. Application of the continuity, momentum, and energy equations between 
+stations 1 and 2 (fig. 2) results in the determination of the aftermixing Mach number, 
+flow angle, pressure ratio, and kinetic energy loss (or efficiency). The rotor blade effi- 
+ciency 7 is defined herein as 
+where V; is the aftermixing relative velocity and v;, id is the ideal relative velocity at 
+(a) Supersonic solution 
+Flow 
+I 
+o i i 
+(b) Subsonic solution. 
+Figure 3. - Representation of different afterrnixing solutions. 
+station 2 obiained by isentropic expansion to the aftermiAng static pressure p2. 
+Since the free-stream Mach numbers at station 1 are supersonic, two cases are con- 
+sidered for this loss model: (1) supersonic free-stream axial Mach numbers and (2) sub- 
+sonic free-stream axiai IvSach numbers. These will now be discussed. 
+Supersonic free-stream axial Mach numbers. - Men the free-stream axial Mach 
+number at the blade exit (station I, fig. 2) is supersonic, two aftermixing solutions are 
+analytically possible for the loss model of reference 10. One of the solutions results in 
+supersonic aftermixing axial Mach numbers (station 2, fig. 2) and is hereafter referred 
+to as the supersonic solution. The losses for this solution are the result of mixing the 
+nonuniform flow at the blade exit to uniform flow. In the limit, as the boundary layer 
+parameters go to zero this solution corresponds to straight-through flow. No shock 
+losses occur for this solution. The second solution results in subsonic aftermixing axial 
+Mach numbers and will be referred to as the subsonic solution. As the boundary layer 
+parameters go to zero, this solution corresponds to an oblique shock wave occurring 
+across the blade exit plane (station 1). Therefore, with a boundary layer present, the 
+losses are a combination of mixing and shock losses. A schematic representation of 
+these solutions is shown in figures 3(a) and (b). 
+Subsonic free-stream axial Mach numbers. - When the free-stream axial Mach num- 
+ber at the blade exit is subsonic, only one aftermixing solution is analytically possible 
+for this model. The aftermixing axial Mach number is subsonic, and this solution will 
+again be referred to as the subsonic solution. Only mixing losses occur for this solution. 
+Boundary Layer Characteristics 
+As described previously, the boundary layer calculations are needed to correct the 
+ideal passage for the displacement thickness. In addition, the calculations also give an 
+indication if the adverse pressure gradients along the blade surfaces are severe enough 
+to cause flow separation. This type of information is obtained from the value of the in- 
+compressible form factor Hi along the blade surfaces. A typical distribution of PIi is 
+shown in figure 4. The corresponding surface Mach number distribution is shown in fig- 
+ure 5. Flow separation usually occurs in the range of Hi from 1.8 to 2.4 (ref. 12). 
+From figure 4 it is seen that separation is possible on both the lower and upper surfaces 
+of the blade. Separation on the lower surface, if it occurs, is probably not as important 
+since the flow would tend to reattach shortly downstream. The maximum value of Hi 
+along either surface usually occurs on the transition arc (points I and F of fig. 4). 
+1.2 0 .2 .4 .6 .8 1.0 
+Fraction of chord 
+Figure 4. -Typical variation of incompressible form factor with axial distance. 
+Upper surface 
+I I I I I I I I 
+.2 .4 .6 .8 1.0 
+Fraction of chord 
+Figure 5. -Typical variation of surface Mach number with axial distance. 
+RESULTS AND DISCUSS ION 
+The results of the study of the blade efficiency of supersonic rotor blades are 
+presented in this section. The blade efficiencies were primarily investigated for rotor 
+blades designed for an inlet Mach number of 2.5 and inlet flow angle of 70'. The Rey- 
+nolds number Re = pi~b~/pO was 35 000, and the specific heat ratio was 1.4. With the 
+aforementioned conditions, specification of the lower- and upper-surface Mach number 
+completely determines the blade shape, solidity, outlet blade angle (since equal outlet 
+and inlet spacings are required), and aftermixing conditions. The effect of the lower- 
+and upper-surface Mach number levels on the rotor blade efficiency and boundary layer 
+characteristics were investigated. In addition, the effects of inlet flow angle and inlet 
+Mach number on blade efficiencies were obtained. 
+Blade Efficiency and Boundary Layer Characteristics at Mach Number of 2.5 
+Rotor blade efficiency. - The rotor blade efficiency as a function of lower- and 
+upper-surface Prandtl-Meyer angle (or Mach number) is shown in figures 6 and 7, re- 
+spectively. As discussed previously, solutions corresponding to subsonic and super- 
+sonic aftermixing axial Mach numbers are shown in the figures. 
+The efficiency for the supersonic solution is higher than for the subsonic solution be- 
+Lower-surface Prandtl-Meyer angle, vl, deg 
+1.7 1.8 1.9 2.0 2.1 2.2 
+Lower-surface Mach number, Ml 
+Figure 6. - Effect of lo:ver-surface Prandtl-Meyer angle on rotor blade efficiency for rotor blades de- 
+signed for inlet Mach number of 2.5 (Upper-surface Prandtl-Meyer angle, 49"). 
+1 I I 
+2.6 2.7 2.8 2.9 3.0 3. 1 3.2 
+Upper-surface Mach number, Mu 
+0 
+Figure 7. - Effect of upper-surface Prandtl-Meyer angle on rotor blade effi- 
+ciency for rotor blades designed for inlet Mach number of 2.5 (Lower- 
+surface Prandtl-Meyer angle, 34O). 
+cause of the absence of shock losses in the supersonic solution. It should be noted that 
+for this loss model, the work output of the turbine would be the same for both the sub- 
+sonic and supersonic solutions. The rotor blade efficiency is seen to increase when either 
+40 42 44 46 45 50 52 54 
+Upper-surface Prandtl-Meyer angle, vu, deg 
+the lower-surface Prandtl-Meyer angle (or Mach number) decreases or the upper-surface 
+Prandtl-Meyer angle increases. This is to be expected since these changes increase the 
+passage width which results in a smaller percentage of the passage being occupied by the 
+I I 
+boundary layer. These results assume that boundary layer separation does not occur 
+I 
+along the blade surfaces. Flow separation could lower these rotor blade efficiencies sig- 
+nificantly. 
+Boundary layer characteristics. - The effect of lower- and upper-surface Prandtl- 
+Meyer angles on the maximum value of incompressible form factor Hi is shown in fig- 
+ures 8 and 9, respectively. As discussed previously, the boundary layer characteristics 
+of the rotor blades (from a flow separation standpoint) can be represented by the maxi- 
+mum value of Hi on each surface. Flow separation usually occurs in the range of Hi 
+from 1. 8 to 2.4. From figures 8 and 9, it is seen that themaximumvalue of Hi increases 
+when either the lower-surface Prandtl-Meyer angle (or Mach number) decreases or the 
+upper-surface Prandtl-Meyer angle increases. But these same changes inPrandt1-Meyer 
+angle were previously found to increase the rotor efficiency. Therefore, changes in sur- 
+face Mach number levels that tend to increase blade performance also tend to cause flow sepa- 
+ration. A compromise between these opposing tendencies is necessary in an actual design. 
+1.61 I I 16 18 20 22 24 26 28 30 32 34 
+I 
+Lower-surface Prandtl-Meyer angle, vz, deg 
+1.7 1.8 1.9 2.0 2. 1 2.2 
+Lower-surface Mach number, MZ 
+Figure 8. -Effect of lower-surface Prandtl-Meyer angle on maximum value of incompressible form 
+factor on lower surface (Upper-surface Prandtl-Meyer angle, 49"). 
+I I I I 
+42 44 46 48 50 52 54 
+Upper-surface Prandtl-Meyer angle, vu, deg 
+2.7 2.8 2.9 3.0 3.1 3.2 
+Upper-surface Mach number, Mu 
+Figure 9. - Effect of upper-surface Prandtl-Meyer angle on 
+maximum value of incompressible form factor on upper- 
+surface (Lower-surface Prandtl-Meyer angle, 34"). 
+An optimum supersonic rotor blade design would be expected to occur for a blade de- 
+sign in which the lower- and upper-surface Mach numbers are chosen such that flow sep- 
+aration is imminent or has occurred slightly on each surface. For under these condi- 
+tions, it would be expected t'nat the rotor blade efficiency would be close te its maximum 
+value. A similar result for more conventionally shaped cascade blades was obtained by 
+Schlichting in reference 13. 
+In an actual blade design, other factors such as blade solidity and supersonic start- 
+ing would also have to be considered. These have been discussed in reference 14. For 
+completeness, the blade solidity as a function of lower- and upper-surface Prandtl- 
+Meyer angles is shown in figure 10. It is seen from the figure that the solidity decreases 
+Upper-surface 
+Prandtl-Meyer 
+angle, 
+Lower-surface Prandtl-Meyer angle, vl, deg 
+1. 6 1. 7 1.8 1.9 2.0 2. 1 212 
+Lower-surface Mach number, M2 
+Figure 10. - Effect of surface Prandtl-Meyer angles on blade solidity. 
+(number of blades decreases) as the lower-surface Prandtl-Meyer angle decreases or the 
+upper-surface Prandtl-Meyer angle increases. These are the same trends that tend to 
+increase the probability of separation. 
+Aftermixing characteristics. - The aftermixing conditions for the rotor blades as a 
+function of lower- and upper-surface Prandtl-Meyer angle are shown in figures 11 
+and 12, respectively. The effect of the surface Prandtl-Meyer angles on the aftermixing 
+Mach number is shown in figures Il(a) and 12(a). The aftermixing Mach number exhibits 
+trends similar to that seen for the rotor efficiency (figs. 6 and 7). The aftermixing Mach 
+number for the supersonic solution is larger than for the subsonic solution because of the 
+absences of shock losses in the subsonic solution. 
+(b) Afterrnixing flow angle. 
+2.5 
+sN 
+L 
+a, 0 
+2.0- 
+C 
+c U 
+22 
+1.5- .- 
+X .- 
+E 
+a, 
+.+a 
+2 1.0 
+- 
+1.7 1.8 1.9 2.0 2. 1 2. 2 
+Lower-surface Mach number, Ml 
+(a) Afterrnixing Mach number. 
+0 .+a 
+- m 
+(c) Rotor total- to static-pressure ratio. 
+Supersonic solution 
+Figure 11. - Effect of lower-surface Prandtl-Meyer angle on afterrnixing conditions for rotor blades de- 
+signed for inlet Mach number of 2.5 (Upper-surface Prandtl-Meyer angle, 49"). 
+10 16 18 X) 22 26 28 30 
+I I 
+24 
+I 
+32 14 
+Lower-surface Prandtl-Meyer angle, vl, deg 
+(a) Aftermixing Mach number 
+E '-1 / ~uoersonic solution 
+(b) Aftermixing flow angle 
+20 
+(D .,- V) 
+9 
+- m + g 10 
+Upper-surface Prandtl-Meyer angle, vu, deg 
+2.6 2.7 2.8 2.9 3.0 3.1 3.2 
+Upper-surface Mach number, Mu 
+(c) Rotor total- to static-pressure ratio. 
+Figure 12. - Effect of upper-surface Prandtl-Meyer angle on aftermixing condi- 
+tions for rotor blades designed for inlet Mach number of 2.5 (Lower-surface 
+Prandtl-Meyer angle, 34"). 
+50 
+18 20 22 24 26 28 30 32 34 
+Lower-surface Prandtl-Meyer angle, vu, deg 
+I I I I 
+1.8 1.9 2.0 2. 1 2.2 
+Lower-surface Mach number, ML 
+Figure 13. - Effect of lower-surface Prandtl-Mayer angle oh rotor outlet flow angle for 
+rotor blades designed for inlet Mach number of 2.5 (Upper-surface Prandtl-Meyer angle, 
+49"). 
+The aftermixing flow angles as a function of lower- and upper-surface Prandtl- 
+Meyer angles are shown in figures Il (b) and 12 (b), respectively. The corresponding 
+blade outlet flow angles before mixing (station 1, fig. 2) are shown in figures 13 and 14. 
+From these figures it is seen that the flow deflects away from the axial direction for the 
+subsonic solution and deflects towards the axial direction for the supersonic solution. 
+The deflection of the flow towards the axial direction results in further flow expansion. 
+The rotor total- to static-pressure ratios as a function lower- and upper- 
+surface Prandtl-Meyer angles are shown in figures 11 (c) and 12 (c), respectively. For 
+the supersonic solution the flow expansion results in lower aftermixing static pressures 
+Upper-surface Prandtl-Meyer angle, vu, deg 
+I 
+2.7 2.8 2.9 3.0 3.1 3.2 
+Upper-surface Mach number, Mu 
+Figure 14. -Effect of upper-surface Prandtl-Meyer angle on rotor 
+outlet flow angle for rotor blades designed for inlet Mach number 
+of 2.5 (Lower-surface Prandtl-Meyer angle, 34"). 
+.51 50 55 60 65 70 75 80 
+Inlet flow angle, a,, deg 
+Figure 15. -Effect of inlet flow angle on rotor blade efficiency for rotor blades designed for inlet Mach number of 2.5 (Lower- and upper- 
+surface Prandtl-Meyer angles, 25" and 49", respectively. 
+p2 than occur for the subsonic solution. Therefore, the total- to static-pressure ratio 
+is higher for the supersonic solution than for the subsonic solution. 
+Effect of inlet flow angle on efficiency. - The effect of inlet flow angle on rotor blade 
+efficiency is shown in figure 15. The lower- and upper-surface Prandtl-Meyer angles are 
+kept constant at values of 25' and 4g0, respectively. For the subsonic solution, de- 
+creasing the inlet flow angle results in a decrease in efficiency. This occurs because 
+decreasing the inlet flow angle causes the outlet flow angle (station I) to decrease, which 
+results in larger oblique shock losses. For the supersonic solution, the inlet flow angle 
+has a small effect on efficiency. The slight increase in efficiency for high inlet angle is 
+due to the decreased mixing losses which occur as the axial Mach number approaches 
+one. 
+Effect of inlet Mach Number on Rotor Blade Efficiency 
+The effect of rotor inlet Prandtl-Meyer angle (or Mach number) on rotor blade effi- 
+ciency is shown in figure 16 for rotor blades designed for an inlet flow angle of '70' and 
+Reynolds number of 35 000. The maximum value of the lower- and upper-surface incom- 
+pressible form factor was kept constant at a value of 2.0. As expected, increasing the 
+inlet Mach number level results in a significant decrease in efficiency. For the sub- 
+sonic solution, larger losses occur because the strength of the oblique shock increases 
+as the Mach number at the rotor exit (station 1) increases. 
+I 
+1.5 2.0 2.5 3.0 3.5 
+Inlet Mach number, Mi 
+Figure 16. - Effect of inlet Prandtl-Meyer angle on rotor blade efficiency for rotor blades designed for inlet flow 
+angle of 70" (Maximum value of lower- and upper-surface incompressible form factor, 2.0). 
+SUMMARY OF RESULTS 
+An analysis was conducted to determine the blade efficiency for two-dimensional 
+supersonic rotor blade sections designed to produce vortex flow within the blade passage. 
+Boundary layer characteristics were calculated and used to obtain the conditions down- 
+stream of the rotor blades after the flow had mixed to a uniform state. The boundary 
+layer calculations were also used to give some indication as to whether flow separation 
+could occur in the rotor. Subsonic and supersonic aftermixing axial Mach number 
+solutions were obtained when the free-stream axial Mach number at the rotor exit 
+(before mixing) was supersonic. The subsonic solution corresponds to mixing plus 
+oblique shock losses, whereas the supersonic solution corresponds to shockless mixing. 
+The effect of the lower- and upper-surface Prandtl-Meyer angles (or Mach numbers) on 
+both blade efficiency and boundary layer separation were investigated. In addition, the 
+effect of inlet flow angle and inlet Mach number on blade efficiencies were obtained. The 
+following results were obtained: 
+1. The rotor blade efficiency increases when either the lower-surface Prandtl-Meyer 
+angle (or Mach number) decreases or the upper-surface Prandtl-Meyer angle increases 
+(assuming flow separation does not occur). The tendency for boundary layer separation 
+also increases when either the lower-surface Prandtl-Meyer angle de~reases or the 
+upper - surface Brandtl- Me yer angle increases. The optimum blade performance would, 
+therefore, be expected to occur for rotor blades designed so that flow separation is im- 
+minent or has occurred slightly on both surfaces. 
+2. The rotor blade efficiency for the supersonic solution is higher than for the sub- 
+sonic solution, because of the absence of shock losses in the supersonic solution. The 
+aftermixing flow angle deflects away from the axial direction for the subsonic solution, 
+but deflects towards the axial direction for the supersonic solution. The supersonic 
+solution, therefore, represents further flow expansion on mixing which results in higher 
+aftermixing Mach numbers and higher total- to static-pressure ratios than occur for the 
+subsonic solution. 
+3. Decreasing the inlet flow angle results in lower rotor blade efficiencies for the 
+subsonic solution because of increased oblique shock losses. For the superspnic solu- 
+tion, the inlet flow angle has a small effect on efficiency. 
+4. Increasing the inlet Mach number results in a significant decrease in efficiency. 
+For the subsonic solution, larger losses occur because the strength of the oblique shock 
+increases as the rotor exit Mach number increases. 
+Lewis Research Center, 
+National Aeronautics and Space Administration, 
+Cleveland, Ohio, February 3, 1970, 
+128-31. 
+REFERENCES 
+1. Vanco, Michael R. : Thermodynamic and Turbine Characteristics of Hydrogen- 
+Fueled Open-Cycle Auxiliary Space Power System. NASA TM X- 1337, 1967. 
+2. Moffitt, Thomas P. : Design and Experimental Investigation of a Single-Stage Tur- 
+bine with a Rotor Entering Relative Mach Number of 2. NACA RM E58F20a, 1958. 
+3. Moffitt, Thomas P. ; and Klag, Frederick W. , Jr. : Experimental Investigation of 
+the Partial-Admission Performance Characteristics of a Single-Stage Mach 2 
+Supersonic Turbine. NASA TM X-80, 1959. 
+4. Moffitt, Thomas P. ; and Klag, Frederick W. , Jr . : Experimental Investigation of 
+Partial - And Full - Admission Characteristics of a Two-Stage Velocity- 
+Compounded Turbine. NASA TM X-410, 1960. 
+5. Vanco, Michael R. ; and Goldman, Louis J. : Computer Program for Design of Two- 
+Dimensional Supersonic Nozzle with Sharp-Edged Throat. NASA TM X-1502, 1968. 
+6. Goldrnan, Louis J. ; and Scullin, Vincent J. : Analytical Investigation of Supersonic 
+Turbomachinery Blading. I - Computer Program for Blading Design. NASA TN 
+D-4421, 1968. 
+7. Goldman, Louis J. ; and Vanco, Michael R. : Analytical Investigation of Two- 
+Dimensional Loss Characteristics of Supersonic Turbine Stator Blades. NASA TM 
+X-1823, 1969. 
+8. McNally, William D. : Fortran Program for Calculating Compressible Laminar and 
+Turbulent Boundary Layers in Arbitrary Pressure Gradients. NASA TN D- 5681, 
+1970. 
+9. Sasman, Philip K. ; and Cresci, Robert J. : Compressible Turbulent Boundary Layer 
+with Pressure Gradient and Heat Transfer. AIAA J., vol. 4, no. 1, Jan. 1966, 
+pp. 19-25. 
+10. Stewart, Warner L. : Analysis of Two-Dimensional Compressible-Flow Loss Char- 
+acteristics Downstream of Turbomachine Blade Rows in Terms of Basic Boundary- 
+Layer Characteristics. NACA TN 3515, 1955. 
+11. Stewart, Warner L. ; Whitney, Warren J. ; and Wong, Robert Y. : Use of Mean- 
+Section Boundary-Layer Parameters in Predicting Three-Dimensional Turbine 
+Stator Losses. NACA RM E55L12a, 1956. 
+12. Schlichting, Hermann (J. Kestin, trans. ): Boundary-Layer Theory. Sixth ed., 
+McGraw-Hill Book Co. , Inc. , 1-968. 
+13. Schlichting, H. : Application of Boundary-Layer Theory in Turbomachinery. J. 
+Basic. Eng., vol. 81, no, 4, Dec. 1959, pp. 543-551. 
+14. Goldman, Louis J. : Analytical Investigation of Supersonic Turbomachinery Blading. 
+I1 - Analysis of Impulse Turbine-Blade Sections. NASA TN D-4422, 1968. 
+KETPLGE AND FEES PU 
+NATION& AEELWAUTICS m 
+SPACE ADmqT3E 
+NASA SCIENmC AND TECHNICAL CATIONS 
+SPECIM. PUBLIGATZONS: Mopmi* 
+bc-tied from a af due .to NASA acrivitiw. 
+Iri~Miatim isldttde ccwfamd 
+scxrzeeM~ specit11 bibli~p@b 
+TErnOLOGY rnIZA,"TZO~ 
+PWmmNS: hfasmtica an t&h&m 
+ud by NASA tlwr may he of pthhr 
+inrerest in ramrcd and otk erm-aemspc 
+applifau'ma. Pt~Mimrims inchide Td fiiefh 
+Techalogy WtZiBtic&l RepaFs ass$ Nbm, 
+ad Techndogy Survep 

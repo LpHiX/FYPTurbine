@@ -296,91 +296,162 @@ class SupersonicTurbineMOC:
         plt.title('Supersonic Turbine Blade Profile (MOC)')
         plt.show()
 
-    def surface_mach_distribution(self, plot=True):
+    def surface_mach_distribution(self, plot=True, n_arc=80):
         """
         Compute and optionally plot the surface Mach number distribution
-        vs. normalized axial chord (x/c_ax, 0 at blade inlet, 1 at blade outlet).
+        vs. normalized arc length (s/c).
 
-        Uses only the blade wall points from the MOC characteristics.
-        The blade is symmetric (inlet mirrors outlet), so each half is mirrored
-        about the throat plane.  The upper surface is extended to span the
-        full axial chord via trailing-edge line segments at M_inlet.
+        Builds the full blade surface in the rotated (physical) frame:
+        inlet transition (rotated by +alpha) → vortex arc → outlet transition
+        (rotated by -alpha).  The vortex arc connects the two halves at
+        radius R, subtending ~2*alpha which produces the flat Mach plateau.
+
+        For the upper surface, straight TE extensions at M_inlet are added
+        to match the axial extent of the lower surface.
+
+        Parameters
+        ----------
+        plot : bool
+            If True, plot the Mach distribution vs s/c.
+        n_arc : int
+            Number of interpolation points for the vortex region arc.
 
         Returns
         -------
         dict with keys:
-            'lower': {'x_norm': ndarray, 'mach': ndarray}
-            'upper': {'x_norm': ndarray, 'mach': ndarray}
+            'lower': {'x_norm': ndarray, 's_norm': ndarray, 'mach': ndarray}
+            'upper': {'x_norm': ndarray, 's_norm': ndarray, 'mach': ndarray}
+            'chord_lower': float  (total arc length of lower surface)
+            'chord_upper': float  (total arc length of upper surface)
         """
         if not self.coords:
             self.generate()
 
         res = self.results
 
-        # --- Blade wall points in the rotated (physical) frame ---
-        # Stored order: index 0 = nearest throat, index -1 = nearest TE
-        x_l = self.coords['lower_rot']['x']   # negative x values (inlet half)
-        x_u = self.coords['upper_rot']['x']
+        def _rot(x, y, angle):
+            """Rotate (x, y) by angle."""
+            ca, sa = np.cos(angle), np.sin(angle)
+            return x * ca - y * sa, x * sa + y * ca
 
-        mach_l = self.surface_mach['lower']    # mach[0] ≈ M_lower, mach[-1] ≈ M_inlet
-        mach_u = self.surface_mach['upper']    # mach[0] ≈ M_upper, mach[-1] ≈ M_inlet
+        def _build_surface(side, n_arc, x_te_in, x_te_out, c_ax, extend_te=False):
+            """
+            Assemble a full surface in the rotated (physical) frame.
 
-        # The axial chord is set by the lower surface (it extends furthest)
-        x_te_inlet = x_l[-1]          # most-negative x  (inlet trailing edge)
-        x_te_outlet = -x_l[-1]        # most-positive x  (outlet trailing edge)
+            The blade surface goes:
+              [TE extension] → inlet transition → vortex arc → outlet transition → [TE extension]
+
+            The inlet half is rotated by +alpha_inlet.
+            The outlet half (mirror of inlet) is rotated by -alpha_inlet.
+            The vortex arc connects them at radius R in the rotated frame.
+            """
+            if side == 'lower':
+                xn = self.coords['lower']['x']
+                yn = self.coords['lower']['y']
+                x_rot_in = self.coords['lower_rot']['x']
+                y_rot_in = self.coords['lower_rot']['y']
+                mach_arr = self.surface_mach['lower']
+                R = res['Rl']
+                M_surface = self.mach_lower
+                alpha_in = res['alpha_lower_inlet']
+            else:
+                xn = self.coords['upper']['x']
+                yn = self.coords['upper']['y']
+                x_rot_in = self.coords['upper_rot']['x']
+                y_rot_in = self.coords['upper_rot']['y']
+                mach_arr = self.surface_mach['upper']
+                R = res['Ru']
+                M_surface = self.mach_upper
+                alpha_in = res['alpha_upper_inlet']
+
+            # --- Inlet half (reversed: TE → throat) ---
+            x_in = x_rot_in[::-1]
+            y_in = y_rot_in[::-1]
+            m_in = mach_arr[::-1]
+
+            # --- Outlet half: mirror unrotated coords, rotate by -alpha ---
+            xn_mirror = -xn      # throat → TE order
+            yn_mirror = yn.copy()
+            x_out, y_out = _rot(xn_mirror, yn_mirror, -alpha_in)
+            m_out = mach_arr.copy()   # throat → TE: M_surface → M_inlet
+
+            # --- Vortex arc in the rotated frame ---
+            # Inlet throat end and outlet throat start are both on circle of radius R
+            # but separated by ~2*alpha due to the different rotations.
+            angle_start = np.arctan2(x_in[-1], y_in[-1])
+            angle_end = np.arctan2(x_out[0], y_out[0])
+            # Interior points only (endpoints duplicate characteristic ends)
+            arc_angles = np.linspace(angle_start, angle_end, n_arc + 2)[1:-1]
+            x_arc = R * np.sin(arc_angles)
+            y_arc = R * np.cos(arc_angles)
+            m_arc = np.full(n_arc, M_surface)
+
+            # --- Assemble full surface ---
+            x_full = np.concatenate([x_in, x_arc, x_out])
+            y_full = np.concatenate([y_in, y_arc, y_out])
+            m_full = np.concatenate([m_in, m_arc, m_out])
+
+            # --- TE extensions (upper surface needs these) ---
+            if extend_te:
+                n_ext = 100
+                # Inlet extension: go UPSTREAM from first char point to x_te_in
+                # Slope is tan(beta_inlet)
+                # x_full[0] is x_u[-1], x_te_in is x_l[-1]
+                x_ext_in = np.linspace(x_te_in, x_full[0], n_ext, endpoint=False)
+                y_ext_in = y_full[0] + (x_ext_in - x_full[0]) * np.tan(self.beta_inlet)
+
+                # Outlet extension: go DOWNSTREAM from last char point to x_te_out
+                # Slope is -tan(beta_inlet) (since dy is positive while dx is negative)
+                x_ext_out = np.linspace(x_full[-1], x_te_out, n_ext + 1)[1:]
+                y_ext_out = y_full[-1] - (x_ext_out - x_full[-1]) * np.tan(self.beta_inlet)
+
+                x_full = np.concatenate([x_ext_in, x_full, x_ext_out])
+                y_full = np.concatenate([y_ext_in, y_full, y_ext_out])
+                m_full = np.concatenate([
+                    np.full(n_ext, self.mach_inlet),
+                    m_full,
+                    np.full(n_ext, self.mach_inlet),
+                ])
+
+            # --- Arc length ---
+            ds = np.sqrt(np.diff(x_full)**2 + np.diff(y_full)**2)
+            s = np.concatenate([[0], np.cumsum(ds)])
+            chord = s[-1]
+            s_norm = s / chord
+
+            # --- Axial x_norm ---
+            x_norm = (x_full - x_te_in) / c_ax
+
+            return x_norm, s_norm, m_full, chord, x_full, y_full
+
+        # Axial chord defined by lower surface (extends furthest)
+        x_l = self.coords['lower_rot']['x']
+        x_te_inlet = x_l[-1]
+        x_te_outlet = -x_l[-1]
         c_ax = x_te_outlet - x_te_inlet
 
-        # --- Lower surface (continuous: inlet TE → throat → outlet TE) ---
-        # Inlet half (flip so x goes from TE toward throat):
-        #   x: x_l[-1] ... x_l[0]   mach: mach_l[-1] ... mach_l[0]
-        # Throat midpoint at M_lower to bridge the gap:
-        x_throat_l = 0.5 * (x_l[0] + (-x_l[0]))   # = 0
-        # Outlet half (mirrored):
-        #   x: -x_l[0] ... -x_l[-1]   mach: mach_l[0] ... mach_l[-1]
-        x_lower = np.concatenate([
-            np.flip(x_l),
-            np.array([x_throat_l]),
-            -x_l,
-        ])
-        mach_lower = np.concatenate([
-            np.flip(mach_l),
-            np.array([self.mach_lower]),
-            mach_l,
-        ])
+        # --- Lower surface ---
+        x_lower_norm, s_lower_norm, mach_lower, chord_lower, x_lower_full, y_lower_full = _build_surface(
+            'lower', n_arc, x_te_inlet, x_te_outlet, c_ax, extend_te=False
+        )
 
-        # --- Upper surface (continuous: inlet TE → throat → outlet TE) ---
-        # The upper chars don't reach the TE, so add segments at M_inlet
-        # to extend to the full axial chord.
-        x_throat_u = 0.5 * (x_u[0] + (-x_u[0]))   # = 0
-        x_upper = np.concatenate([
-            np.array([x_te_inlet]),       # inlet TE  (M_inlet)
-            np.flip(x_u),                 # inlet chars, TE→throat
-            np.array([x_throat_u]),        # throat midpoint (M_upper)
-            -x_u,                          # outlet chars, throat→TE
-            np.array([x_te_outlet]),       # outlet TE  (M_inlet)
-        ])
-        mach_upper = np.concatenate([
-            np.array([self.mach_inlet]),
-            np.flip(mach_u),
-            np.array([self.mach_upper]),
-            mach_u,
-            np.array([self.mach_inlet]),
-        ])
-
-        # --- Normalize to [0, 1] fraction of axial chord ---
-        x_lower_norm = (x_lower - x_te_inlet) / c_ax
-        x_upper_norm = (x_upper - x_te_inlet) / c_ax
+        # --- Upper surface ---
+        x_upper_norm, s_upper_norm, mach_upper, chord_upper, x_upper_full, y_upper_full = _build_surface(
+            'upper', n_arc, x_te_inlet, x_te_outlet, c_ax, extend_te=True
+        )
 
         out = {
-            'lower': {'x_norm': x_lower_norm, 'mach': mach_lower},
-            'upper': {'x_norm': x_upper_norm, 'mach': mach_upper},
+            'lower': {'x_norm': x_lower_norm, 's_norm': s_lower_norm, 'mach': mach_lower, 'x_full': x_lower_full, 'y_full': y_lower_full},
+            'upper': {'x_norm': x_upper_norm, 's_norm': s_upper_norm, 'mach': mach_upper, 'x_full': x_upper_full, 'y_full': y_upper_full},
+            'chord_lower': chord_lower,
+            'chord_upper': chord_upper,
         }
 
         if plot:
             fig, ax = plt.subplots(figsize=(10, 6))
-            ax.plot(x_lower_norm, mach_lower, 'b-o', markersize=3, label='Lower (pressure)')
-            ax.plot(x_upper_norm, mach_upper, 'r-o', markersize=3, label='Upper (suction)')
-            ax.set_xlabel('x / c_ax')
+            ax.plot(s_lower_norm, mach_lower, 'b-o', markersize=3, label='Lower (pressure)')
+            ax.plot(s_upper_norm, mach_upper, 'r-o', markersize=3, label='Upper (suction)')
+            ax.set_xlabel('s / chord')
             ax.set_ylabel('Surface Mach Number')
             ax.set_title('Surface Mach Number Distribution')
             ax.legend()

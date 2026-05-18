@@ -1,18 +1,23 @@
 """
 Goldman (1970) NASA TM X-2059 — exact replication of Figs 4, 5, 8, 9.
 
-Uses the Method of Characteristics (from turbinemoc.ipynb) to compute the
+Uses the Method of Characteristics (from turbinemoc.py) to compute the
 actual blade surface geometry and Mach distribution, then feeds it into
 the von Karman + Head entrainment BL solver.
 
 Goldman conditions: gamma=1.4, M_in=2.5, beta_in=70 deg, Re=35000.
 """
 
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 import numpy as np
-from scipy.optimize import fsolve, brentq
-from scipy.interpolate import CubicSpline
+from scipy.optimize import brentq
+from scipy.interpolate import CubicSpline, PchipInterpolator
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
+
+from prop_components.turbinemoc import SupersonicTurbineMOC
 
 # ══════════════════════════════════════════════════════════════════════
 # Gas dynamics
@@ -20,22 +25,15 @@ import matplotlib.pyplot as plt
 GAMMA = 1.4
 GM1 = GAMMA - 1
 GP1 = GAMMA + 1
-
-
-def Mstar(M):
-    return np.sqrt(GP1 / 2 * M**2 / (1 + GM1 / 2 * M**2))
-
-
-def safe_asin_scalar(x):
-    return np.arcsin(np.clip(x, -1, 1))
+PRANDTL = 0.72
 
 
 def nu_pm(M):
-    """Prandtl-Meyer angle (radians)."""
-    Ms = Mstar(M)
+    """Prandtl-Meyer angle (radians). Standalone for M_from_nu inversion."""
+    Ms = np.sqrt(GP1 / 2 * M**2 / (1 + GM1 / 2 * M**2))
     return (np.pi / 4 * (np.sqrt(GP1 / GM1) - 1)
-            + 0.5 * (np.sqrt(GP1 / GM1) * safe_asin_scalar(GM1 * Ms**2 - GAMMA)
-                      + safe_asin_scalar(GP1 / Ms**2 - GAMMA)))
+            + 0.5 * (np.sqrt(GP1 / GM1) * np.arcsin(np.clip(GM1 * Ms**2 - GAMMA, -1, 1))
+                      + np.arcsin(np.clip(GP1 / Ms**2 - GAMMA, -1, 1))))
 
 
 def M_from_nu(nu_target):
@@ -57,218 +55,42 @@ def mu_ratio_sutherland(T, T_ref):
 
 
 # ══════════════════════════════════════════════════════════════════════
-# Method of Characteristics — transition arc computation
+# Blade surface from turbinemoc
 # ══════════════════════════════════════════════════════════════════════
 
-def safe_asin(x):
-    return np.arcsin(np.clip(x, -1, 1))
-
-
-def compute_transition_arc(M_inlet, M_surface, beta_inlet, dv=0.001, side='lower'):
+def build_blade_surface(M_inlet, M_surface, beta_inlet_deg, side='lower',
+                        dv=0.001, M_other=None):
     """
-    MoC computation of one transition arc (inlet side).
-
-    Returns:
-        xs, ys : surface point coords (un-rotated frame), ordered from
-                 vortex end → inlet end
-        Machs  : Mach number at each surface point (same ordering)
-        alpha  : half-angle of the circular arc on the inlet side
-    """
-    nu_in = nu_pm(M_inlet)
-    nu_s = nu_pm(M_surface)
-
-    if side == 'lower':
-        delta_nu = nu_in - nu_s          # positive: flow decelerates
-        sign = -1
-    else:
-        delta_nu = nu_s - nu_in          # positive: flow accelerates
-        sign = +1
-
-    alpha = beta_inlet - delta_nu        # half-angle for circular arc
-
-    n_steps = int(np.ceil(delta_nu / dv))
-    if n_steps < 2:
-        n_steps = 2
-    actual_dv = delta_nu / n_steps
-
-    # u_i function (Mach angle from critical velocity ratio)
-    if side == 'lower':
-        u_i_fn = lambda Rs: -np.arcsin(np.sqrt(0.5 * GP1 * Rs**2 - 0.5 * GM1))
-    else:
-        u_i_fn = lambda Rs: np.arcsin(np.sqrt(0.5 * GP1 * Rs**2 - 0.5 * GM1))
-
-    # Initial conditions at vortex region boundary
-    R0 = 1 / Mstar(M_surface)
-    phi_k1 = 0.0
-    u_i_k1 = u_i_fn(R0)
-    xlstar_k1 = 0.0
-    ylstar_k1 = R0
-
-    xs, ys, machs = [], [], []
-
-    for k in range(n_steps, 0, -1):
-        phi_k = delta_nu - k * actual_dv
-
-        # Solve for Rstar at this characteristic
-        if side == 'lower':
-            fRk = 2 * nu_in - np.pi / 2 * (np.sqrt(GP1 / GM1) - 1) - 2 * k * actual_dv
-        else:
-            fRk = 2 * nu_in - np.pi / 2 * (np.sqrt(GP1 / GM1) - 1) + 2 * k * actual_dv
-
-        def eq(Rs):
-            return (np.sqrt(GP1 / GM1) * safe_asin(GM1 / Rs**2 - GAMMA)
-                    + safe_asin(GP1 * Rs**2 - GAMMA) - fRk)
-
-        Rstar = fsolve(eq, 0.5 if side == 'upper' else 0.9, full_output=False)[0]
-
-        xkstar = -Rstar * np.sin(phi_k)
-        ykstar = Rstar * np.cos(phi_k)
-
-        u_i_k = u_i_fn(Rstar)
-        mi_k = np.tan(0.5 * (phi_k + phi_k1) + 0.5 * (u_i_k + u_i_k1))
-        mbar_k = np.tan(phi_k1)
-
-        xsl = ((ylstar_k1 - mbar_k * xlstar_k1) - (ykstar - mi_k * xkstar)) / (mi_k - mbar_k)
-        ysl = (mi_k * (ylstar_k1 - mbar_k * xlstar_k1) - mbar_k * (ykstar - mi_k * xkstar)) / (mi_k - mbar_k)
-
-        phi_k1 = phi_k
-        u_i_k1 = u_i_k
-        xlstar_k1 = xsl
-        ylstar_k1 = ysl
-
-        xs.append(xsl)
-        ys.append(ysl)
-
-        # Mach at this characteristic intersection
-        if side == 'lower':
-            nu_local = nu_in - k * actual_dv
-        else:
-            nu_local = nu_in + k * actual_dv
-        machs.append(M_from_nu(nu_local))
-
-    return np.array(xs), np.array(ys), np.array(machs), alpha
-
-
-def build_blade_surface(M_inlet, M_surface, beta_inlet_rad, side='lower', dv=0.001, M_other=None):
-    """
-    Build complete blade surface from inlet to outlet.
+    Build complete blade surface from inlet to outlet using SupersonicTurbineMOC.
 
     Returns:
         s_norm : arc length / chord  (0 to 1)
         Me     : edge Mach number at each point
+        chord  : total arc length
     """
-    xs_t, ys_t, machs_t, alpha_in = compute_transition_arc(
-        M_inlet, M_surface, beta_inlet_rad, dv=dv, side=side
+    # For the MOC solver, mach_lower is the lower-surface Mach and
+    # mach_upper is the upper-surface Mach. When we only need one surface,
+    # we still need to provide both — use M_other for the opposite surface.
+    if side == 'lower':
+        mach_lower = M_surface
+        mach_upper = M_other if M_other is not None else M_inlet
+    else:
+        mach_upper = M_surface
+        mach_lower = M_other if M_other is not None else M_inlet
+
+    moc = SupersonicTurbineMOC(
+        gamma=GAMMA,
+        mach_inlet=M_inlet,
+        mach_lower=mach_lower,
+        mach_upper=mach_upper,
+        beta_inlet_deg=beta_inlet_deg,
+        dv=dv,
     )
-    
-    straight_len = 0.0
-    if M_other is not None:
-        xs_o, ys_o, _, alpha_o = compute_transition_arc(
-            M_inlet, M_other, beta_inlet_rad, dv=dv, side='upper' if side == 'lower' else 'lower'
-        )
-        def rot(x, y, ang):
-            return x * np.cos(ang) - y * np.sin(ang), x * np.sin(ang) + y * np.cos(ang)
-        
-        x_in, _ = rot(xs_t[-1], ys_t[-1], alpha_in)
-        x_oth, _ = rot(xs_o[-1], ys_o[-1], alpha_o)
-        
-        if side == 'upper':
-            dx = x_oth - x_in
-            straight_len = abs(dx / np.cos(beta_inlet_rad))
+    moc.generate()
+    dist = moc.surface_mach_distribution(plot=False)
 
-    # Transition arc is ordered: vortex end (index 0) -> inlet end (index -1)
-    # For the blade surface (inlet -> outlet), reverse for inlet transition
-    xs_inlet = xs_t[::-1]       # inlet end -> vortex end
-    ys_inlet = ys_t[::-1]
-    M_inlet_trans = machs_t[::-1]   # M near inlet -> M_surface
-
-    # Add exact endpoint Machs for continuity
-    M_inlet_trans = np.concatenate([[M_inlet], M_inlet_trans, [M_surface]])
-    # Extrapolate surface coords slightly for endpoints
-    xs_inlet = np.concatenate([
-        [xs_inlet[0] + (xs_inlet[0] - xs_inlet[1]) * 0.1],
-        xs_inlet,
-        [xs_inlet[-1] + (xs_inlet[-1] - xs_inlet[-2]) * 0.1]
-    ])
-    ys_inlet = np.concatenate([
-        [ys_inlet[0] + (ys_inlet[0] - ys_inlet[1]) * 0.1],
-        ys_inlet,
-        [ys_inlet[-1] + (ys_inlet[-1] - ys_inlet[-2]) * 0.1]
-    ])
-
-    # Vortex region: circular arc at radius R = 1/Mstar(M_surface)
-    R_s = 1 / Mstar(M_surface)
-
-    # Outlet transition: Goldman uses shorter outlet arcs so G_out < G_in.
-    # For impulse, outlet has same Mach variation but compressed spatially.
-    # Use 65% of inlet transition (Goldman's iterative procedure typically
-    # yields outlet arcs 50-70% of inlet for displacement thickness correction).
-    outlet_frac = 0.65
-    n_out = max(int(len(xs_t) * outlet_frac), 3)
-    # Outlet transition: vortex end -> outlet end (same Mach variation as inlet but reversed)
-    # Resample to get evenly spaced Mach variation over shorter arc
-    outlet_idx = np.linspace(0, len(xs_t) - 1, n_out).astype(int)
-    xs_outlet = -xs_t[outlet_idx]     # x-reflected for outlet side
-    ys_outlet = ys_t[outlet_idx]
-    M_outlet_trans = machs_t[outlet_idx]  # vortex end -> inlet end
-
-    # Add endpoints
-    M_outlet_trans = np.concatenate([[M_surface], M_outlet_trans, [M_inlet]])
-    xs_outlet = np.concatenate([
-        [xs_outlet[0] + (xs_outlet[0] - xs_outlet[1]) * 0.1],
-        xs_outlet,
-        [xs_outlet[-1] + (xs_outlet[-1] - xs_outlet[-2]) * 0.1]
-    ])
-    ys_outlet = np.concatenate([
-        [ys_outlet[0] + (ys_outlet[0] - ys_outlet[1]) * 0.1],
-        ys_outlet,
-        [ys_outlet[-1] + (ys_outlet[-1] - ys_outlet[-2]) * 0.1]
-    ])
-
-    # Rotate transitions to align with cascade angle
-    def rot(x, y, ang):
-        return x * np.cos(ang) - y * np.sin(ang), x * np.sin(ang) + y * np.cos(ang)
-
-    xs_inlet, ys_inlet = rot(xs_inlet, ys_inlet, alpha_in)
-    xs_outlet, ys_outlet = rot(xs_outlet, ys_outlet, -alpha_in)
-
-    # Circular arc between inlet and outlet transitions
-    angle_start = np.arctan2(xs_inlet[-1], ys_inlet[-1])
-    angle_end = np.arctan2(xs_outlet[0], ys_outlet[0])
-
-    n_arc = 80
-    arc_angles = np.linspace(angle_start, angle_end, n_arc)
-    xs_arc = R_s * np.sin(arc_angles)
-    ys_arc = R_s * np.cos(arc_angles)
-    M_arc = np.full(n_arc, M_surface)
-
-    # Short inlet straight
-    inlet_dir = np.array([np.sin(beta_inlet_rad), np.cos(beta_inlet_rad)])
-    n_str = max(5, int(straight_len * 100))
-    ts = np.linspace(straight_len, 0, n_str)
-    xs_str_in = xs_inlet[0] + inlet_dir[0] * ts
-    ys_str_in = ys_inlet[0] + inlet_dir[1] * ts
-    M_str_in = np.full(n_str, M_inlet)
-
-    outlet_dir = np.array([-np.sin(beta_inlet_rad), np.cos(beta_inlet_rad)])
-    xs_str_out = xs_outlet[-1] + outlet_dir[0] * np.linspace(0, straight_len, n_str)
-    ys_str_out = ys_outlet[-1] + outlet_dir[1] * np.linspace(0, straight_len, n_str)
-    M_str_out = np.full(n_str, M_inlet)
-
-    # Concatenate full surface
-    xs_full = np.concatenate([xs_str_in, xs_inlet, xs_arc, xs_outlet, xs_str_out])
-    ys_full = np.concatenate([ys_str_in, ys_inlet, ys_arc, ys_outlet, ys_str_out])
-    Me_full = np.concatenate([M_str_in, M_inlet_trans, M_arc, M_outlet_trans, M_str_out])
-
-    # Compute arc length
-    dx = np.diff(xs_full)
-    dy = np.diff(ys_full)
-    ds = np.sqrt(dx**2 + dy**2)
-    s = np.concatenate([[0], np.cumsum(ds)])
-    chord = s[-1]
-    s_norm = s / chord
-
-    return s_norm, Me_full, chord
+    surf = dist[side]
+    return surf['s_norm'], surf['mach'], dist[f'chord_{side}']
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -286,7 +108,10 @@ def H_from_H1(H1):
     if H1 > 100:
         return 1.2
     try:
-        return brentq(lambda H: H1_from_H(H) - H1, 1.2, 4.0)
+        root = brentq(lambda H: H1_from_H(H) - H1, 1.2, 4.0)
+        if isinstance(root, tuple):
+            root = root[0]
+        return float(root)
     except ValueError:
         return 1.4 if H1 > H1_from_H(1.4) else 3.5
 
@@ -313,6 +138,37 @@ def ref_nu_ratio(Me, T0):
     mu_star_over_mu_e = mu_ratio_sutherland(T_star, Te)
     rho_star_over_rho_e = 1.0 / Tstar_Te
     return mu_star_over_mu_e / rho_star_over_rho_e
+
+
+def adiabatic_wall_temperature_ratio(Me, pr=PRANDTL):
+    """Adiabatic-wall temperature ratio T_w/T_0."""
+    recovery = pr ** (1.0 / 3.0)
+    Te_T0 = 1.0 / T0_over_T(Me)
+    return recovery + (1.0 - recovery) * Te_T0
+
+
+def reference_temperature_ratio(Me, pr=PRANDTL):
+    """Eckert reference-temperature ratio \bar{T}/T_0 from Sasman-Cresci Eq. (9)."""
+    Te_T0 = 1.0 / T0_over_T(Me)
+    Tw_T0 = adiabatic_wall_temperature_ratio(Me, pr=pr)
+    return 0.5 * Tw_T0 + 0.22 * pr**(1.0 / 3.0) + (0.5 - 0.22 * pr**(1.0 / 3.0)) * Te_T0
+
+
+def Cf_sasman_cresci(Hi, Re_theta_ref, Me, pr=PRANDTL):
+    """Sasman-Cresci/Goldman Eq. (10) for Cf/2, returned as Cf."""
+    Hi_eff = max(float(Hi), 1.02)
+    Re_eff = max(float(Re_theta_ref), 10.0)
+    Te_Tbar = 1.0 / reference_temperature_ratio(Me, pr=pr)
+    Tbar_T0 = reference_temperature_ratio(Me, pr=pr)
+    mu_bar_over_mu0 = mu_ratio_sutherland(Tbar_T0 * 500.0, 500.0)
+    cf_over_2 = 0.123 * np.exp(-1.561 * Hi_eff) * Re_eff**(-0.268) * Te_Tbar * mu_bar_over_mu0**0.268
+    return 2.0 * cf_over_2
+
+
+def shear_integral_sasman_cresci(Hi, Cf):
+    """Equilibrium shear-integral closure from Sasman-Cresci."""
+    Hi_eff = max(float(Hi), 1.05)
+    return 0.011 / Hi_eff + Cf / 2.0
 
 
 def bl_ode(s, y, Me_fn, dMe_ds_fn, Re_unit_fn, nu_ratio_fn):
@@ -342,6 +198,48 @@ def bl_ode(s, y, Me_fn, dMe_ds_fn, Re_unit_fn, nu_ratio_fn):
     return [dtheta, dH1]
 
 
+def bl_ode_sasman_cresci(s, y, Me_fn, dMe_ds_fn, Re0, T0=500.0):
+    """Reduced Sasman-Cresci form following exactly the 1966 paper."""
+    f, Hi = y
+    f = float(max(f, 1e-12))
+    Hi = float(np.clip(Hi, 1.05, 4.5))
+
+    Me = float(Me_fn(s))
+    dMe_ds = float(dMe_ds_fn(s))
+
+    Te_T0 = 1.0 / (1.0 + 0.2 * Me**2)
+    pr = 0.72
+    Taw_T0 = Te_T0 + pr**(1.0/3.0) * (1.0 - Te_T0)
+    gw = Taw_T0  # adiabatic wall
+
+    # Eq. 9: Eckert reference temperature ratio
+    Tbar_T0 = 0.5 * Taw_T0 + 0.22 * pr**(1.0/3.0) + (0.5 - 0.22 * pr**(1.0/3.0)) * Te_T0
+    
+    S_T0 = 110.4 / T0
+    mu_bar_mu0 = (Tbar_T0)**1.5 * (1.0 + S_T0) / (Tbar_T0 + S_T0)
+
+    # A parameter (dimensionless when multiplied by c)
+    cA = 0.123 * np.exp(-1.561 * Hi) * Me * Re0 * Te_T0 * mu_bar_mu0**0.268
+
+    # Eq. 19: f evolution
+    df = 1.268 * ( -(f / Me) * dMe_ds * (1.0 + gw * Hi) + cA )
+
+    # Skin friction from Eq. 10
+    cf_over_2 = 0.123 * np.exp(-1.561 * Hi) * f**(-0.268 / 1.268) * (Te_T0 / Tbar_T0) * mu_bar_mu0**0.268
+    cf_over_2 = max(cf_over_2, 1e-10)
+
+    # Eq. 20: Hi evolution
+    dHi_pressure = - (1.0 / (2.0 * Me)) * dMe_ds * Hi * (Hi + 1.0)**2 * (Hi - 1.0) * \
+                   (1.0 + (gw - 1.0) * (Hi**2 + 4.0 * Hi - 1.0) / ((Hi + 1.0) * (Hi + 3.0)))
+                   
+    dHi_shear = ((Hi**2 - 1.0) / f) * cA * \
+                (Hi - 0.011 * (Hi + 1.0) * (Hi - 1.0)**2 / Hi**2 / cf_over_2 * (Te_T0 / Tbar_T0))
+
+    dHi = float(np.clip(dHi_pressure + dHi_shear, -50.0, 50.0))
+
+    return [df, dHi]
+
+
 def solve_bl(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
     """
     Solve BL for given surface Mach distribution.
@@ -355,7 +253,7 @@ def solve_bl(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
     Me_arr = Me_arr[mask]
 
     # Smooth Mach distribution with spline
-    Me_spline = CubicSpline(s_norm, Me_arr)
+    Me_spline = PchipInterpolator(s_norm, Me_arr)
     dMe_spline = Me_spline.derivative()
 
     # Edge conditions
@@ -371,8 +269,8 @@ def solve_bl(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
     Re_unit_arr = Re_chord * rho_ratio * ue_ratio / mu_rat
     nu_ratio_arr = np.array([ref_nu_ratio(m, T0) for m in Me_eval])
 
-    Re_unit_spline = CubicSpline(s_norm, Re_unit_arr)
-    nu_ratio_spline = CubicSpline(s_norm, nu_ratio_arr)
+    Re_unit_spline = PchipInterpolator(s_norm, Re_unit_arr)
+    nu_ratio_spline = PchipInterpolator(s_norm, nu_ratio_arr)
 
     # Initial conditions
     s0 = s_norm[3]
@@ -380,7 +278,7 @@ def solve_bl(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
     nu_r0 = float(nu_ratio_spline(s0))
     Re_s0 = Re_u0 * s0 / nu_r0
     theta_0 = 0.036 * s0 * max(Re_s0, 10)**(-0.2)
-    H_0 = 1.4
+    H_0 = 1.71
     H1_0 = H1_from_H(H_0)
 
     s_eval = s_norm[3:]
@@ -408,19 +306,103 @@ def solve_bl(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
     return s_sol, theta_sol, Hi_sol, Me_sol
 
 
+def solve_bl_sasman_cresci(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
+    """
+    Solve BL with a Sasman-Cresci closure set.
+    Returns: s, theta, Hi, Me (all arrays)
+    """
+    mask = np.diff(s_norm, prepend=-1) > 0
+    s_norm = s_norm[mask]
+    Me_arr = Me_arr[mask]
+
+    Me_spline = PchipInterpolator(s_norm, Me_arr)
+    dMe_spline = Me_spline.derivative()
+
+    T_in = T0 / (1.0 + 0.2 * M_in**2)
+    S = 110.4
+    mu_in_mu0 = (T_in / T0)**1.5 * (1.0 + S / T0) / (T_in / T0 + S / T0)
+    
+    # Re0 = a0 * c / nu0
+    Re0 = (Re_chord / M_in) * ((T0 / T_in)**3.0) * mu_in_mu0
+
+    s0 = s_norm[3]
+    Me0 = Me_spline(s0)
+    Te0_T0 = 1.0 / (1.0 + 0.2 * Me0**2)
+    T_in_T0 = 1.0 / (1.0 + 0.2 * M_in**2)
+    
+    rho_e_rho_in = (Te0_T0 / T_in_T0)**2.5
+    u_e_u_in = (Me0 / M_in) * np.sqrt(Te0_T0 / T_in_T0)
+    
+    Te0 = T0 * Te0_T0
+    mu_e_mu_in = (Te0 / T_in)**1.5 * (T_in + S) / (Te0 + S)
+    
+    Re_unit0 = Re_chord * rho_e_rho_in * u_e_u_in / mu_e_mu_in
+    Re_s0 = Re_unit0 * s0
+    
+    theta_0_c = 0.036 * s0 * max(Re_s0, 10.0)**(-0.2)
+    theta_bar_0_c = theta_0_c * (Te0_T0)**3.0
+    f_0 = (Me0 * theta_bar_0_c * Re0)**1.268
+    Hi_0 = 1.67
+
+    s_eval = s_norm[3:]
+
+    sol = solve_ivp(
+        bl_ode_sasman_cresci,
+        [s0, s_norm[-1]],
+        [f_0, Hi_0],
+        args=(Me_spline, dMe_spline, Re0, T0),
+        t_eval=s_eval,
+        method='Radau',
+        rtol=1e-6, atol=1e-10,
+        max_step=0.003,
+    )
+
+    if not sol.success:
+        print(f"  Warning [SC]: solver stopped at s/c={sol.t[-1]:.3f} -- {sol.message}")
+
+    s_sol = sol.t
+    f_sol = sol.y[0]
+    Hi_sol = sol.y[1]
+    
+    Me_sol = Me_spline(s_sol)
+    Te_T0_sol = 1.0 / (1.0 + 0.2 * Me_sol**2)
+    theta_bar_c_sol = f_sol**(1.0 / 1.268) / (Me_sol * Re0)
+    theta_sol = theta_bar_c_sol / (Te_T0_sol**3.0)
+
+    return s_sol, theta_sol, Hi_sol, Me_sol
+
+
 # ══════════════════════════════════════════════════════════════════════
 # Main: replicate Goldman Figures 4, 5, 8, 9
 # ══════════════════════════════════════════════════════════════════════
 
 def run_single_case(M_in, M_lower, M_upper, beta_deg, Re_chord):
     """Run BL on both surfaces for one design point."""
-    beta_rad = np.deg2rad(beta_deg)
-
-    s_lo, Me_lo, c_lo = build_blade_surface(M_in, M_lower, beta_rad, side='lower', M_other=M_upper)
-    s_up, Me_up, c_up = build_blade_surface(M_in, M_upper, beta_rad, side='upper', M_other=M_lower)
+    s_lo, Me_lo, c_lo = build_blade_surface(
+        M_in, M_lower, beta_deg, side='lower', M_other=M_upper
+    )
+    s_up, Me_up, c_up = build_blade_surface(
+        M_in, M_upper, beta_deg, side='upper', M_other=M_lower
+    )
 
     s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_bl(s_lo, Me_lo, Re_chord, M_in)
     s_up_bl, th_up, Hi_up, Me_up_bl = solve_bl(s_up, Me_up, Re_chord, M_in)
+
+    return (s_lo_bl, Hi_lo, Me_lo_bl, th_lo,
+            s_up_bl, Hi_up, Me_up_bl, th_up)
+
+
+def run_single_case_sasman_cresci(M_in, M_lower, M_upper, beta_deg, Re_chord):
+    """Run Sasman-Cresci BL on both surfaces for one design point."""
+    s_lo, Me_lo, _ = build_blade_surface(
+        M_in, M_lower, beta_deg, side='lower', M_other=M_upper
+    )
+    s_up, Me_up, _ = build_blade_surface(
+        M_in, M_upper, beta_deg, side='upper', M_other=M_lower
+    )
+
+    s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_bl_sasman_cresci(s_lo, Me_lo, Re_chord, M_in)
+    s_up_bl, th_up, Hi_up, Me_up_bl = solve_bl_sasman_cresci(s_up, Me_up, Re_chord, M_in)
 
     return (s_lo_bl, Hi_lo, Me_lo_bl, th_lo,
             s_up_bl, Hi_up, Me_up_bl, th_up)
@@ -443,8 +425,14 @@ def main():
     s_lo, Hi_lo, Me_lo, th_lo = results[0], results[1], results[2], results[3]
     s_up, Hi_up, Me_up, th_up = results[4], results[5], results[6], results[7]
 
+    results_sc = run_single_case_sasman_cresci(M_in, M_lower, M_upper, beta_deg, Re_chord)
+    s_lo_sc, Hi_lo_sc, Me_lo_sc, th_lo_sc = results_sc[0], results_sc[1], results_sc[2], results_sc[3]
+    s_up_sc, Hi_up_sc, Me_up_sc, th_up_sc = results_sc[4], results_sc[5], results_sc[6], results_sc[7]
+
     print(f"Lower surface: Hi_max = {np.max(Hi_lo):.3f} at s/c = {s_lo[np.argmax(Hi_lo)]:.3f}")
     print(f"Upper surface: Hi_max = {np.max(Hi_up):.3f} at s/c = {s_up[np.argmax(Hi_up)]:.3f}")
+    print(f"Lower surface [SC]: Hi_max = {np.max(Hi_lo_sc):.3f} at s/c = {s_lo_sc[np.argmax(Hi_lo_sc)]:.3f}")
+    print(f"Upper surface [SC]: Hi_max = {np.max(Hi_up_sc):.3f} at s/c = {s_up_sc[np.argmax(Hi_up_sc)]:.3f}")
 
     # ═══════════════════════════════════════════════════════════════
     # Figure 5: Surface Mach number distribution
@@ -462,14 +450,16 @@ def main():
     ax5.set_ylim(1.5, 3.5)
     fig5.tight_layout()
     fig5.savefig('C:/Users/Martin/Active/FYPTurbine/quicktests/goldman_fig5.png', dpi=150)
-    print("Saved: goldman_fig5.png")
+    print("\nSaved: goldman_fig5.png")
 
     # ═══════════════════════════════════════════════════════════════
     # Figure 4: Incompressible form factor Hi
     # ═══════════════════════════════════════════════════════════════
     fig4, ax4 = plt.subplots(figsize=(8, 6))
-    ax4.plot(s_lo, Hi_lo, 'b-', lw=2, label='Lower surface')
-    ax4.plot(s_up, Hi_up, 'r-', lw=2, label='Upper surface')
+    ax4.plot(s_lo, Hi_lo, 'b-', lw=2, label='Lower surface (Head)')
+    ax4.plot(s_up, Hi_up, 'r-', lw=2, label='Upper surface (Head)')
+    ax4.plot(s_lo_sc, Hi_lo_sc, 'b--', lw=2, label='Lower surface (SC)')
+    ax4.plot(s_up_sc, Hi_up_sc, 'r--', lw=2, label='Upper surface (SC)')
     ax4.axhspan(1.8, 2.4, alpha=0.08, color='red', label='Separation range')
     ax4.axhline(1.8, color='gray', ls='--', alpha=0.4)
     ax4.axhline(2.4, color='gray', ls='--', alpha=0.4)
@@ -480,7 +470,7 @@ def main():
     ax4.legend(fontsize=11)
     ax4.grid(True, alpha=0.3)
     ax4.set_xlim(0, 1)
-    ax4.set_ylim(1.0, 3.0)
+    ax4.set_ylim(1.3, 2.6)
     fig4.tight_layout()
     fig4.savefig('C:/Users/Martin/Active/FYPTurbine/quicktests/goldman_fig4.png', dpi=150)
     print("Saved: goldman_fig4.png")
@@ -490,25 +480,35 @@ def main():
     # ═══════════════════════════════════════════════════════════════
     nu_l_range_deg = np.arange(18, 35, 2.0)
     Hi_max_lower = []
+    Hi_max_lower_sc = []
     print("\nSweeping nu_lower for Fig 8...")
     for nu_l_deg in nu_l_range_deg:
         Ml = M_from_nu(np.deg2rad(nu_l_deg))
-        Ml_range = np.linspace(Ml, Ml, 1)  # just for print
         try:
-            sl, Mel, cl = build_blade_surface(M_in, Ml, np.deg2rad(beta_deg), side='lower', M_other=M_from_nu(np.deg2rad(49.0)))
+            sl, Mel, cl = build_blade_surface(
+                M_in, Ml, beta_deg, side='lower',
+                M_other=M_from_nu(np.deg2rad(49.0))
+            )
             s_bl, _, Hi_bl, _ = solve_bl(sl, Mel, Re_chord, M_in)
             hmax = np.max(Hi_bl)
             Hi_max_lower.append(hmax)
-            print(f"  nu_l={nu_l_deg:.0f}: M_l={Ml:.3f}, Hi_max={hmax:.3f}")
+            
+            s_bl_sc, _, Hi_bl_sc, _ = solve_bl_sasman_cresci(sl, Mel, Re_chord, M_in)
+            hmax_sc = np.max(Hi_bl_sc)
+            Hi_max_lower_sc.append(hmax_sc)
+            
+            print(f"  nu_l={nu_l_deg:.0f}: M_l={Ml:.3f}, Hi_max(Head)={hmax:.3f}, Hi_max(SC)={hmax_sc:.3f}")
         except Exception as e:
             print(f"  nu_l={nu_l_deg:.0f}: FAILED ({e})")
             Hi_max_lower.append(np.nan)
+            Hi_max_lower_sc.append(np.nan)
 
     # Corresponding Mach numbers for secondary x-axis
     Ml_for_axis = [M_from_nu(np.deg2rad(n)) for n in nu_l_range_deg]
 
     fig8, ax8 = plt.subplots(figsize=(8, 6))
-    ax8.plot(nu_l_range_deg, Hi_max_lower, 'bo-', lw=2, markersize=6)
+    ax8.plot(nu_l_range_deg, Hi_max_lower, 'bo-', lw=2, markersize=6, label='Head')
+    ax8.plot(nu_l_range_deg, Hi_max_lower_sc, 'b^--', lw=2, markersize=6, label='Sasman-Cresci')
     ax8.axhspan(1.8, 2.4, alpha=0.08, color='red')
     ax8.axhline(1.8, color='gray', ls='--', alpha=0.4)
     ax8.axhline(2.4, color='gray', ls='--', alpha=0.4)
@@ -517,6 +517,7 @@ def main():
     ax8.set_title('Effect of lower-surface Prandtl-Meyer angle on $H_{i,max}$\n'
                    '(cf. Goldman Fig. 8, $\\nu_u = 49°$)', fontsize=12)
     ax8.grid(True, alpha=0.3)
+    ax8.legend(fontsize=11)
     # Secondary axis: Mach number
     ax8b = ax8.twiny()
     ax8b.set_xlim(ax8.get_xlim())
@@ -534,21 +535,32 @@ def main():
     # ═══════════════════════════════════════════════════════════════
     nu_u_range_deg = np.arange(42, 55, 1.5)
     Hi_max_upper = []
+    Hi_max_upper_sc = []
     print("\nSweeping nu_upper for Fig 9...")
     for nu_u_deg in nu_u_range_deg:
         Mu = M_from_nu(np.deg2rad(nu_u_deg))
         try:
-            su, Meu, cu = build_blade_surface(M_in, Mu, np.deg2rad(beta_deg), side='upper', M_other=M_from_nu(np.deg2rad(34.0)))
+            su, Meu, cu = build_blade_surface(
+                M_in, Mu, beta_deg, side='upper',
+                M_other=M_from_nu(np.deg2rad(34.0))
+            )
             s_bl, _, Hi_bl, _ = solve_bl(su, Meu, Re_chord, M_in)
             hmax = np.max(Hi_bl)
             Hi_max_upper.append(hmax)
-            print(f"  nu_u={nu_u_deg:.1f}: M_u={Mu:.3f}, Hi_max={hmax:.3f}")
+            
+            s_bl_sc, _, Hi_bl_sc, _ = solve_bl_sasman_cresci(su, Meu, Re_chord, M_in)
+            hmax_sc = np.max(Hi_bl_sc)
+            Hi_max_upper_sc.append(hmax_sc)
+            
+            print(f"  nu_u={nu_u_deg:.1f}: M_u={Mu:.3f}, Hi_max(Head)={hmax:.3f}, Hi_max(SC)={hmax_sc:.3f}")
         except Exception as e:
             print(f"  nu_u={nu_u_deg:.1f}: FAILED ({e})")
             Hi_max_upper.append(np.nan)
+            Hi_max_upper_sc.append(np.nan)
 
     fig9, ax9 = plt.subplots(figsize=(8, 6))
-    ax9.plot(nu_u_range_deg, Hi_max_upper, 'ro-', lw=2, markersize=6)
+    ax9.plot(nu_u_range_deg, Hi_max_upper, 'ro-', lw=2, markersize=6, label='Head')
+    ax9.plot(nu_u_range_deg, Hi_max_upper_sc, 'r^--', lw=2, markersize=6, label='Sasman-Cresci')
     ax9.axhspan(1.8, 2.4, alpha=0.08, color='red')
     ax9.axhline(1.8, color='gray', ls='--', alpha=0.4)
     ax9.axhline(2.4, color='gray', ls='--', alpha=0.4)
@@ -557,6 +569,7 @@ def main():
     ax9.set_title('Effect of upper-surface Prandtl-Meyer angle on $H_{i,max}$\n'
                    '(cf. Goldman Fig. 9, $\\nu_l = 34°$)', fontsize=12)
     ax9.grid(True, alpha=0.3)
+    ax9.legend(fontsize=11)
     ax9b = ax9.twiny()
     ax9b.set_xlim(ax9.get_xlim())
     tick_positions_u = nu_u_range_deg[::2]
@@ -571,9 +584,14 @@ def main():
     # ═══════════════════════════════════════════════════════════════
     # Combined overview plot
     # ═══════════════════════════════════════════════════════════════
-    fig, axes = plt.subplots(2, 2, figsize=(14, 11))
+    dstar_lo = Hi_lo * th_lo
+    dstar_up = Hi_up * th_up
+    dstar_lo_sc = Hi_lo_sc * th_lo_sc
+    dstar_up_sc = Hi_up_sc * th_up_sc
+
+    fig, axes = plt.subplots(3, 2, figsize=(14, 16))
     fig.suptitle(
-        'Goldman (1970) Replication --- MoC blade + von Karman/Head BL\n'
+        'Goldman (1970) Replication --- MoC blade + von Karman/Head & Sasman-Cresci BL\n'
         f'$M_{{in}}=2.5$, $\\beta_{{in}}=70°$, $Re={Re_chord}$, $\\gamma=1.4$',
         fontsize=14
     )
@@ -591,8 +609,10 @@ def main():
 
     # Fig 4
     ax = axes[0, 1]
-    ax.plot(s_lo, Hi_lo, 'b-', lw=2, label='Lower')
-    ax.plot(s_up, Hi_up, 'r-', lw=2, label='Upper')
+    ax.plot(s_lo, Hi_lo, 'b-', lw=2, label='Lower (Head)')
+    ax.plot(s_up, Hi_up, 'r-', lw=2, label='Upper (Head)')
+    ax.plot(s_lo_sc, Hi_lo_sc, 'b--', lw=2, label='Lower (SC)')
+    ax.plot(s_up_sc, Hi_up_sc, 'r--', lw=2, label='Upper (SC)')
     ax.axhspan(1.8, 2.4, alpha=0.08, color='red')
     ax.axhline(1.8, color='gray', ls='--', alpha=0.4)
     ax.axhline(2.4, color='gray', ls='--', alpha=0.4)
@@ -602,11 +622,37 @@ def main():
     ax.legend()
     ax.grid(True, alpha=0.3)
     ax.set_xlim(0, 1)
-    ax.set_ylim(1.0, 3.0)
+
+    # Theta plot
+    ax = axes[1, 0]
+    ax.plot(s_lo, th_lo, 'b-', lw=2, label='Lower (Head)')
+    ax.plot(s_up, th_up, 'r-', lw=2, label='Upper (Head)')
+    ax.plot(s_lo_sc, th_lo_sc, 'b--', lw=2, label='Lower (SC)')
+    ax.plot(s_up_sc, th_up_sc, 'r--', lw=2, label='Upper (SC)')
+    ax.set_xlabel('Fraction of chord')
+    ax.set_ylabel(r'Momentum thickness, $\theta / c$')
+    ax.set_title(r'Momentum thickness $\theta / c$')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 1)
+
+    # Dstar plot
+    ax = axes[1, 1]
+    ax.plot(s_lo, dstar_lo, 'b-', lw=2, label='Lower (Head)')
+    ax.plot(s_up, dstar_up, 'r-', lw=2, label='Upper (Head)')
+    ax.plot(s_lo_sc, dstar_lo_sc, 'b--', lw=2, label='Lower (SC)')
+    ax.plot(s_up_sc, dstar_up_sc, 'r--', lw=2, label='Upper (SC)')
+    ax.set_xlabel('Fraction of chord')
+    ax.set_ylabel(r'Displacement thickness, $\delta^* / c$')
+    ax.set_title(r'Displacement thickness $\delta^* / c$')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 1)
 
     # Fig 8
-    ax = axes[1, 0]
-    ax.plot(nu_l_range_deg, Hi_max_lower, 'bo-', lw=2, markersize=5)
+    ax = axes[2, 0]
+    ax.plot(nu_l_range_deg, Hi_max_lower, 'bo-', lw=2, markersize=5, label='Head')
+    ax.plot(nu_l_range_deg, Hi_max_lower_sc, 'b^--', lw=2, markersize=5, label='SC')
     ax.axhspan(1.8, 2.4, alpha=0.08, color='red')
     ax.axhline(1.8, color='gray', ls='--', alpha=0.4)
     ax.axhline(2.4, color='gray', ls='--', alpha=0.4)
@@ -614,10 +660,12 @@ def main():
     ax.set_ylabel('$H_{i,max}$ on lower surface')
     ax.set_title('Fig. 8: $H_{i,max}$ vs $\\nu_l$ ($\\nu_u=49°$)')
     ax.grid(True, alpha=0.3)
+    ax.legend()
 
     # Fig 9
-    ax = axes[1, 1]
-    ax.plot(nu_u_range_deg, Hi_max_upper, 'ro-', lw=2, markersize=5)
+    ax = axes[2, 1]
+    ax.plot(nu_u_range_deg, Hi_max_upper, 'ro-', lw=2, markersize=5, label='Head')
+    ax.plot(nu_u_range_deg, Hi_max_upper_sc, 'r^--', lw=2, markersize=5, label='SC')
     ax.axhspan(1.8, 2.4, alpha=0.08, color='red')
     ax.axhline(1.8, color='gray', ls='--', alpha=0.4)
     ax.axhline(2.4, color='gray', ls='--', alpha=0.4)
@@ -625,10 +673,12 @@ def main():
     ax.set_ylabel('$H_{i,max}$ on upper surface')
     ax.set_title('Fig. 9: $H_{i,max}$ vs $\\nu_u$ ($\\nu_l=34°$)')
     ax.grid(True, alpha=0.3)
+    ax.legend()
 
     plt.tight_layout()
     fig.savefig('C:/Users/Martin/Active/FYPTurbine/quicktests/goldman_combined.png', dpi=150)
     print("\nSaved: goldman_combined.png")
+
     plt.close('all')
 
 
