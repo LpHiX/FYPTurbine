@@ -69,7 +69,7 @@ rotor = rs.Rotor(
 )
 
 # Run modal analysis at operating speed
-speed_rpm = 20000
+speed_rpm = 17000
 speed_rads = speed_rpm * 2 * np.pi / 60
 print(f"Running Modal Analysis at {speed_rpm} RPM ({speed_rads:.2f} rad/s)...")
 modal = rotor.run_modal(speed=speed_rads, num_modes=12)
