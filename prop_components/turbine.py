@@ -41,8 +41,11 @@ class Turbine:
 
         # Swirl velocity at outlet
         self.c4u = self.u - (self.c3u - self.u)
-        self.c4 = np.sqrt(self.c4u**2 + self.c3m**2)  
-        
+        self.c4 = np.sqrt(self.c4u**2 + self.c3m**2)
+
+        # Power-loop convergence flag (set by from_inert_gas_real)
+        self.converged = False
+
     def from_gasgen(self, cea: CEA_Obj, OF):
         self.cea = cea
         self.OF = OF
@@ -215,51 +218,107 @@ class Turbine:
         self.nozzle_exit_length = self.eps * self.A_throat / self.nozzles / self.Height
         
         self.blade_jet_speed_ratio = self.u / np.sqrt(2 * self.deltah_ambis)
-    
-    def check_supersonic_start(self, M_rel, gamma):
+
+        # Real loss model (Andreas Weiss) — fills phi_n, phi_r, p_v, eta_h, eff_real
+        self._andreas_losses()
+
+    def _andreas_losses(self):
         """
-        Checks if the rotor passage can swallow the starting shock (Kantrowitz Limit).
+        Andreas Weiss supersonic loss model for a radial-inflow cantilever turbine.
 
-        Derivation from First Principles (Metric):
-        1. Assume a normal shock forms at the rotor inlet due to starting transients.
-        2. Across the shock, total temperature T0 remains constant, but total pressure drops (P03 -> P0_shock).
-        3. For the shock to be swallowed, the mass flow captured at the inlet (mdot_in) 
-           must be able to pass through the rotor throat (At_rotor) at choked conditions (Mt=1).
-        4. Mass flow function: f(M) = mdot * sqrt(R*T0) / (A * P0 * sqrt(gamma))
-           f(M) = M * (1 + (gamma-1)/2 * M^2)^(-(gamma+1)/(2*(gamma-1)))
-        5. At the limit (Kantrowitz Limit):
-           A_in * P03 * f(M_rel) = At_rotor * P0_shock * f(1)
-           (At_rotor / A_in)_min = [f(M_rel) / f(1)] * (P03 / P0_shock)
+            phi_n : nozzle velocity coefficient,  c3 / c3_is        (fn of M3)
+            phi_r : blade  velocity coefficient,  w_exit / w_inlet  (fn of turning, Mw3)
+            p_v   : ventilation / windage power loss from partial admission [W]
 
-        6. Normal shock total pressure ratio (P0_shock / P03):
-           pr = [((gamma+1)*M^2)/((gamma-1)*M^2 + 2)]^(gamma/(gamma-1)) * [(gamma+1)/(2*gamma*M^2 - (gamma-1))]^(1/(gamma-1))
+        Produces:
+            eta_h    : hydraulic (diagram) efficiency including nozzle + blade friction
+            eff_real : isentropic total-to-static efficiency, net of ventilation
 
-        7. Actual geometric contraction ratio:
-           For an impulse turbine, we check the limit against a 1:1 ratio (constant area passage).
-           The margin tells us how much blockage (boundary layers, blade thickness) we can afford.
+        NOTE: nozzle loss cancels out of SHAFT POWER (c3 here is the actual velocity),
+        so it does not appear in from_inert_gas_real's power balance. Physically phi_n
+        raises the REQUIRED p01; that pressure correction is not yet applied to p01 —
+        a known limitation. phi_n still correctly reduces eta_h / eff_real here.
         """
-        def f_mass(M, g):
-            if M <= 0: return 0
-            term = 1 + (g - 1) / 2 * M**2
-            return M * term**(-(g + 1) / (2 * (g - 1)))
+        # Relative inlet Mach and blade turning (symmetric impulse: beta_exit = beta_inlet)
+        w3u = self.c3u - self.u
+        w3 = np.sqrt(w3u**2 + self.c3m**2)
+        self.Mw3 = w3 / self.a3
+        self.deltaB_deg = np.rad2deg(2 * np.arctan2(w3u, self.c3m))
 
-        def p0_ratio(M, g):
-            if M <= 1.0: return 1.0
-            term1 = ((g + 1) * M**2) / ((g - 1) * M**2 + 2)
-            term2 = (g + 1) / (2 * g * M**2 - (g - 1))
-            return (term1**(g / (g - 1))) * (term2**(1 / (g - 1)))
+        # Nozzle velocity coefficient (supersonic, fn of nozzle exit Mach M3)
+        M = self.M3
+        self.phi_n = np.sqrt(
+            1 - (0.0029 * M**3 - 0.0502 * M**2 + 0.2241 * M - 0.0877)
+        )
 
-        f_m1 = f_mass(M_rel, gamma)
-        f_1 = f_mass(1.0, gamma)
-        pr = p0_ratio(M_rel, gamma)
+        # Blade velocity coefficient (fn of relative turning deltaB and relative Mach Mw3)
+        dB, Mr = self.deltaB_deg, self.Mw3
+        self.phi_r = (
+            0.957
+            - 0.000362 * dB        - 0.0258 * Mr
+            + 0.00000639 * dB**2   + 0.0674 * Mr**2
+            - 0.0000000753 * dB**3 - 0.043 * Mr**3
+            - 0.000238 * dB * Mr
+            + 0.00000145 * dB**2 * Mr
+            + 0.0000425 * dB * Mr**2
+        )
 
-        self.req_area_ratio = (f_m1 / f_1) / pr
-        
-        # Start margin against 1.0 (constant area passage)
-        self.start_margin = (1.0 / self.req_area_ratio) - 1
-        self.is_started = self.start_margin > 0
+        # Ventilation (partial-admission windage) power [W]
+        self.p_v = (1.85 / 2) * (
+            (1 - self.doa) * self.rho_3 * (self.RPM / 60)**3
+            * self.d_mean**4 * 4.5 * self.Height
+        )
 
-        return self.is_started
+        # Hydraulic efficiency and net isentropic total-to-static efficiency
+        nu = self.u / self.c3                          # actual blade-jet speed ratio
+        self.eta_h = 2 * self.phi_n**2 * nu * (np.cos(self.beta) - nu) * (1 + self.phi_r)
+        self.deltah_s = self.deltah_ambis / self.phi_n**2   # isentropic available KE
+        self.eff_real = self.eta_h - self.p_v / (self.mdot * self.deltah_s)
+
+    def from_inert_gas_real(self, R, gam, T01, nozzles, tol=1e-3, max_iter=50):
+        """
+        Loss-consistent sizing. The ideal velocity triangle (built in __init__ from
+        self.P) under-predicts the pressure/Mach needed once blade friction (phi_r)
+        and ventilation (p_v) are charged. This iterates an internal driving power
+        until the ACTUAL delivered shaft power equals the requested self.P:
+
+            P_shaft = P_internal * (1 + phi_r) / 2  -  p_v
+
+        Every state variable (c3, M3, p01, Height, eff, eff_real, ...) is rebuilt at
+        the converged internal power, so contour maps reflect the true numbers.
+        """
+        self.converged = False
+        P_target = self.P
+        P_internal = P_target          # initial guess: real == ideal
+        P_shaft = P_target
+
+        for it in range(1, max_iter + 1):
+            self.power_iters = it
+            # Rebuild the velocity triangle from the working internal power
+            self.deltah_useful = P_internal / self.mdot
+            self.c3u = self.deltah_useful / (2 * self.u) + self.u
+            self.c3  = self.c3u / np.cos(self.beta)
+            self.c3m = self.c3 * np.sin(self.beta)
+            self.c4u = self.u - (self.c3u - self.u)
+            self.c4  = np.sqrt(self.c4u**2 + self.c3m**2)
+
+            # Solve gas path + losses for this triangle
+            self.from_inert_gas(R, gam, T01, nozzles)
+
+            # Actual shaft power after blade friction + windage
+            P_shaft = P_internal * (1 + self.phi_r) / 2 - self.p_v
+
+            if abs(P_shaft - P_target) / P_target < tol:
+                self.converged = True
+                break
+
+            # Near-direct update: invert P_shaft(P_internal) holding phi_r, p_v fixed
+            P_internal = (P_target + self.p_v) * 2 / (1 + self.phi_r)
+
+        self.P_internal = P_internal
+        self.P_shaft = P_shaft
+        self.P = P_target              # keep reported P as the requested shaft power
+        return self.converged
 
     def partload_rpm(self, partload_rpm):
         speed_ratio = partload_rpm / self.RPM
@@ -273,35 +332,29 @@ class Turbine:
             partload_pressure = self.p01_n2 * speed_ratio**3
             partload_exit_pressure = partload_pressure / (1 + 0.5 * (self.gam_n2 - 1) * self.M3_n2**2)**(self.gam_n2/(self.gam_n2-1))
 
-            # Check starting at partload
             u_part = partload_rpm * 2 * np.pi / 60 * self.d_mean / 2
             w3u_part = self.c3u_n2 - u_part # Use n2 velocity
             w3_part = np.sqrt(w3u_part**2 + self.c3m**2)
             M_rel_part = w3_part / np.sqrt(self.gam_n2 * self.R_n2 * self.T3_n2)
-            started = self.check_supersonic_start(M_rel_part, self.gam_n2)
 
             print(f"  N2 Mass flow: {partload_mdot*1000:.2f} g/s")
             print(f"  N2 Inlet pressure: {partload_pressure/1e5:.2f} bar")
             print(f"  N2 Exit pressure: {partload_exit_pressure/1e5:.2f} bar")
             print(f"  Relative Mach Number (Mw3): {M_rel_part:.4f}")
-            print(f"  Supersonic Start Margin: {self.start_margin*100:.2f}% ({'Started' if started else 'BLOCKED'})")
         else:
             partload_mdot = self.mdot * speed_ratio**3
             partload_pressure = self.p01 * speed_ratio**3
             partload_exit_pressure = partload_pressure / (1 + 0.5 * (self.gam3 - 1) * self.M3**2)**(self.gam3/(self.gam3-1))
 
-            # Check starting at partload
             u_part = partload_rpm * 2 * np.pi / 60 * self.d_mean / 2
             w3u_part = self.c3u - u_part
             w3_part = np.sqrt(w3u_part**2 + self.c3m**2)
             M_rel_part = w3_part / self.a3
-            started = self.check_supersonic_start(M_rel_part, self.gam3)
 
             print(f"  Mass flow: {partload_mdot*1000:.2f} g/s")
             print(f"  Inlet pressure: {partload_pressure/1e5:.2f} bar")
             print(f"  Exit pressure: {partload_exit_pressure/1e5:.2f} bar")
             print(f"  Relative Mach Number (Mw3): {M_rel_part:.4f}")
-            print(f"  Supersonic Start Margin: {self.start_margin*100:.2f}% ({'Started' if started else 'BLOCKED'})")
 
     def calculate_blade_stress(self, N, chord, t_max, t_shroud, w_shroud=None, r_hub=0.01, h_hub=0.015, h_tip=None, rho_mat=1150, E_mat=2.2e9, v_mat=0.3):
         """
@@ -428,83 +481,6 @@ class Turbine:
         
         return sigma_b_mpa, delta_max, sigma_shroud_total_mpa, sigma_disc_max_mpa
 
-    def sweep_blade_count(self, s_nd, b_ax_nd, c_nd, t_te_nd, w_throat_nd, mu=1.7e-5, N_min=20, N_max=60, min_print_res=0.5e-3):
-        """
-        Sweep blade number N and calculate physical dimensions, checking against constraints:
-        1. Aspect ratio (AR >= 0.4)
-        2. Manufacturing limit (t_te >= min_print_res)
-        3. Kantrowitz limit (effective throat considering boundary layer displacement)
-        """
-        print(f"{'N':<5} | {'s (mm)':<8} | {'c (mm)':<8} | {'b_ax (mm)':<9} | {'t_te (mm)':<9} | {'AR':<6} | {'Margin%':<8} | {'Status'}")
-        print("-" * 75)
-        
-        best_N = None
-        best_loss = float('inf')
-        
-        if hasattr(self, 'p01_n2'):
-            rho = self.rho3_n2
-            w3u = self.c3u_n2 - self.u
-            W_rel = np.sqrt(w3u**2 + self.c3m**2)
-            M_rel = W_rel / np.sqrt(self.gam_n2 * self.R_n2 * self.T3_n2)
-            gamma = self.gam_n2
-        else:
-            rho = self.rho_3
-            w3u = self.c3u - self.u
-            W_rel = np.sqrt(w3u**2 + self.c3m**2)
-            M_rel = W_rel / self.a3
-            gamma = self.gam3
-            
-        self.check_supersonic_start(M_rel, gamma)
-        req_area_ratio = self.req_area_ratio
-        
-        valid_Ns = []
-        
-        for N in range(N_min, N_max + 1):
-            s_phys = np.pi * self.d_mean / N
-            scale = s_phys / s_nd
-            
-            b_ax = b_ax_nd * scale
-            c = c_nd * scale
-            t_te = t_te_nd * scale
-            w_throat = w_throat_nd * scale
-            
-            AR = self.Height / c if c > 0 else 0
-            
-            x = c / 2  # approximate distance to throat
-            Re_x = rho * W_rel * x / mu
-            if Re_x > 0:
-                delta_star = (0.046 * x / (Re_x**(1/5))) * (1 + 0.72 * M_rel**2)
-            else:
-                delta_star = 0
-                
-            w_eff = w_throat - 2 * delta_star
-            
-            effective_area_ratio = w_eff / w_throat if w_throat > 0 else 0
-            start_margin = effective_area_ratio / req_area_ratio - 1 if req_area_ratio > 0 else -1
-            
-            status = "OK"
-            if AR < 0.4:
-                status = "REJECT: AR < 0.4"
-            elif t_te < min_print_res:
-                status = f"REJECT: t_te < {min_print_res*1000:.1f}mm"
-            elif start_margin < 0:
-                status = "REJECT: BLOCKED"
-            else:
-                valid_Ns.append(N)
-                loss_proxy = N 
-                if loss_proxy < best_loss:
-                    best_loss = loss_proxy
-                    best_N = N
-                
-            print(f"{N:<5} | {s_phys*1000:<8.2f} | {c*1000:<8.2f} | {b_ax*1000:<9.2f} | {t_te*1000:<9.2f} | {AR:<6.2f} | {start_margin*100:<8.2f} | {status}")
-            
-        print("-" * 75)
-        if best_N:
-            print(f"Recommended N: {best_N}")
-        else:
-            print("No valid N found within limits.")
-        return valid_Ns, best_N
-
     def pretty_print(self):
         print(f"Turbine Results:---------------------------")
         print(f"Inputs:")
@@ -525,14 +501,12 @@ class Turbine:
         print(f"  {'Absolute Meri. Velocity (c3m)':<30} {self.c3m:<10.4g} m/s")
         print(f"  {'Absolute Velocity (c3)':<30} {self.c3:<10.4g} m/s")
 
-        # Calculate relative Mach for starting check
+        # Relative Mach at rotor inlet (starting analysis lives in SupersonicStartingGoldman)
         w3u = self.c3u - self.u
         w3 = np.sqrt(w3u**2 + self.c3m**2)
         M_rel = w3 / self.a3
-        self.check_supersonic_start(M_rel, self.gam3)
 
         print(f"  {'Relative Mach Number (Mw3)':<30} {M_rel:<10.4g}")
-        print(f"  {'Supersonic Start Margin':<30} {self.start_margin*100:<10.4g}% ({'Started' if self.is_started else 'BLOCKED'})")
 
         print(f"  {'Swirl Velocity (c4u)':<30} {self.c4u:<10.4g} m/s")
         print(f"  {'Absolute Velocity at exit (c4)':<30} {self.c4:<10.4g} m/s")
@@ -543,7 +517,18 @@ class Turbine:
         print(f"  {'Required Mach Number (M3)':<30} {self.M3:<10.4g}")
         print(f"  {'Required Blade Height (H_3)':<30} {self.Height*1000:<10.4g} mm")
         print(f"  {'Turbine Efficiency (eff)':<30} {self.eff:<10.4g}")
-        print(f"  {'Blade-Jet Speed Ratio':<30} {self.blade_jet_speed_ratio:<10.4g}")   
+        if hasattr(self, 'eff_real'):
+            print(f"  {'Real Efficiency (eff_real)':<30} {self.eff_real:<10.4g}")
+            print(f"  {'Hydraulic Eff (eta_h)':<30} {self.eta_h:<10.4g}")
+            print(f"  {'Nozzle Coeff (phi_n)':<30} {self.phi_n:<10.4g}")
+            print(f"  {'Blade Coeff (phi_r)':<30} {self.phi_r:<10.4g}")
+            print(f"  {'Blade Turning (deltaB)':<30} {self.deltaB_deg:<10.4g} deg")
+            print(f"  {'Ventilation Power (p_v)':<30} {self.p_v:<10.4g} W")
+            if hasattr(self, 'P_internal'):
+                print(f"  {'Internal Power (P_int)':<30} {self.P_internal/1000:<10.4g} kW")
+                print(f"  {'Shaft Power (P_shaft)':<30} {self.P_shaft/1000:<10.4g} kW")
+                print(f"  {'Power loop converged':<30} {str(self.converged):<10}")
+        print(f"  {'Blade-Jet Speed Ratio':<30} {self.blade_jet_speed_ratio:<10.4g}")
         print(f"  {'Throat Area (A)':<30} {self.A_throat*1e6:<10.4g} mm2")
         print(f"  {'Area Ratio (eps)':<30} {self.eps:<10.4g}")   
         print(f"  {'Nozzle throat length':<30} {self.nozzle_throat_length*1000:<10.4g} mm")
@@ -767,30 +752,6 @@ class SupersonicStartingGoldman:
             'req_p0_ratio': Q / (1 - C) if (C is not None and C < 1) else None,
         }
 
-    # ── 1D Kantrowitz (for comparison) ───────────────────────────
-
-    def kantrowitz_1d_max_mach(self, area_ratio=1.0):
-        """
-        1D Kantrowitz starting limit for a given A_throat / A_inlet.
-        Default area_ratio=1.0 is constant-area passage.
-        Returns max inlet Mach for starting.
-        """
-        g, gm1, gp1 = self.gamma, self.gm1, self.gp1
-
-        def f_mass(M):
-            return M * (1 + gm1 / 2 * M**2) ** (-(gp1) / (2 * gm1))
-
-        f1 = f_mass(1.0)
-
-        def res(Mi):
-            pr = self.normal_shock_p0_ratio(Mi)
-            return f_mass(Mi) / f1 * (1.0 / pr) - area_ratio
-
-        try:
-            return root_scalar(res, bracket=[1.001, 80], method='brentq').root
-        except (ValueError, RuntimeError):
-            return None
-
     # ── Plotting ─────────────────────────────────────────────────
 
     @staticmethod
@@ -905,119 +866,3 @@ class SupersonicStartingGoldman:
         if save_path:
             plt.savefig(save_path, dpi=150, bbox_inches='tight')
         plt.show()
-
-    @staticmethod
-    def plot_starting_envelope(gamma, nu_l_deg, nu_u_deg, nu_i_actual_deg=None,
-                               save_path=None):
-        """
-        Plot starting envelope for a specific blade design point.
-
-        Shows where the design sits relative to the starting boundary.
-        """
-        import matplotlib.pyplot as plt
-
-        ss = SupersonicStartingGoldman(gamma)
-
-        Ml = ss.mach_from_pm_rad(np.radians(nu_l_deg), gamma)
-        Mu = ss.mach_from_pm_rad(np.radians(nu_u_deg), gamma)
-        Msl = ss.mstar_from_mach(Ml, gamma)
-        Msu = ss.mstar_from_mach(Mu, gamma)
-
-        ratio = Msu / Msl
-        Mslim = ss._Mstar_lim
-
-        Msl_arr = np.linspace(1.005, Mslim * 0.88, 80)
-        nul, nui = [], []
-        for ms in Msl_arr:
-            msu = ms * ratio
-            if msu >= Mslim * 0.98:
-                continue
-            nm = ss.max_inlet_pm_deg(ms, msu)
-            if nm is None or nm <= 0:
-                continue
-            M = ss.mach_from_mstar(ms, gamma)
-            if M <= 1:
-                continue
-            nul.append(np.degrees(ss.prandtl_meyer_rad(M, gamma)))
-            nui.append(nm)
-
-        fig, ax = plt.subplots(figsize=(7, 5))
-        ax.plot(nul, nui, 'b-', lw=2,
-                label=f'Starting boundary ($M^*_u/M^*_\\ell$ = {ratio:.3f})')
-        ax.fill_between(nul, nui, 0, alpha=0.1, color='green')
-        ax.fill_between(nul, nui, max(nui) * 1.2, alpha=0.1, color='red')
-
-        nu_i_max_design = ss.max_inlet_pm_deg(Msl, Msu)
-        ax.plot(nu_l_deg, nu_i_max_design, 'rs', ms=10,
-                label=f'Design point: $\\nu_{{i,max}}$ = {nu_i_max_design:.2f}°')
-
-        if nu_i_actual_deg is not None:
-            ax.axhline(nu_i_actual_deg, color='k', ls='--', lw=1,
-                       label=f'Actual $\\nu_i$ = {nu_i_actual_deg:.2f}°')
-            started = nu_i_actual_deg <= nu_i_max_design if nu_i_max_design else False
-            status = 'STARTED' if started else 'BLOCKED'
-            ax.text(0.98, 0.02, status, transform=ax.transAxes,
-                    fontsize=14, fontweight='bold', ha='right', va='bottom',
-                    color='green' if started else 'red')
-
-        ax.set_xlabel(r'$\nu_\ell$ (deg)')
-        ax.set_ylabel(r'$(\nu_i)_{\max}$ (deg)')
-        ax.set_title(f'Starting Envelope — $\\gamma$ = {gamma}')
-        ax.legend(fontsize=9)
-        ax.grid(True, alpha=0.3)
-        ax.set_xlim(left=0)
-        ax.set_ylim(bottom=0)
-        plt.tight_layout()
-
-        if save_path:
-            plt.savefig(save_path, dpi=150, bbox_inches='tight')
-        plt.show()
-
-
-if __name__ == '__main__':
-    import matplotlib
-    matplotlib.use('TkAgg')
-
-    gamma = 1.4
-
-    ss = SupersonicStartingGoldman(gamma)
-
-    # ── Sanity check: effect of M*_u/M*_l ratio on starting limit ──
-    print("=== Vortex ratio effect on starting limit (gamma=1.4) ===")
-    print("  (1D Kantrowitz has NO limit for constant-area passage;")
-    print("   the vortex flow is what creates the restriction.)\n")
-
-    Msl_base = 1.2
-    for ratio in [1.005, 1.01, 1.05, 1.1, 1.2, 1.5]:
-        Msu = Msl_base * ratio
-        if Msu >= ss._Mstar_lim * 0.99:
-            print(f"  ratio={ratio:.3f}  M*_u exceeds limit")
-            continue
-        Kmax = ss._solve_Kstar_max(Msl_base, Msu)
-        Q = ss._compute_Q(Msl_base, Msu)
-        C_val = ss._compute_C(Msl_base, Msu, Kmax) if Kmax else None
-        Mi_max = ss.max_inlet_mach(Msl_base, Msu)
-        if Mi_max:
-            nu_max = np.degrees(ss.prandtl_meyer_rad(Mi_max, gamma))
-            print(f"  ratio={ratio:.3f}  K*_max={Kmax:.6f}  Q={Q:.6f}  "
-                  f"C={C_val:.6f}  M_i_max={Mi_max:.4f}  nu_i_max={nu_max:.2f}°")
-        else:
-            print(f"  ratio={ratio:.3f}  K*_max={Kmax}  Q={Q:.6f}  C={C_val}  NO STARTING SOLUTION")
-
-    # ── Example blade check ──
-    print("\n=== Example blade starting check ===")
-    M_inlet = 2.0
-    Msl_ex = 1.3
-    Msu_ex = 1.6
-    result = ss.check_starting(M_inlet, Msl_ex, Msu_ex)
-    for k, v in result.items():
-        if isinstance(v, float):
-            print(f"  {k:20s} = {v:.6f}")
-        else:
-            print(f"  {k:20s} = {v}")
-
-    # ── Generate TN D-4421 figure ──
-    print("\n=== Generating TN D-4421 starting limit plots ===")
-    SupersonicStartingGoldman.plot_starting_limits(
-        save_path='tnd4421_starting_limits.png'
-    )
