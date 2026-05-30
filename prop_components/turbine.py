@@ -684,7 +684,7 @@ class SupersonicStartingGoldman:
         I_R = v1**e - v2**e
 
         coeff = np.sqrt(self.gp1 / self.gm1) * (self.gp1 / 2) ** e
-        return 1.0 - coeff * Kmax * Msu / (Msl * (Msu - Msl)) * I_R
+        return 1.0 - coeff * Kmax * Msu / (Msu - Msl) * I_R
 
     # ── (M*_i)_max from eqs (33) + (35) ─────────────────────────
 
@@ -794,63 +794,112 @@ class SupersonicStartingGoldman:
     # ── Plotting ─────────────────────────────────────────────────
 
     @staticmethod
-    def plot_starting_limits(gammas=None, save_path=None):
+    def plot_starting_limits(save_path=None):
         """
-        Reproduce TN D-4421 starting-limit figure.
+        Reproduce TN D-4421 starting-limit figure (Figure 9-18).
 
-        X-axis: ν_l (PM angle on lower blade surface at throat)
-        Y-axis: (ν_i)_max (maximum inlet PM angle for starting)
-        Curves: M*_u/M*_l ratios (1.0 limit = 1D Kantrowitz)
+        X-axis: Upper-surface Prandtl-Meyer angle, omega_u, deg
+        Y-axis: Maximum inlet Prandtl-Meyer angle, omega_{in,max}, deg
+        Curves: Lower-surface Prandtl-Meyer angle, omega_l, deg
         """
         import matplotlib.pyplot as plt
 
-        if gammas is None:
-            gammas = [1.3, 1.4, 1.667]
+        gamma = 1.4
+        fig, ax = plt.subplots(figsize=(8, 10))
 
-        n = len(gammas)
-        fig, axes = plt.subplots(1, n, figsize=(5.5 * n, 5), sharey=True)
-        if n == 1:
-            axes = [axes]
+        ss = SupersonicStartingGoldman(gamma)
+        
+        nu_l_degs = np.arange(0, 125, 5)
+        nu_max_possible = np.degrees(np.pi / 2 * (np.sqrt((gamma + 1) / (gamma - 1)) - 1))
 
-        ratios = [1.005, 1.02, 1.05, 1.1, 1.2, 1.5, 2.0]
-        cmap = plt.cm.viridis(np.linspace(0.1, 0.9, len(ratios)))
+        # Plot the 1D Kantrowitz limit (dashed line)
+        nu_1d_x = np.linspace(0, min(140, nu_max_possible - 0.1), 100)
+        nu_1d_y = []
+        for nu in nu_1d_x:
+            if nu == 0:
+                nu_1d_y.append(0.0)
+                continue
+            try:
+                Ml = ss.mach_from_pm_rad(np.radians(nu), gamma)
+            except ValueError:
+                nu_1d_y.append(np.nan)
+                continue
+            Msl = ss.mstar_from_mach(Ml, gamma)
+            Q = ss._compute_Q(Msl, Msl + 1e-6)
+            def res(Mi):
+                return ss.normal_shock_p0_ratio(Mi) - Q
+            try:
+                Mi_1d = root_scalar(res, bracket=[1.0001, 80], method='brentq').root
+                nu_1d_y.append(np.degrees(ss.prandtl_meyer_rad(Mi_1d, gamma)))
+            except ValueError:
+                nu_1d_y.append(np.nan)
+        ax.plot(nu_1d_x, nu_1d_y, 'k--', lw=1.5)
 
-        for ax, gamma in zip(axes, gammas):
-            ss = SupersonicStartingGoldman(gamma)
-            Mslim = ss._Mstar_lim
+        for nu_l in nu_l_degs:
+            if nu_l >= nu_max_possible:
+                continue
+            
+            if nu_l == 0:
+                Ml = 1.0001
+            else:
+                try:
+                    Ml = ss.mach_from_pm_rad(np.radians(nu_l), gamma)
+                except ValueError:
+                    continue
+            
+            Msl = ss.mstar_from_mach(Ml, gamma)
+            
+            nu_u_arr = []
+            nu_i_arr = []
+            
+            for nu_u in np.linspace(nu_l + 0.1, 140, 150):
+                try:
+                    Mu = ss.mach_from_pm_rad(np.radians(nu_u), gamma)
+                except ValueError:
+                    break
+                Msu = ss.mstar_from_mach(Mu, gamma)
+                
+                if Msu >= ss._Mstar_lim * 0.999:
+                    continue
+                    
+                nu_max = ss.max_inlet_pm_deg(Msl, Msu)
+                if nu_max is None or nu_max <= 0:
+                    continue
+                    
+                nu_u_arr.append(nu_u)
+                nu_i_arr.append(nu_max)
+                
+            if len(nu_u_arr) > 0:
+                ax.plot(nu_u_arr, nu_i_arr, 'k-', lw=1.2)
+                # Add label at the end of the line
+                ax.text(nu_u_arr[-1] + 1.5, nu_i_arr[-1], f'{int(nu_l)}', 
+                        va='center', fontsize=9)
 
-            Msl_arr = np.linspace(1.005, Mslim * 0.88, 80)
-
-            for ratio, col in zip(ratios, cmap):
-                nul, nui = [], []
-
-                for Msl in Msl_arr:
-                    Msu = Msl * ratio
-                    if Msu >= Mslim * 0.98:
-                        continue
-                    nu_max = ss.max_inlet_pm_deg(Msl, Msu)
-                    if nu_max is None or nu_max <= 0:
-                        continue
-                    Ml = ss.mach_from_mstar(Msl, gamma)
-                    if Ml <= 1:
-                        continue
-                    nul.append(np.degrees(ss.prandtl_meyer_rad(Ml, gamma)))
-                    nui.append(nu_max)
-
-                if len(nul) > 1:
-                    lbl = '1D limit' if ratio < 1.01 else f'{ratio:.2f}'
-                    ls = '--' if ratio < 1.01 else '-'
-                    ax.plot(nul, nui, color=col, ls=ls, label=lbl)
-
-            ax.set_xlabel(r'$\nu_\ell$ (deg)')
-            ax.set_title(f'$\\gamma$ = {gamma}')
-            ax.legend(title=r'$M^*_u / M^*_\ell$', fontsize=7, loc='upper left')
-            ax.grid(True, alpha=0.3)
-            ax.set_xlim(left=0)
-            ax.set_ylim(bottom=0)
-
-        axes[0].set_ylabel(r'$(\nu_i)_{\max}$ for starting (deg)')
-        fig.suptitle('Supersonic Starting Limits — NASA TN D-4421', fontsize=12)
+        ax.set_xlabel(r'Upper-surface Prandtl-Meyer angle, $\omega_u$, deg', fontsize=11)
+        ax.set_ylabel(r'Maximum inlet Prandtl-Meyer angle, $\omega_{in,\max}$, deg', fontsize=11)
+        ax.set_title(f'Maximum Prandtl-Meyer angle for supersonic starting. Specific heat ratio, {gamma}', 
+                     fontsize=12, pad=20)
+        
+        ax.set_xlim(0, 140)
+        ax.set_ylim(0, 150)
+        
+        # Add legend text for the curves
+        ax.text(125, 145, 'Lower-surface\nPrandtl-Meyer\nangle,\n$\\omega_l$,\ndeg', 
+                ha='center', va='top', fontsize=10)
+        
+        ax.set_xticks(np.arange(0, 141, 20))
+        ax.set_yticks(np.arange(0, 141, 20))
+        
+        # Clean up axes to match the paper style
+        ax.grid(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.tick_params(direction='in', length=6, labelsize=10)
+        
+        # A dashed 1-to-1 line or similar might be useful but was not in the original, we will skip it
+        # Actually there is a dashed line for the limit, let's draw a dashed line for the uppermost curve limit
+        # In the original plot, the uppermost limit is a dashed line (Kantrowitz 1D limit probably)
+        
         plt.tight_layout()
 
         if save_path:
@@ -970,6 +1019,5 @@ if __name__ == '__main__':
     # ── Generate TN D-4421 figure ──
     print("\n=== Generating TN D-4421 starting limit plots ===")
     SupersonicStartingGoldman.plot_starting_limits(
-        gammas=[1.3, 1.4, 1.667],
         save_path='tnd4421_starting_limits.png'
     )
