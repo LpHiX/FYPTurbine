@@ -1,0 +1,984 @@
+--- PAGE 0 ---
+SEC'...JRITY INFORMATION 
+€0NFUDENTIAL Copy 
+RM L52B06 
+~~--------------~~---------------------------, o 
+rIl 
+~ C\l 
+LD 
+H 
+~ p:; 
+~ 
+U 
+~ 
+NACA 
+RESEARCH MEMORANDUM 
+CASE FILE 
+COpy 
+APPLICATI ON OF SUPERSONIC VORTEX-FLOW THEORY TO THE 
+DESIGN OF SUPERSONIC Hv1PULSE COMPRESSOR-
+OR TURBll'IE-BLADE SECTIONS 
+By Emanuel Boxer, James R. Sterrett, and John Wlodarski 
+Langley Aeronautical Laboratory 
+Langley Field, Va. 
+J P ~I~ I-IIBRfl3i.R T 
+GAlifORt-:lA INSTiTUTE OF TECHNOLOGY 
+MAY 2 1952 
+CLASSIFIED DCCUMENT 
+This material contains information affecting the National Defense of the United States wlth1n the meaning 
+of the espionage laws, TiUe 18, U.S.C., Sees. 793 and 794, the transmission or revelaUon of which in any 
+manner to an unauthorized person is prohJblted by law. 
+NATIONAL ADVISORY COMMITTEE 
+FOR AERONAUTICS 
+WASHINGTON 
+April 24, 1952 
+CONFIDENTIAL 
+--- PAGE 1 ---
+
+--- PAGE 2 ---
+lR NACA RM L52B06 
+NATIONAL ADVISORY COMMITTEE FOR AER 
+RESEARCH MEMORANDUM 
+APPLICATION OF SUPERSONIC VORTEX-FLOW THEORY TO THE 
+DESIGN OF SUPERSONIC IMPULSE COMPRESSOR-
+OR TURBINE-BLADE SECTIONS 
+By Emanuel Boxer, James R. Sterrett, and John Wlodarski 
+SUMMARY 
+A method for designing shock-free supersonic impulse compressor 
+and turbine blades in which the blade passage is essentially the space 
+between two concentric circles is presented. Since the shock-free super­
+sonic flow between two concentric circles is a vortex flow, the problem 
+is one of designing an entrance to the circular-arc passage which will 
+convert the uniform entering flow to the required vortex distribution 
+and vice versa at the exit. The coordinates of many transition arcs 
+have been computed and are included in tabular form. The resulting 
+sections are all related to one another so that changes in the design 
+variables can be investigated independently in cascade and the perform­
+ance of a section for particular rotor conditions may be deduced from 
+tests of representative sections. 
+Three methods of increasing the thickness, particularly near the 
+leading and trailing edges, are presented although not experimentally 
+investigated. The passage shape was investigated for its ability to 
+start supersonically and the maximum design inlet Mach number for 
+starting was determined for given vortex-blade parameters. 
+Cascade test results of four blade passages designed to turn the 
+flow 1200 at an inlet Mach number of 1.57 showed reasonable agreement 
+with predicted surface static pressures. The stagnation pressure 
+recovery was approximately 87.5 percent for all sections. 
+INTRODUCTION 
+At the turn of the century, the newly realized potentialities of 
+steam turbines led, among other things, to intensive empirical research 
+into the proper shaping of impulse turbine blades or buckets for use 
+U 
+a ONF ID~IAL 
+• \J 
+--- PAGE 3 ---
+....---"-- -~- ~--
+2 CONFIDENrIA.L NACA RM L52B06 
+with supersonic inlet velociti e s . (See reference 1.) The bucket shapes 
+developed at that t i me, when little was known about supersonic flow other 
+than the existence of the Prandtl -Meyer and Rankine -Hugoniot relations , 
+are st i ll t he basis for design of modern impulse st eam- turbine buckets 
+since no pr emium has been placed upon achieving the ultimate in 
+performance . 
+The present - day revolution in aircraft propulsion has brought about 
+a demand for high - performance compressors and turbines and has instigated 
+an intensive research in the field of high - pressure - ratio compressors 
+and turbines with large flow -handling capacities , small frontal area , 
+light weigh t, and high efficiency . With the development of the theory 
+of the supersonic axial - flow compressor by Kantrowitz (reference 2) a 
+new field of great promise in compressor research was opened . In par ­
+ticular , the entirely supersonic rotor and diffusing stator combination 
+suggested by Kantrowitz and discussed by Ferri (reference 3) holds 
+promise of pressure ratios per stage of 6 to 10 with efficiencies 
+estimated from two - dimensional cascade tests to be between 70 and 80 per ­
+cent . Part of the problem to be overcome for compressors of this type 
+is the design of efficient rotor -blade sections to turn the air super ­
+sonically through large angles with very little or no reaction (that is , 
+static-pressure rise), a requirement identical to that for efficient 
+impulse turb i ne buckets. The understanding of supersonic flow has 
+progressed rapidly in recent years. Liccini (reference 4) has demon­
+strated that turning passages very much more efficient than those cited 
+by Stodola are now possible . The analytical determination of the blade 
+shape for each design by the graphical characteristic method of solution 
+and check testing in cascade, however , is laborious . The purpose of 
+this paper is to present an anlytical method for the design of two ­
+dimensional related sections such that the selection of a blade for 
+particular rotor conditions may be made quickly and easily and its 
+performance deduced from tests of representative sections in cascade . 
+The principal part of the turning , in what are called vortex 
+impulse sections, is accomplished by concentric streamlines with a 
+vortex - type distribution of velocity for which an analytical potential ­
+flow solution of the equation of the characteristic or Mach lines has 
+been developed by A. Busemann. A transition section at the leading 
+part is used to set up this vortex flow and is duplicated at the rear 
+of the symmetrical blade to return the flow to the required uniform 
+exit condition. The resulting sections are related to one another so 
+that changes in the design variables , that is , design inlet and exit 
+Mach number , blade surface Mach numbers , and turning angles can be 
+invest i gated independently in cascade . Inasmuch as most practical 
+vortex sections contract the flow , it was necessary to investigate 
+analytically the supersonic starting problem . In addition , several 
+methods of thickening the vanishingly thin leading and trailing edges 
+CONFIDE,NTIAL 
+------~-------~ 
+--- PAGE 4 ---
+NACA RM L52B06 C ONF IDE Nl'IA"L 
+which are a result of the assumption of shock-free flow are suggested 
+for practical compressor-blade application. 
+3 
+The effects of the boundary layer upon the potential-flow solution 
+were obtained experimentally by several cascade tests of typical impulse 
+blade sections at an inlet Mach number of 1.57. 
+A 
+A* 
+a 
+a* 
+C* 
+G* 
+K 
+M 
+M* 
+m 
+m/r* 
+n 
+p 
+SYMBOIS 
+area 
+area when flow is sonic (for isentropic floW) 
+speed of sound 
+speed of sound at point in flow for which the Mach number 
+equals 1.0 
+lift coefficient 
+speci~ic heat at constant pressure 
+reduction of maximum flow rate due to curvilinear flow 
+nondimensional chord (chord/r*) 
+nondimensional blade spacing (2rrr/nr*) 
+nondimensional vortex constant 
+Mach number (V/a) 
+nondimensional velocity ratio (V/a*) 
+rate of mass flow 
+mass-flow parameter 
+number of blades in a rotor 
+static pressure 
+CONFIDENTIAL 
+--- PAGE 5 ---
+4 
+p 
+Q 
+r 
+r* 
+R 
+R* 
+s 
+t 
+T 
+u 
+u 
+v 
+v 
+x* 
+y* 
+5 
+e 
+v 
+CONFIDElIfr L NACA RM L52B06 
+stagnation pressure 
+vortex - flow parameter 
+radius from center of rotation of a rotor 
+radius of sonic velocity streamline in vortex field 
+radius in vortex field 
+nondimensional radius in vortex field (R/r*) 
+radius ratio (R*/Rl*) 
+projection of added thickness normal to axial direction 
+( fig . 9( b) ) 
+temperature 
+rotational velocity of rotor 
+component of velocity in x direction 
+component of velocity in y direction 
+velocity 
+of flow for given stagnation conditions 
+nondimen s ional distance in x direction (x/r*) 
+nondimensional distance in y direction (y/r*) 
+inlet - flow angle , angle between relative flow and normal 
+to rotor leading edge 
+ratio of specific heats 
+leading - edge wedge angle 
+turning angle 
+Mach angle 
+supersonic property angle , angle through which flow must 
+expand f r om M = 1 . 0 to gi ven Mach number 
+CONFI DENTIAL 
+----- ------- ------ ---
+--- PAGE 6 ---
+NACA RM L52B06 C ONFIDENfIAIJ 5 
+p 
+a 
+¢ 
+¢I 
+Subscripts 
+a 
+e 
+i 
+1 
+u 
+o 
+8 
+2 
+ratio of average outlet velocity to inlet velocity 
+density 
+solidity (C*/G*) 
+angle between vortex radius vector and x axis, measured 
+positive clockwise 
+direction of flow in vortex field, measured positive clock­
+wise from x axis 
+stagnation pressure recovery 
+axial direction 
+entrance condition 
+undisturbed inlet condition 
+lower or concave surface 
+upper or convex surface 
+stagnation 
+sonic 
+exit condition 
+A prime mark denotes conditions after normal shock. 
+Blade-Section Development 
+To turn a gas flow through the large angles necessary in supersonic 
+compressor- or turbine-blade passages, a vortex type of flow can be 
+utilized if the inlet surface is properly shaped to convert the uniform 
+inlet velocity into that corresponding to vortex flow and vice versa at 
+the exit. The desirability of using a vortex type of flow is evident 
+when it is realized that the maximum loading for a given peak surface 
+pressure i8 achieved by uniform upper and lower surface pressures attained 
+through the use of vortex flow . The labor involved in obtaining a solu­
+tion for a blade profile is reduced because for vortex flow the equation 
+of the Mach lines can be found and , as will be shown, only the transition 
+CONFIDENI'IAL 
+--- PAGE 7 ---
+6 e ONFIDENTIA NACA RM 152Bo6 
+arcs need to be det ermined. The fact that the blades so developed are 
+part of a related family is advantageous. 
+Supersonic vor tex-flow theory .- As is well known, (for example, see 
+reference 5), superson i c vortex flow is an irrotational flow t he stream ­
+lines of whi ch are concentric circles ; with a constant velocity along 
+any particular streamline. The velocity in turn varies inversely with 
+radius. 
+The general vortex equation 
+can be rewritten 
+M*R* 
+VR = Constant 
+= Constant = 1 . 0 
+a*r* 
+Restricting t he flow to the supersonic realm will limit R* to values 
+between V~ : i and 1 . 0 with a flow variation shown schematically in 
+figure 1. Since the magnitude of the veloci t y and i t s direction is 
+known at any point, the inclination of the Mach waves through any given 
+point may be determined as a function of R* as shown subsequently . 
+Since the velocity is normal to the radius ( see fig . 2) ~ the Mach 
+wave inclination is ¢' ± ~ or ¢ + ~ ± ~ where 
+arc sin 1. 
+M 
+and 
+M = /-C),- +-l-) 2M* ___ ~ ,- -- 1-) M-*~2 
+so that the Mach wave inclination is ¢ + ~ ± arc sin i(' + l )R*: - (/ - 1) 
+The equation of the Mach lines may be found by integration since the 
+slope is a function of ¢ and R* . The resulting integral e quation has 
+been solved in terms of M* . Rather than develop the direct solution , 
+CONFIDENrIAL 
+--- PAGE 8 ---
+NACA RM L52B06 CONFIDENTIAL 7 
+use may be made of the fact that the Mach lines are characteristic lines 
+and that a functional relation between velocity direction ¢r and 
+velocity ratio M* exists along a characteristic line (equations 81 
+and 89, reference 6). Since M* = Jl, the equation of Mach lines can 
+be written in polar form as 
+¢ ±! [rr;l 
+2 lV~ 
+R* 
+. ~Y - 1) arc sJ.n 
+R*2 
+arc sin [7 + 1)R*2 - 3} + Constant 
+The foregoing development is based upon work done by A. Busemann 
+(unpublished) . The Mach wave network in the supersonic vortex field 
+for 40 incremental changes in the value of the constant is shown in 
+figure 3 as originally prepared by Busemann. 
+Generation of transition arcs.- The flow entering a blade section 
+assumed to be uniform, supersonic, and of constant entropy must be 
+deflected by uniquely shaped boundaries to set up the desired vortex­
+flow pattern. In the following exposition, it is convenient to discuss 
+the flow in terms of flow direction, ¢', and the property angle, V. 
+Tables of functions for two-dimensional flow of a perfect gas have been 
+published in many texts, but, for ready reference, the values of M, 
+M*, ~,and R* as functions of v for y = 1.40 are presented in 
+table 1. 
+The inlet value of Ve must be reduced by means of compression 
+waves to the selected value of Vl on the concave surface and generally 
+increased through expansions to the value Vu on the convex surface of 
+the vortex part of the blade. Along a line where ¢' = 0, compression 
+waves (shown in fig. 4 as solid lines) have a negative slope and expan­
+sion waves (shown dashed ), a positive one. The flow (see fig. 4) must 
+be normal to the radial line through the initial point of the most 
+clockwise -spaced concentric arc . Since both surfaces must turn the 
+flow an equal amount , 
+or 
+CONFIDENI'IAL 
+--- PAGE 9 ---
+8 CONFIDENTIAL NACA RM L52B06 
+where 6¢ is the displacement angle between the initial points of the 
+concentric arcs. 
+If the start of concave circula r arc is assumed to be on the 
+y* axis, then the true vortex flow is bounded by the circular - arc 
+surfaces and the expansion wave through ¢l ' = 0 on the concave surface 
+and the compression wave which passes through ¢U ' = 6¢ on the convex 
+surface up to their point of intersection. Along these principal char ­
+acteristic lines (heavier lines in fig. 4) , the slope of the crossing 
+characteristic or Mach wave and the flow direction is known at every 
+point . There are expansion waves of total strength Vu - ve crossing 
+the principal compression cha r acte ristic and total compression wave 
+strength of ve - vl crossing the principal expansion characteristic. 
+From the theory of characterist i cs as applied to supersonic flow, 
+the direction and velocity of the flow are known to vary only across a 
+characteristic line . When characteri sti cs are given a finite strength, 
+the solution of a flow problem takes the form of a network of quadri­
+laterals. The flow parameters within each quadrilateral are assumed 
+constant. Thus, in the present problem , the transition arcs are 
+generated by straight-line elements parallel to the flow within the 
+adjacent quadrilateral or triangle formed by the principal and cros sing 
+characteristics and the transition arc itself starting from the circular 
+arcs at ¢l' = 0 and ¢u ' = 6¢ and proceeding in the counter - clockw i se 
+direction until parallel with the inlet flow . Where necessary , for 
+example, nonsymmetrical sections , the exit transition arcs at the trailing 
+surfaces of the blade are generated in a like manner about a radius 
+labeled ¢l' = 0 with the exception that signs of all flow angles ¢ ' 
+are changed. 
+An illustrative example of a particular design is shown in figure 4 
+for an assumed inlet ve of 80 and vl and Vu equal to 00 and 200 , 
+respectively . In each bounded region of flow there appear two numbers , 
+the upper one of which is the flow direction ¢ ', the lower one the 
+property angle V. The strength of each wave is taken to be 20 so that 
+the transition arc is composed of straight - l i ne elements deflected 20 at 
+the intersection with a characteristic line. 
+The coordinates of a number of transition arcs obtained algebraically 
+for small increments of ¢ are presented in table II for convex surfaces 
+and in table III for concave surfaces . Each of the arcs orig inates on 
+the y* axis for which ¢' = 0 and its length is dependent upon the 
+inlet value of ve . The range of values of Ve , vl' and Vu presented 
+is thought to cover foreseeable appl ications for turb ine- or compressor­
+blade section. 
+CONFIDENrI AL 
+-- ~-~~-~, -~-
+--- PAGE 10 ---
+~ R NACA RM L52B06 CO' IDE 9 
+Blade-section layout.- The shape of any particular section is a 
+function of inlet and exit Mach numbers as well as total turning angle 
+and Mach number on the circular - arc surfaces . For a symmetrical profile, 
+the turning angle e is equal to twice the air inlet angle ~e' The 
+concave and convex circular arcs subtend central angles of e - 2(v e - VI) 
+and e - 2(Vu - ve ) , respectively. 
+Once the design parameters have been selected , the flow channel 
+can be constructed quite simply . The circular -ar c radiu s for the 
+selected values of VI and Vu are obtained from table I and the 
+coordinates of the transition arcs are computed from values given in 
+tables II and III transformed by standard trigonometric means through 
+an axis rotation of e/2 + (vI - ve ) and e/2 + (ve - vu ) degrees for 
+the concave and convex surfaces , respectively. The convex transition 
+arc is extended by means of a straight line parallel to the inlet or 
+exit flow direction to the rotor leading - or trailing-edge line. To 
+obtain the blade form , the convex surface is displaced a distance G*, 
+as shown in figure 5, so that the two surfaces are tangent at the leading 
+and trailing edges. Examples of several symmetrical blade sections 
+obtained in this manner are presented in figure 6. 
+Asymmetric sections may be designed similarly by treating the inlet 
+and exit sections as separate layout problems . To obtain a sharp 
+trailing edge, the exit area normal to the flow can be obtained from 
+the familiar cascade re lation 
+A2 cos ~e 
+Ae cos(~e - e) 
+To satisfy the equation of continuity, the design exit value of V must 
+correspond to that of an isentropic area change A2/Ae . 
+Although a flow passage can be constructed for any selection of 
+flow parameters, prov id ed that the sum of transition turning on either 
+surface does not exceed the total turning angle deSired, there are 
+solutions for which a compressor - or turbine -blade section does not 
+exist because the surfaces are interchanged resulting in negative thick­
+ness. For most practic al selections of VI, vU' and e, however , no 
+difficulty is encountered. 
+Not only the blade shape but the solidity cr as well is predeter­
+mined by the selection of the surface Mach numbers for a given rotor 
+design. The solidity of a symmetrical blade can be determined analyti­
+cally without the necessity of graphical construction . The necessary 
+equations to find the solidity of a blade are given in appendix A. 
+Since the mechanical design of a rotor due to blade - hub attachment 
+CONFI DENTIAL 
+--- PAGE 11 ---
+10 ON]!. I];)ENrIAL NACA RM L52B06 
+difficulties as well as the aerodynamic performance depend upon solidity, 
+figures 7 and 8 have been prepared for illustrative purposes. The 
+variation of solidity with turning angles for the case where 
+ve = ~(Vu + VI) and each property angle is constant in turn is presented 
+in figure 7. Figure 8 presents results for the case where the inter­
+dependence of the property angles is removed. The lowest solidities 
+are achieved when the divergence of surface Mach numbers or loading is 
+greatest. For preset surface Mach numbers the solidity is affected 
+slightly by a variation of inlet Mach number. 
+From the aerodynamic standpoint, low solidity is desirable because 
+of lower total frictional losses ; however, separation losses and out-
+let flow-divergence angles will undoubtedly be greater as the pressure 
+rise on the convex surface at the exit transition section becomes greater 
+at low solidities. The designer's selection of a reasonable solidity to 
+yield the highest efficiency is facilitated by the use of vortex sections 
+since the profiles are related to one another and therefore performance 
+estimates may be made by interpolation of the results of cascade tests 
+of representative sections . 
+Method of Creating Finite Leading-Edge Angle 
+For use in a practical compressor or turbine the supersonic vortex 
+sections have a serious disadvantage because of the extremely thin 
+leading edges which are subject to rapid wear due to high -velocity solid 
+particles in the stream and to deflection due to the pressure differential 
+existing on the two surfaces . This difficulty may be circumvented by 
+the means outlined subsequently to create a finite wedge angle at the 
+leading and trailing edges. 
+Subsonic axial velocity component .- Kantrowitz (reference 2) has 
+shown that for subsonic axial velocities when expansion waves are 
+generated along the entrance region (in this case the forepart of the 
+convex surface) an oblique compression shock of strength equal to the 
+total expansion strength will be created to obtain a steady-state condi­
+tion. A small angle wedge therefore can be placed on the convex surface 
+followed by either an expansion corner as shown in figure 9(a) or a 
+convex arc so placed that all the expansion waves are upstream of the 
+following blade. The expansion waves originating at B and the compres ­
+sion shock from A being of the same fam ily will effectively cancel each 
+other a short distance upstream of the cascade for axial velocities near 
+sonic . The wave pattern in figure 9(a) composed of finite-strength 
+expansion waves is seen to be completely cancelled within the confines 
+of the figure for a group of blades. As in the case of an isolated 
+airfoil in supersonic flow , the waves cancel completel y only at an 
+infinite distance from the source of disturbance so that in reality it 
+CONFIDENTIAL 
+--- PAGE 12 ---
+NACA RM L52B06 QNFIDE~IA:L 11 
+is only at a great distance from the cascade that the undisturbed Mach 
+number is Mi' As the fluid approaches the cascade it oscillates with 
+increasing amplitude about Mi as a mean. At the entrance the flow is 
+turned and expanded to the inlet value Me different than Mi to 
+satisfy the equation of continuity. 
+The graphical procedure used to determine Mi is outlined in 
+reference 2; however, the accuracy of the method is limited and it fails 
+in solving the inverse problem of interest to the compressor designers, 
+namely, that of determining Me and ~e when Mi and ~i are given. 
+A simpler method capable of analytic solution is presented. When 
+the oblique shocks are assumed to be relatively weak, the flow process 
+may be regarded as isentropic. The last infinitesimal strength wave in 
+the expansion fan about B to be cancelled (see fig. 9(b)) will be the 
+Mach wave associated with the undisturbed upstream Mach number Mi' If 
+that Mach wave is BD, then a line FD which is tangent at D to the 
+limiting streamline AC entering the passage must be parallel to the 
+direction Mi, and the area normal to the flow across BD is equal to 
+to Ai' The extension of line FD will pass through point E, since a 
+line joining the points E and B is parallel and equal to G*. 
+Because AC is a streamline and the flow in the expansion fan is 
+isentropic, the change in flow direction ~i - ~e must equal ve - vi 
+to satisfy the equation of continuity. 
+To solve the problem analytically, ~ can be shown to be a func­
+tion of Mach number since 
+and 
+Ae Ae 
+Ai A* 
+(G* - t)cos ~e 
+G* cos i3 i 
+Mi*~ 
++ 
+1-.* 2 x-Ai Me*r + 
+2 
+Use may be made of the values of V 
+1 
+1 
+and 
+-2-~* r - 1 2~r:l 
+A 
+A* as a function of Mach 
+number tabulated, for example, in reference 6 to determine the desired 
+unknown through a trial-and - error selection of Mach numbers. Since the 
+C ONFIDENI' IAL 
+--- PAGE 13 ---
+12 NACA RM L52B06 
+solution is a function of t/G*, the wedge angle is not uniquely deter ­
+mined. Care should be exercised in selecting a suitable angle such 
+that the shock is attached and the position of the expansion corner 
+permits the last wave of the fan to precede the following blade. 
+Another method utilizes a shock wave originating at the leading 
+edge of the concave surface which will fall inside the passage and 
+therefore will not affect the flow upstream of the leading edge . The 
+value ve (see fig . 9(c)) can be obtained from the oblique-shock equa­
+tions (reference 6) when vi and wedge angle 5 are known. The points 
+A and B are the start of the transition arcs of a p a ssage designed 
+for an inlet Mach number equivalent to ve and for a turning angle 
+e = 2(~i - 5) for a symmetrical section. From the point A, a straight 
+line tangent to the transition arc is projected far enough forward so 
+that the shock wave caused by deflecting the flow at point C intersects 
+the point B on the opposite surface. The line BD is parallel to Mi 
+creating an exterior corner of 50 at B. The basic leading-edge shape 
+for ve is indicated by EAF. 
+From practical considerations, the wedge angle 5 should be fairly 
+small to yield a range of rotational speeds for which the shock will be 
+attached as well as alleviating the possible flow separation at B due 
+to shock - boundary-layer interaction. 
+Supersonic axial-velocity component.- When the axial component of 
+the relative velocity is supersonic, another method of creating a 
+leading-edge wedge is to have the shock originate on the leading edge 
+of the convex surface by taking care to select a wedge angle sufficiently 
+small to insure the shock location within the passage (see fig. 9(d)). 
+The passage in this case is designed for an inlet Mach number equivalent 
+to ve and a turning angle e = 2(~i + 5) for a symmetrical section. 
+The surface AC is parallel to the undisturbed inlet velocity Mi and 
+at A the surface is turned sharply to cancel the leading-edge shock. 
+The thinner boundary layer at A, a s compared to that at point B 
+(fig. 9(c)) and the centrifugal force will materially aid in preventing 
+flow separation on the concave surface at A. For this reason the 
+performance would be expected to be superior to the second subsonic 
+axial-velocity-component case. 
+For the symmetrical se ction, the sharp corners at the trailing 
+edge will give rise to trailing expansion waves and oblique shocks. To 
+a first-order approximation the exit Mach number will equal the entering 
+Mi and the turning angle e = 2~i for a true impulse condition. 
+CONFIDENTIAL 
+--- PAGE 14 ---
+NACA RM L52B06 13 
+Consideration of Starting Contraction Ratio 
+In the design of a passage for supersonic flow , it is important to 
+examine any converging port ion t o insure that supersonic flow can be 
+started (see reference 7) . Most practical vortex sections contract the 
+flow. In this discussion , consideration is given only to those cases 
+when the minimum area occurS between the concentric circular arcs. For 
+given values of vI and Vu it is possible to determine analytically 
+the greatest des i gn value of ve for which supersonic flow starts in 
+the passage. The flow can not be assumed one dimensional as in refer­
+ence 8 because of the large velocity gradient between the channel walls. 
+Since the starting Mach number depends both upon the stagnation-pressure 
+loss through the normal shock and the maximum mass flow through the 
+mlnlmum section , the reduction of mass flow due to curvilinear flow 
+must be obtained . The maximum inlet - design Mach number will therefore 
+be that design value of Mach number for which the maximum rate of flow 
+can be accommodated when the normal - shock loss and the large velocity 
+gradient in the concentric - arc passage are taken into consideration. 
+When a normal shock is assumed to be spanning the entrance at the 
+instant of starting as shown in figure 10, the gain in entropy through 
+the shock will be constant so that the flow downstream of the shock will 
+still be irrotational . If the circular portion of the passage is suf­
+ficiently long , a vortex type of flow wil l be generated. The vortex 
+equation expressed nondimensionally (developed in appendix B) is 
+{Y
+- l V - s = K = Constant 2 ao 
+The immediate problem is to determine the constant K = ~ax for 
+which the rate of flow is a maximum for a given radius ratio and stagna­
+tion conditions. The derivation of the necessary equation is presented 
+in appendix A and the resulting values of Kmax as a function of the 
+ratio of the concave to convex radius is given in figure 11. The reduc­
+tion in maximum mass flow C compared to that in a one - dimensional 
+passage of width equal to the distance between the two radii is pre­
+sented in figure 12 . 
+The mass flow in the passage at the instant of starting when the 
+normal shock spans the inlet is equal to the flow rate when started. 
+The phySical area contract i on as a function of inlet Mach number and 
+Vu and VI may readily be determined for the started condition . If 
+equated to the maximum contraction ratio for starting , when the flow 
+reduction factor C is take n into consideration the maxim~ selected 
+value of Ve , for which the passage can be designed to start , can be 
+CONFIDENTIAL 
+----------------------.------- ---
+--- PAGE 15 ---
+14 NACA RM L52B06 
+found. The deri vation of the equations and method of attack are outlined 
+in appendix C. The limiting values of inlet ve as a function of vl 
+and Vu calculated as indicated in appendix C are presented in figure 13. 
+The limiting inlet Mach number, however, is not valid for the thick­
+ened leading-edge sections which need to be investigated individually. 
+Experimental Apparatus and Procedure 
+The blade models are mounted between glass side walls in the test 
+section of the 2t - by 2-inch supersonic cascade tunnel (fi g. 14). This 
+tunnel is a closed -return type in which the flow i s produced by a 
+compressor previously used as a supercharger on a v-1650-7 Packard air ­
+craft engine . The power to operate the compressor is furnished by a 
+300 -hor sepower direct-current motor. Upstream of the test section is a 
+24- by 24 - inch settling chamber containing three sets of f ine screens . 
+Downstream of the test sect ion is a two-dimensional diffuser of approxi­
+mately 60 divergence angle followed by return duct i ng incorporating two 
+aircraft type of water - cooled radiators to control the air temperature. 
+An air bleed-off valve in the settling chamber is used to cont rol the 
+settling - chamber pressure at from 1 to approx imately 2 atmospheres. All 
+tests herein reported, however, were made with atmospheric stagnation 
+pressure. Schl i eren photographs of the flow were made with the use of 
+the usual two parabol i c mirror systems. 
+Two blades forming one passage were used per set. The passage 
+contours are accurately machined to a tolerance of O.002-inch. In 
+order to gain structural rigidity near the leading and trailing edges , 
+the outer surfaces were arbitrarily designed to have finite edge angles 
+and therefore the blade profiles are not similar nor do they represent 
+any vortex section. 
+A view of the test section with one sidewall rem oved is presented 
+in figure 15. The asymmetric supersonic nozzle was designed for an 
+exit Mach number of 1.57 equivalent to a V of 140. A solid wood 
+fairing on the convex side and a flexible -, adjustable extension on the 
+concave side were used to guide the flow outside of the test passage. 
+The blade models, of 2k - inch span, were mounted on dowel pins press­
+fitted into bushed holes in one of the glass windows. The angle of 
+attack of the blades could be varied with respect to the nozzle by 
+rotating the glass . In this way the Mach number entering the passage 
+could be varied within limits imposed by the appearance of detached bow 
+waves on the leading edges. 
+CONFIDENTIAL 
+--- PAGE 16 ---
+. 
+NACA RM L52B06 CONFIDENI'IAL 15 
+Four sets of blade s of different solidities were chosen for testing. 
+Figure 16 is a photograph of one of these blades showing the static­
+pressure orifices and scratch marks used to create Mach wave disturbances 
+in the flow. All of the blades had a turning angle of 1200 . Solidities 
+and the theoretical v values fo r the concentric axis and 'entrance 
+conditions are as follows : 
+Blade VI Vu ve Solidity Figure (deg ) ( deg) (deg) 
+I 8 20 14 5 . 69 6(b) 
+II 4 24 14 3 . 64 6(c) 
+III 0 28 14 2.59 6(a) 
+IV 0 24 13 2 · 70 6(e) 
+In order to preven t the fami liar condensation shock phenomenon 
+caused by expanding moist air, the settling - chamber temperature was 
+maintained at a high temperat ure by manual r egulation of the cooling 
+water flow. The operating compressor - pressure ratio for any configura­
+tion was obtained by increas i ng the motor speed unt il all test section 
+pressures remained unchanged wit h a further increase in speed. Total 
+and static pressures were measured inside t he passage just before the 
+end of the concave blade eithe r by single - or multiple-tube probes. 
+Flow surveys were made at several spanwise stations for several inlet 
+Mach numbers. Chordwise static - pressure orifices were located at the 
+midspan of both passage surfaces. In add i tion , three spanwise static­
+pressure orifices on both surfaces were located at the chordwise posi­
+tion where the survey measurements were made . The inlet total pressure 
+and temperature were measured in the settling chamber. All pressure 
+measurements were recorded by photographing a multiple-tube mer~ury 
+manometer. 
+CONFIDENTIAL 
+--- PAGE 17 ---
+16 NACA RM L52B06 
+RESULTS AND DISCUSSION 
+The figures and tables presenting the test result s for the four 
+passages are t abulated below : 
+Blade 
+Type of data I II III IV 
+Figure 
+Stat ·ic -pre s sure 17(a) 17(b) 17(c) l7(d) distribution 
+Schl ieren photographs 19 20 21 22 
+Total-pressure lS(a) lS(b) lS(c) lS(d) recoveries 
+Table 
+Weighted average total - IV(a) IV(b) IV(c) IV(d) pressure recoveries 
+An examination of the stagnation pressure recoveries at the exit 
+of the blade passages (fig . lS) makes i t obvious that the flow is not 
+two dimensional. The boundary layer has "piled up" in toward the cente r 
+of the convex surface. As in refe 'rence 4, there i s evidence of c ircula ­
+tory boundary-layer flow down the side wall to the convex surface and 
+inward toward the center of the convex blade . An explanation of this 
+phenomenon can be deduced by a conside ration of the centrifugal forces 
+and boundary - layer effects along the s i de wall . Out in the free stream, 
+the centr ifugal force caused by curved streamlines is just balanced by 
+a positive pressure grad ient (toward the concave surface) . In the wall 
+boundary layer, however, this pressure gradient is greater than the 
+centrifugal force; thus the flow moves down the side walls and inward 
+on the convex surface. For low - aspect - ratio blades such as for these 
+tests, the side-wall boundary - layer inflow effects are felt completely 
+across the span at the exit of the blades. Two- dimens ional flow at 
+the spanwise center of the blades could be more closely approached by 
+using large-aspect - ratio blades to minimize the extent of this boundary­
+layer inflow. The size of the existing equipment, however , prevented 
+the use of large-aspect -ratio blades . In an actual rotor, centrifugal 
+forces also exist in the spanw ise direction and therefore the results 
+of these tests should be considered only as conservat ive indications 
+C ONFIDENrIAL 
+--- PAGE 18 ---
+3R NACA RM L52B06 17 
+of the performance of blades in an actual rotor . T he fact that the flow 
+is three dimensional in character in these tests should be kept in mind 
+when inspection is made of the schlieren photographs. 
+An interesting experiment which shows the effect of this boundary­
+layer inflow was conducted by pl ac i ng two boundary -layer fences on the 
+convex surface of blade II, placed 1/4 inch from the gl ass wall. Each 
+fence consisted of a t~in plate 1/4 inch high and extending from 10 to 
+100 percent of the chord . Comparing the pressure re cove ries near the 
+convex surface of this modified blade (fi g. 18 (e)) with the same blade 
+(fig . 18(b)) shows that the fences have re duced boundary-layer accumula­
+tion and separation . These particular dat a should be cons i dered prelim­
+inary in nature as static - pres sure measurements necessary to correct 
+for shock losses were taken only at the blade surfaces. 
+Blade I was tested at a slightly higher than desi gn inlet Mach 
+number. This higher inlet Mach number was necessary to pre vent shocks 
+in the outer channels , cau sed by the conf i gurat ion of the tunnel, from 
+extending ahead of the blades . The static pressures on the surfaces of 
+the blades were highe r than desi gn . Thi s effec t may be due to the 
+thickening of the bounda ry layer in this narrow channel. The pre ssure 
+rise at the rear part of the passage is explained by the sl ight flow 
+separation on the convex surface as seen from the schlieren photographs 
+(fig. 19(a)), and the conse quent di ffuser effect due to r educed flow 
+areas. 
+static - pressure distributions on passage II are in goo d agreement 
+with the predict ed values except at the rea r part of the blade where 
+separation had its usual effe ct. A study of midspan pressure recoveries 
+indicated a decrease in pressure re covery at the convex wall for an 
+increase of inlet Mach number correspondi ng t o a c hange of ve of 10, 
+(fi g. 18(b)). 
+Supersonic flow in the passage formed by blade III could not be 
+started at the design inlet Mach number of v equal t o 140 • The inlet 
+Mach number had to be increased to v va lue of approxim ately 180 • 
+Figure 21 ( a) sho ws a schlieren photograph of the passage in an unstar ted 
+condition. All data pre se nted for thi s blade were t aken at an off-design 
+inlet Mach number . As seen from the schlieren photograph in figure 21(b), 
+the boundary layer se parated from the convex blade surface at approxi­
+mately the 30-pe r cent - chord station, but was appa rently reattached a 
+short distance downst ream in a manner typical of laminar boundary l aye r. 
+The usual three -dimen s i ona l-fl ow effects are noted from the schliere n 
+photographs and pr ess ure r eco veries. 
+In figure 13 , it can be seen that , for a Vu of 
+0, the maximum design entering Mach number is 14 . 40 . 
+fore, should st art at its design inlet Mach number of 
+CONFillENTIAL 
+280 and a VI of 
+Blade III, there­
+v equal to 140. 
+--- PAGE 19 ---
+~~----- --
+18 NACA RM L52B06 
+In the derivations of the equations used to plot figure 13 , however , the 
+effects of the boundary layer have been neglected . The presence of 
+boundary layer or flow separation would decrease the maximum mass flow , 
+and thus decrease the maximum design entering Mach number . Since 
+blade III was designed with an entering Mach number very close to the 
+limit , it is not surprising that viscosity effects prevented it from 
+starting at a v of 140. 
+The inlet Mach number for blade IV is greater than design by the 
+equivalent of a change in v of 20 . Nosing down the blades , however , 
+caused the strong shock in the outer bypass channel to extend ahead of 
+the convex - surface blade. Whether this result was caused solely by the 
+tunnel configuration or by the fact that the passage would not start at 
+a lower Mach number was not determined . I t should be noted that this 
+blade is designed close to the limiting design maximum inlet Mach number . 
+The static - pressure distribution is in reasonable agreement with pre­
+dicted values except for the effects of boundary - layer accumulation 
+and separation at the rear of the passage . 
+The variation of the mass -weighted stagnation - pressure recovery for 
+all blades was small . (See table IV . ) An approximate average recovery 
+of 87 .5 percent was obtained for all sections tested . Examination of 
+an individual passage shows a large variation of pressure recovery at 
+the various span positions which is caused by three - dimensional flows . 
+A comparison of the blade loading aCL for the four blades given 
+indicates that the experimental loading is approximately 90 percent of 
+the theoretical value except for blade number I in which the excellent 
+agreement should be disregarded in view of the marked divergence between 
+predicted and measured pressures . 
+aCL 
+Blade 
+Theoretical Measured 
+I 1. 77 1. 77 
+II 1.68 1.50 
+III 1. 71 1.54 
+IV 1. 76 1.62 
+Schlieren photographs shown in figures 19 to 22 give an indication 
+of the flow condition in the blade passages . It is interesting to note 
+in figure 19(c) and figure 22 the close correlation of the theoretical 
+vortex -wave pattern , shown by the dotted line, and the actual resulting 
+waves . The shock waves at the leading edge and in the passage are known 
+C ONFIDENI'IAL 
+• 
+--- PAGE 20 ---
+NACA RM L52B06 19 
+to be weak. This weakness i s apparent by the rapid dissipation of the 
+downstream reflections and the "roof top" behavior of the boundary layer 
+upon meeting the shock wave on the convex blade surface. This phenomenon 
+is typical of a laminar boundary layer, that is, rapid thickening and 
+separation of the boundary layer upstream of the shock and creation of 
+expansion waves as the boundary layer is rapidly thinned behind the 
+shock. The magnitude of the increased boundary-layer thickness, for 
+such flows, is a function of shock strength (reference 8). 
+The existence of compression or expansion waves at the exit of the 
+passage can change the boundary layer upstream in the passage , and thus 
+to some extent affect the separated region in the passage. This phenom­
+enon acts much the same as the shock before the head of the total­
+pressure probe in figure 19(a) which causes th~ boundary layer to thicken 
+upstream. Although it was impossible with the existing equipment to 
+change the downstream pressure appreciably, the downstream pressure could 
+be varied somewhat by moving the flexible wall. An example of this 
+result is shown in the schlieren photograph in figure 19(c) where the 
+angle of the trailing-edge shock has been changed approximately 100 and 
+the flow leaving the blade is closer to the required exit direction. No 
+appreciable changes were noted in the pressure recovery due to changing 
+the downstream pressure by this method. 
+The results of the four-blade passages followed similar trends with 
+small variations in over-all results . In general, the discrepancies 
+between theoretical and experimental pressure distributions may be 
+explained by the boundary - layer inflow and flow separation. These two 
+effects acting together caused the pressure to rise in the region of the 
+trailing edge. The data indicate that these discrepancies could be 
+reduced by using suitable devices to minimize the boundarY-layer inflow 
+from the side walls. Very little data are available to compare with 
+the present results in order to determine whether the vortex-blade 
+sections are as efficient as any other type. Some data are contained 
+in reference 4, in which a pre~sure recovery of 95 percent was experi­
+enced for a 900 turning passage of solidi t y 3 . 12, an inlet Mach number 
+of 1.7, and designed for a static - pressure drop across the blade row. 
+T"he data are not exactly comparable because of the difference in turning 
+angle, Reynolds number, and aspect ratio. Stodola (reference 1) presents 
+steam-bucket performance in terms of the velocity ratio W, which is 
+equal to the ratio of the average outlet velocity to the inlet velocity. 
+The value of W from the present tests is approximately 92 percent; 
+whereas the upper limit for the data in reference 1 is about 80 percent 
+when the inlet and outlet static pressure are assumed to be equal. 
+Moving the concave blade of set I away from the convex blade along 
+the chord bisector line in order to determine what effect misalinement 
+would have on the performance reduced the midspan pressure recovery from 
+95 to 84 percent for the condition shown in figure 23. The reason for 
+CONFIDENTIAL 
+--- PAGE 21 ---
+, . , 
+: 
+20 CONFIDENTIAL NACA RM L52B06 
+this result is obviously due to the large separation and standing shocks 
+in the passage . The results of this part of the investigation point out 
+the desirability of aerodynamically designing the passage even though 
+the behavior of the boundary layer modified the predicted results . 
+CONCLUSIONS 
+A method for designing shock - free supersonic impulse compressor 
+and turbine blades in which the blade passage is essentially the space 
+between two concentric circles is presented . Since the shock - free 
+supersonic flow between two concentric circles is a vortex flow , the 
+problem is one of designing an entrance to the circular-arc passage 
+which will convert the uniform entering flow to the required vortex 
+distribution and vice versa at the exit . The coordinates of many tran s i ­
+tion arcs have been computed and are included in tabular form . The 
+resulting sections are related to one another so that changes in the 
+design variables can be investigated independently in cascade and the 
+performance of a section for particular rotor conditions may be deduced 
+from tests of representative sections . 
+Three methods of increasing the thickness particularly near the 
+leading and trailing edges are presented although not experimentally 
+investigated . The ability of the passage to start supersonically was 
+investigated and the limiting design inlet Mach number for starting 
+was determined for given surface Mach numbers. 
+Four different blade passages designed to turn the flow 120 0 were 
+investigated in cascade at a Mach number of approximately 1 .57. The 
+specific conclusions resulting from such tests are as follows: 
+1. The chordwise static - pressure distribution agrees reasonably 
+well with design values . The discrepancies are explained by side -wall 
+boundary - layer accumulation and flow separation . 
+2 . The cascade flow was not two dimensional because of the circula ­
+tory boundary - layer flow . 
+3. The we i ghted stagnation pressure recovery for the enti r e span 
+is approximately 87.5 percent for all sections . 
+4. The r e is little data to indicate whether these pressure 
+recoveries are better or worse than sections differently designed 
+although the recoveries are superior to any of the steam turbine bucket 
+results r eported by Stodola . 
+5. The desirability of aerodynamically des i gning the passage i s 
+borne out by the results obtained when the blades are incorrectly spaced . 
+CONFIDENTIAL 
+--- PAGE 22 ---
+NACA RM L52Bo6 d ONFIDENl'IAL 21 
+Future research on the vortex impulse sections to determine the 
+performance for a range of design variables and effects of leading-edge 
+thickness should be unde r taken because of the promising results obtained. 
+Langley Aeronautical Laboratory 
+National Advisory Commi t t ee for Aeronautics 
+Langley Field , Va. 
+CONFIDENl'IAL 
+--- PAGE 23 ---
+22 CONFIDENl'DlL NAeA RM L52Bo6 
+APPENDIX A 
+CAlCULATION OF THE SOLIDITY OF A SYMMETRICAL BLADE 
+The so lidity of a s ymmetrical blade can be determined analytically 
+by using the equations developed in appendix C. Equation (CTb) in 
+appendix C can be rewritten 
+Ae = Ae Q( Rl* _ Ru*) r*· A* 
+From figure 5, it can be seen t hat 
+Ae/r* G* 
+sin (g - f3 e ) 
+or for a symmetrical blade since 8 = 2f3e 
+G* 
+Combining equations (A2a) and (AI) 
+Ae/r* 
+cos 8/2 
+(AI) 
+(A2) 
+(A2a ) 
+(A3) 
+For a symmetrical blade, the equation of the symmetrical axis (see fi g . 5) 
+i s 
+(A4) 
+where the X* and Y* axes are a~ defined for tab le s II and III . 
+The perpendicular distance from this axis to the end point XI* ' 
+YI * of the concave surfa ce can be shown by analytic geometry to be 
+C ONFIDENI' IAL 
+--- PAGE 24 ---
+NACA RM L52B06 a ONFIDENT IAJ] 23 
+(A5) 
+When equations (A3) and (A5) are used, the sol idity for a symmetrical 
+blade is thus given by 
+2fl* cos ~ - (Ve - vJ + YI* Sin~ - (Ve - VIll cos ~ 
+a = ~~------------------------------------------~-----
+which can be easily solved by us i ng val ues from table III, (fi g . 24) 
+and the values from the following equation which have been published 
+in many texts (for example , referen ce 6) . 
+C ONF IDE Nl'IAL 
+(A6) 
+--- PAGE 25 ---
+24 NACA RM L52B06 
+APPENDIX B 
+CALCULATION OF THE REDUCTION OF THE MAXIMUM RATE OF 
+MASS FLOW DUE TO CHANNEL- WALL CURVATURE 
+For most practical cases, the mlnlmum passage width which pre­
+determines the maximum rate of mass flow for given stagnation conditions 
+of pressure and temperature occurs between the concentric circular - arc 
+portions of the throat . When only this curved region of flow is con ­
+Sidered, the boundary layer being neglected , an expression may be derived 
+by expressing the reduction in the maximum rate of mass flow due to 
+channel -wall curvature as a function of radius ratio. 
+When the normal shock spanning the entrance to the blade passage 
+is assumed to be of constant strength (fig. 10) the flow within the 
+passage can be considered irrotational, with a greater entropy than 
+that upstream of the normal shock. For the flow to be irrotational 
+and in radial equilibrium downstream of the shock if bounded by suf ­
+ficiently long concentric - circular walls, it must satisfy the vortex 
+equation 
+VR* = Constant 
+Since the flow is adiabatic and isentropic 
+_ Y_ E + V2 
+"Y - 1 P 2 
+and 
+__ Y_ Po' 
+Y - 1 Po' 
+combining equations (Bl), (B2), and (B3) and solving for P gives 
+(Bl) 
+(B2) 
+(B3 ) 
+(B4) 
+where k -- R-1 VR* and Po' 2 ao 
+equals the stagnation density behind the 
+normal shock . 
+CONFIDENTIAL 
+--- PAGE 26 ---
+NACA RM L52B06 
+The mass flow parameter m* is therefore 
+for r = 1.4, equat i on (B5) is reduced to an analytically integrable 
+equation such that 
+2 (R*2 _ k2 )3/2 ~ (R*2 _ k 2 ) 1/2 
+1 5 R*3 5 R* 
+25 
+(B5) 
+(B6) 
+For all real flows , k is le ss than R*. In orde r to determine kmax J 
+that is, that value of k which wi ll yield the maximum rate of flow 
+between Rl* and Ru*, e quation (B5) is different i ated under the 
+integral sign and equated to zero; thus , 
+2 - , 
+dm* = ~ fl* 
+2 k2 ~ k2y-l p ,_2_ a - 1 -- + dk o , _ 1 0 Ru* r - 1 R*3 R*2 
+1 
+_~+ _ k2 )r-1 
+dR* :::: 0 R* R*2 
+for r 1.4 
+CONFIDENTIAL 

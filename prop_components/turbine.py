@@ -275,6 +275,28 @@ class Turbine:
         self.deltah_s = self.deltah_ambis / self.phi_n**2   # isentropic available KE
         self.eff_real = self.eta_h - self.p_v / (self.mdot * self.deltah_s)
 
+        # --- Nozzle total-pressure-loss correction on required inlet stagnation ---
+        # from_inert_gas drives p3 -> p_e via the ISENTROPIC p01<->p3 map, so its
+        # self.p01 is really the nozzle EXIT stagnation p03. A real nozzle loses
+        # total pressure, so the true upstream p01 must be higher to reach the same
+        # c3 (hence same M3, p3). Invert phi_n^2 = [1-(p3/p03)^k]/[1-(p3/p01)^k]:
+        k = (self.gam3 - 1) / self.gam3
+        self.p03 = self.p01                            # rename: loop output = exit stagnation
+        bracket = 1 - (1 - (self.p3 / self.p03)**k) / self.phi_n**2
+        if bracket > 0:
+            self.p01 = self.p3 * bracket**(-1 / k)     # true inlet stagnation
+        # else: loss too large to expand to p_e at this M3; leave p01 = p03 (flagged)
+
+        # Choked throat uses inlet stagnation (loss assumed downstream of throat),
+        # so the corrected p01 shrinks the throat for the same mdot.
+        self.A_throat = self.mdot / (
+            self.p01 / np.sqrt(self.T01) * np.sqrt(self.gam3 / self.R_3)
+            * ((2 / (self.gam3 + 1))**((self.gam3 + 1) / (2 * (self.gam3 - 1))))
+        )
+        self.eps = self.A3 / self.A_throat
+        self.nozzle_throat_length = self.A_throat / self.nozzles / self.Height
+        self.nozzle_exit_length = self.eps * self.A_throat / self.nozzles / self.Height
+
     def from_inert_gas_real(self, R, gam, T01, nozzles, tol=1e-3, max_iter=50):
         """
         Loss-consistent sizing. The ideal velocity triangle (built in __init__ from
