@@ -184,6 +184,7 @@ class Turbine:
 
             if iteration > 100:
                 break
+
     def from_inert_gas(self, R, gam, T01, nozzles):
         self.R_3 = R
         self.gam3 = gam
@@ -342,41 +343,132 @@ class Turbine:
         self.P = P_target              # keep reported P as the requested shaft power
         return self.converged
 
-    def partload_rpm(self, partload_rpm):
-        speed_ratio = partload_rpm / self.RPM
-        partload_power = self.P * speed_ratio**3
-        
-        print(f"Partload results at {partload_rpm} RPM vs {self.RPM} RPM:")
-        print(f"  Power: {partload_power/1000:.2f} kW (vs {self.P/1000:.2f} kW)")
-        
-        if hasattr(self, 'p01_n2'):
-            partload_mdot = self.mdot_n2 * speed_ratio**3
-            partload_pressure = self.p01_n2 * speed_ratio**3
-            partload_exit_pressure = partload_pressure / (1 + 0.5 * (self.gam_n2 - 1) * self.M3_n2**2)**(self.gam_n2/(self.gam_n2-1))
+    def partload_rpm(self, partload_rpm, verbose=True):
+        """
+        Off-design behaviour of THIS turbine (FIXED hardware) driving a pump load.
 
-            u_part = partload_rpm * 2 * np.pi / 60 * self.d_mean / 2
-            w3u_part = self.c3u_n2 - u_part # Use n2 velocity
-            w3_part = np.sqrt(w3u_part**2 + self.c3m**2)
-            M_rel_part = w3_part / np.sqrt(self.gam_n2 * self.R_n2 * self.T3_n2)
+        Nothing is re-sized. Blade height, nozzle throat/exit areas, area ratio
+        eps, mean diameter, nozzle count and flow angle are all held at their
+        design (as-built) values. With fixed nozzle geometry and a fixed
+        stagnation temperature T01, the rotor-inlet velocity triangle is fixed
+        too: the area ratio eps sets M3, and M3 + T01 set c3 (hence c3u, c3m).
+        The ONLY kinematic change with shaft speed is the blade speed u = omega*r.
 
-            print(f"  N2 Mass flow: {partload_mdot*1000:.2f} g/s")
-            print(f"  N2 Inlet pressure: {partload_pressure/1e5:.2f} bar")
-            print(f"  N2 Exit pressure: {partload_exit_pressure/1e5:.2f} bar")
-            print(f"  Relative Mach Number (Mw3): {M_rel_part:.4f}")
+        The pump LOAD follows the affinity law:
+            P_pump = P_design * (N / N_design)^3
+
+        The gas supply needed to deliver that on the fixed hardware is solved
+        from the impulse-stage power balance (identical to the one the sizer
+        uses, just inverted for the supply instead of the geometry):
+
+            dh   = (1 + phi_r(N)) * u * (c3u - u)        specific shaft work [J/kg]
+            P    = mdot*dh - p_v                          with p_v ∝ mdot * N^3
+                 => mdot = P_pump / (dh - p_v/mdot)       (exact, linear in mdot)
+            p01  = p01_design * (mdot / mdot_design)      (choked throat, fixed A*)
+
+        Losses are RE-EVALUATED at the part-load operating point: phi_r and the
+        ventilation power p_v change with N (phi_n and the inlet triangle are
+        fixed by the geometry + T01). At N == N_design with the design pump load
+        this reproduces the design point exactly.
+
+        Returns a dict of the off-design state. Geometry fields (Height,
+        A_throat, eps, nozzles) are echoed unchanged to make the fixed-hardware
+        assumption explicit.
+        """
+        if not hasattr(self, 'phi_r'):
+            raise RuntimeError(
+                "partload_rpm needs the real loss model. Size the turbine with "
+                "from_inert_gas_real(...) (or from_inert_gas) first.")
+
+        ratio = partload_rpm / self.RPM
+        omega = partload_rpm * 2 * np.pi / 60
+        u = omega * self.d_mean / 2
+
+        # Fixed rotor-inlet triangle (geometry + T01 fixed -> unchanged from design)
+        c3, c3u, c3m, a3 = self.c3, self.c3u, self.c3m, self.a3
+
+        # Relative-flow state at the new blade speed
+        w3u = c3u - u
+        w3 = np.hypot(w3u, c3m)
+        Mw3 = w3 / a3
+        deltaB_deg = np.rad2deg(2 * np.arctan2(w3u, c3m))
+
+        # Blade velocity coefficient re-evaluated (Andreas); phi_n fixed (M3 fixed)
+        dB, Mr = deltaB_deg, Mw3
+        phi_r = (
+            0.957
+            - 0.000362 * dB        - 0.0258 * Mr
+            + 0.00000639 * dB**2   + 0.0674 * Mr**2
+            - 0.0000000753 * dB**3 - 0.043 * Mr**3
+            - 0.000238 * dB * Mr
+            + 0.00000145 * dB**2 * Mr
+            + 0.0000425 * dB * Mr**2
+        )
+        phi_r = min(max(phi_r, 0.0), 1.0)
+
+        # Specific shaft work on the fixed hardware (per unit mass)
+        dh = (1 + phi_r) * u * (c3u - u)
+        runaway = dh <= 0.0          # u >= c3u: stage can do no net positive work
+
+        # Pump load and the gas supply that meets it on the fixed throat.
+        # p_v = (p_v_design / mdot_design) * (N/N_d)^3 * mdot   (windage ∝ mdot*N^3),
+        # so mdot factors out:  P_pump = mdot*(dh - B),  B = p_v per unit mdot.
+        P_pump = self.P * ratio**3
+        B = (self.p_v / self.mdot) * ratio**3
+        denom = dh - B
+        feasible = (not runaway) and (denom > 0)
+
+        if feasible:
+            mdot = P_pump / denom
+            p_v = B * mdot
+            mratio = mdot / self.mdot
+            p01 = self.p01 * mratio                 # choked throat, fixed A* -> p01 ∝ mdot
+            p3 = self.p3 * mratio
+            rho_3 = self.rho_3 * mratio
+            P_shaft = mdot * dh - p_v               # == P_pump by construction
+            torque = P_shaft / omega
+            nu = u / c3
+            eta_h = 2 * self.phi_n**2 * nu * (np.cos(self.beta) - nu) * (1 + phi_r)
+            deltah_s = (0.5 * c3**2) / self.phi_n**2
+            eff_real = eta_h - p_v / (mdot * deltah_s)
         else:
-            partload_mdot = self.mdot * speed_ratio**3
-            partload_pressure = self.p01 * speed_ratio**3
-            partload_exit_pressure = partload_pressure / (1 + 0.5 * (self.gam3 - 1) * self.M3**2)**(self.gam3/(self.gam3-1))
+            mdot = p_v = p01 = p3 = rho_3 = P_shaft = torque = nu = eta_h = eff_real = float('nan')
 
-            u_part = partload_rpm * 2 * np.pi / 60 * self.d_mean / 2
-            w3u_part = self.c3u - u_part
-            w3_part = np.sqrt(w3u_part**2 + self.c3m**2)
-            M_rel_part = w3_part / self.a3
+        result = {
+            'rpm': partload_rpm, 'ratio': ratio, 'u': u, 'feasible': feasible, 'runaway': runaway,
+            'P_pump': P_pump, 'P_shaft': P_shaft, 'torque': torque, 'dh': dh,
+            'mdot': mdot, 'p01': p01, 'p3': p3, 'rho_3': rho_3,
+            'Mw3': Mw3, 'deltaB_deg': deltaB_deg, 'phi_r': phi_r, 'phi_n': self.phi_n,
+            'p_v': p_v, 'eta_h': eta_h, 'eff_real': eff_real, 'blade_jet_ratio': nu,
+            # fixed hardware (unchanged) — echoed to make the assumption explicit
+            'Height': self.Height, 'A_throat': self.A_throat, 'eps': self.eps,
+            'nozzles': self.nozzles, 'd_mean': self.d_mean, 'M3': self.M3,
+        }
 
-            print(f"  Mass flow: {partload_mdot*1000:.2f} g/s")
-            print(f"  Inlet pressure: {partload_pressure/1e5:.2f} bar")
-            print(f"  Exit pressure: {partload_exit_pressure/1e5:.2f} bar")
-            print(f"  Relative Mach Number (Mw3): {M_rel_part:.4f}")
+        if verbose:
+            d = lambda a: getattr(self, a, float('nan'))
+            print(f"Part-load @ {partload_rpm:.0f} RPM  (design {self.RPM:.0f}, N/N_d = {ratio:.3f})  "
+                  f"[FIXED hardware, pump-affinity load]:")
+            if not feasible:
+                why = "u >= c3u (runaway)" if runaway else "windage exceeds available work"
+                print(f"  ** INFEASIBLE: {why} — turbine cannot drive this pump load here **")
+            else:
+                print(f"  {'Pump load P (~N^3)':<30}{P_shaft/1000:9.3f} kW    (design {self.P/1000:.3f})")
+                print(f"  {'Shaft torque':<30}{torque:9.4f} N·m")
+                print(f"  {'Required gas mdot':<30}{mdot*1000:9.2f} g/s   (design {self.mdot*1000:.2f})")
+                print(f"  {'Required inlet p01':<30}{p01/1e5:9.2f} bar   (design {d('p01')/1e5:.2f})")
+                print(f"  {'Blade speed u':<30}{u:9.2f} m/s   (nu = u/c3 = {nu:.3f})")
+                print(f"  {'Relative Mach Mw3':<30}{Mw3:9.3f}       (design {d('Mw3'):.3f})")
+                print(f"  {'Blade coeff phi_r':<30}{phi_r:9.4f}      (design {d('phi_r'):.4f})")
+                print(f"  {'REAL efficiency eff_real':<30}{eff_real:9.4f}      (design {d('eff_real'):.4f})")
+                pv_frac = p_v / P_shaft * 100 if P_shaft > 0 else float('nan')
+                print(f"  {'Ventilation p_v':<30}{p_v:9.2f} W     ({pv_frac:.1f}% of shaft power)")
+            print(f"  {'(fixed) Blade height H_3':<30}{self.Height*1000:9.3f} mm")
+            print(f"  {'(fixed) Throat area A*':<30}{self.A_throat*1e6:9.3f} mm²")
+            print(f"  {'(fixed) Area ratio eps':<30}{self.eps:9.3f}")
+            print(f"  {'(fixed) Nozzle exit Mach M3':<30}{self.M3:9.3f}")
+
+        return result
 
     def calculate_blade_stress(self, N, chord, t_max, t_shroud, w_shroud=None, r_hub=0.01, h_hub=0.015, h_tip=None, rho_mat=1150, E_mat=2.2e9, v_mat=0.3):
         """
