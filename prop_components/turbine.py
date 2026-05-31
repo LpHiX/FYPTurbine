@@ -288,10 +288,11 @@ class Turbine:
             self.p01 = self.p3 * bracket**(-1 / k)     # true inlet stagnation
         # else: loss too large to expand to p_e at this M3; leave p01 = p03 (flagged)
 
-        # Choked throat uses inlet stagnation (loss assumed downstream of throat),
-        # so the corrected p01 shrinks the throat for the same mdot.
+        # Choked throat uses isentropic stagnation (p03) to preserve the
+        # correct geometric Mach-Area relationship (eps) for M3, assuming
+        # the friction loss is distributed or occurs near the exit/gap.
         self.A_throat = self.mdot / (
-            self.p01 / np.sqrt(self.T01) * np.sqrt(self.gam3 / self.R_3)
+            self.p03 / np.sqrt(self.T01) * np.sqrt(self.gam3 / self.R_3)
             * ((2 / (self.gam3 + 1))**((self.gam3 + 1) / (2 * (self.gam3 - 1))))
         )
         self.eps = self.A3 / self.A_throat
@@ -444,6 +445,7 @@ class Turbine:
             'Height': self.Height, 'A_throat': self.A_throat, 'eps': self.eps,
             'nozzles': self.nozzles, 'd_mean': self.d_mean, 'M3': self.M3,
         }
+        self.partload_result = result
 
         if verbose:
             d = lambda a: getattr(self, a, float('nan'))

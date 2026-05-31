@@ -1,5 +1,5 @@
 import pypdf
-reader = pypdf.PdfReader(r'C:\Users\Martin\Zotero\storage\99U6HX66\Wlodarski et al. - 1952 - Application of Supersonic Vortex-flow Theory to the Design of Supersonic Impulse Compressor- or Turb.pdf')
+reader = pypdf.PdfReader(r'C:\Users\Martin\Zotero\storage\4AQPRHAV\Colclough - 1966 - Design of Turbine Blades Suitable for Supersonic Relative Inlet Velocities and the Investigation of.pdf')
 text = ""
 for i, page in enumerate(reader.pages):
     text += f"--- PAGE {i} ---\n" + page.extract_text() + "\n"
