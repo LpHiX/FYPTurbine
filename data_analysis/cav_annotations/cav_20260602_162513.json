@@ -2,14 +2,14 @@
   "run_tag": "20260602_162513",
   "clock_offset_s": 0.0,
   "calibration": {
-    "hex_px": null,
+    "hex_px": 450,
     "hex_mm": 95.6,
     "ref": ""
   },
   "hq": {
     "window_s": "scrub 0-20 s",
     "eye_onset_t": null,
-    "throat_onset_t": null,
+    "throat_onset_t": 10.39,
     "radii": [
       {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
       {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
@@ -22,8 +22,8 @@
   "steps": {
     "20": {
       "window_s": "scrub 25-45 s",
-      "eye_onset_t": null,
-      "throat_onset_t": null,
+      "eye_onset_t": 39.53,
+      "throat_onset_t": -1,
       "radii": [
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
@@ -35,8 +35,8 @@
     },
     "40": {
       "window_s": "scrub 50-70 s",
-      "eye_onset_t": null,
-      "throat_onset_t": null,
+      "eye_onset_t": 64.51,
+      "throat_onset_t": -1,
       "radii": [
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
@@ -48,8 +48,8 @@
     },
     "60": {
       "window_s": "scrub 75-95 s",
-      "eye_onset_t": null,
-      "throat_onset_t": null,
+      "eye_onset_t": 89.62,
+      "throat_onset_t": -1,
       "radii": [
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
@@ -61,8 +61,8 @@
     },
     "80": {
       "window_s": "scrub 100-120 s",
-      "eye_onset_t": null,
-      "throat_onset_t": null,
+      "eye_onset_t": 114.78,
+      "throat_onset_t": -1,
       "radii": [
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
@@ -74,8 +74,8 @@
     },
     "100": {
       "window_s": "scrub 125-145 s",
-      "eye_onset_t": null,
-      "throat_onset_t": null,
+      "eye_onset_t": 140.86,
+      "throat_onset_t": 142.02,
       "radii": [
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
@@ -87,8 +87,8 @@
     },
     "120": {
       "window_s": "scrub 150-170 s",
-      "eye_onset_t": null,
-      "throat_onset_t": null,
+      "eye_onset_t": 167.17,
+      "throat_onset_t": 168.27,
       "radii": [
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
@@ -100,8 +100,8 @@
     },
     "140": {
       "window_s": "scrub 175-195 s",
-      "eye_onset_t": null,
-      "throat_onset_t": null,
+      "eye_onset_t": 192.72,
+      "throat_onset_t": 194.61,
       "radii": [
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},
         {"t": null, "d_outer_px": null, "d_mid_px": null, "d_core_px": null},

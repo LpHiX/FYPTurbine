@@ -131,25 +131,44 @@ def _npsha_arr(pin_bar_gauge):
 
 def onset_table(doc, d):
     """Frame-perfect visual inception per site -> NPSHa_i at that instant.
-    Returns one row per (step, site)."""
+
+    Onset time conventions:
+        >0    : frame-perfect inception time  -> npsha_i exact (bound='exact')
+        -1    : cavitating THROUGHOUT the step -> npsha_i = max NPSHa in window
+                (a LOWER bound: it onsets at >= this NPSH)  (bound='lower')
+        null  : never observed -> skipped (no row)
+    """
     off = doc.get("clock_offset_s", 0.0)
     rows = []
 
-    def add(step_label, site, t):
+    def add(step_label, window, site, t):
         if t is None:
+            return
+        if t < 0:                                   # -1 sentinel: always cavitating
+            w0, w1 = window
+            mw = (d["t"] >= w0 + off) & (d["t"] <= w1 + off)
+            if mw.sum() == 0:
+                return
+            rows.append(dict(step=step_label, site=site, t=np.nan, p_in_bar=np.nan,
+                             rpm=float(np.nanmedian(d["rpm"][mw])),
+                             npsha_i=float(np.nanmax(_npsha_arr(d["pin"][mw]))),
+                             bound="lower"))
             return
         tt = t + off
         i = _idx(d, tt)
-        pin = float(d["pin"][i]); rpm = float(d["rpm"][i])
-        rows.append(dict(step=step_label, site=site, t=tt,
-                         p_in_bar=pin, rpm=rpm, npsha_i=float(_npsha_arr(pin))))
+        pin = float(d["pin"][i])
+        rows.append(dict(step=step_label, site=site, t=tt, p_in_bar=pin,
+                         rpm=float(d["rpm"][i]), npsha_i=float(_npsha_arr(pin)),
+                         bound="exact"))
 
-    blocks = [("hq", doc.get("hq"))] + [(int(k), v) for k, v in doc.get("steps", {}).items()]
-    for label, blk in blocks:
+    blocks = [("hq", HQ_WINDOW, doc.get("hq"))]
+    blocks += [(int(k), CAV_STEPS.get(int(k), (np.nan, np.nan)), v)
+               for k, v in doc.get("steps", {}).items()]
+    for label, window, blk in blocks:
         if not blk:
             continue
-        add(label, "eye", blk.get("eye_onset_t"))
-        add(label, "throat", blk.get("throat_onset_t"))
+        add(label, window, "eye", blk.get("eye_onset_t"))
+        add(label, window, "throat", blk.get("throat_onset_t"))
     return pd.DataFrame(rows)
 
 
