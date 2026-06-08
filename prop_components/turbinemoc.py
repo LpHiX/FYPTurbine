@@ -214,14 +214,14 @@ class SupersonicTurbineMOC:
         print(f"  {'upper arc x:':<20} {u_x_end:<10.4g}")
         print(f"  {'upper arc y:':<20} {u_y_end:<10.4g}")
 
-    def plot_blade(self, unrotated=True, full_passage=True):
+    def plot_blade(self, unrotated=True, full_passage=True, plot_characteristics=True):
         """
         Plots the characteristic mesh.
         """
         if not self.coords:
             self.generate()
 
-        plt.figure(figsize=(20, 15))
+        plt.figure(figsize=(10, 10))
         
         # Toggle between plotting the unrotated (xn, yn) or the rotated (x, y) coordinate frames
         lower_key = 'lower' if unrotated else 'lower_rot'
@@ -234,24 +234,29 @@ class SupersonicTurbineMOC:
         x_u_k, y_u_k = self.coords[upper_key]['x_k'], self.coords[upper_key]['y_k']
 
         # Transition Lines
-        plt.plot(x_l, y_l, '-')
-        plt.plot(x_u, y_u, '-')
-        plt.plot(x_l_k, y_l_k, 'x-', color='red')
-        plt.plot(x_u_k, y_u_k, 'x-', color='red')
+        plt.plot(x_l, y_l, '-', color='red')
+        plt.plot(x_u, y_u, '-', color='red')
         
         if full_passage:
-            plt.plot(-x_l, y_l, '-')
-            plt.plot(-x_u, y_u, '-')
-            plt.plot(-x_l_k, y_l_k, 'x-', color='red')
-            plt.plot(-x_u_k, y_u_k, 'x-', color='red')
+            plt.plot(-x_l, y_l, '-', color='red')
+            plt.plot(-x_u, y_u, '-', color='red')
+            
 
         # Characteristics
-        for i in range(self.results['steps_lower']):
-            plt.plot([x_l[i], x_l_k[i]], [y_l[i], y_l_k[i]], 'k-', linewidth=0.5)
+        if plot_characteristics:
+            plt.plot(x_l_k, y_l_k, 'x-', color='blue')
+            plt.plot(x_u_k, y_u_k, 'x-', color='blue')
+
             if full_passage:
-                plt.plot([-x_l[i], -x_l_k[i]], [y_l[i], y_l_k[i]], 'k-', linewidth=0.5)
-        for i in range(self.results['steps_upper']):
-            plt.plot([x_u[i], x_u_k[i]], [y_u[i], y_u_k[i]], 'k-', linewidth=0.5)
+                plt.plot(-x_l_k, y_l_k, 'x-', color='blue')
+                plt.plot(-x_u_k, y_u_k, 'x-', color='blue')
+
+            for i in range(self.results['steps_lower']):
+                plt.plot([x_l[i], x_l_k[i]], [y_l[i], y_l_k[i]], 'k-', linewidth=0.5)
+                if full_passage:
+                    plt.plot([-x_l[i], -x_l_k[i]], [y_l[i], y_l_k[i]], 'k-', linewidth=0.5)
+            for i in range(self.results['steps_upper']):
+                plt.plot([x_u[i], x_u_k[i]], [y_u[i], y_u_k[i]], 'k-', linewidth=0.5)
             if full_passage:
                 plt.plot([-x_u[i], -x_u_k[i]], [y_u[i], y_u_k[i]], 'k-', linewidth=0.5)
 
@@ -292,8 +297,30 @@ class SupersonicTurbineMOC:
                     plt.plot(np.concatenate([np.flip(x_l), Rl * np.cos(np.linspace(np.pi/2 + a_l_in, np.pi/2 - a_l_in, 100)), -x_l]), 
                              np.concatenate([np.flip(y_l), Rl * np.sin(np.linspace(np.pi/2 + a_l_in, np.pi/2 - a_l_in, 100)), y_l]) - y_l[-1] + (y_u[-1] + (x_l[-1] - x_u[-1]) * np.tan(self.beta_inlet)), 'k-')
 
+        # --- Coordinate labels on the four left-side transition end points ---
+        # Each transition line (lower, upper) has two ends ([0] and [-1]) -> 4 points.
+        # Annotate the left copy only: the mirrored (-x) curves if full_passage is
+        # drawn, otherwise the single set. These four (x, y) values let you trace
+        # each transition into CAD as a parabolic spline.
+        # sign = -1.0 if full_passage else 1.0
+        endpoints = [
+            ('L0', x_l[0],  y_l[0]),    # lower transition, throat end
+            ('L1', x_l[-1], y_l[-1]),   # lower transition, TE end
+            ('U0', x_u[0],  y_u[0]),    # upper transition, throat end
+            ('U1', x_u[-1], y_u[-1]),   # upper transition, TE end
+        ]
+        for label, xp, yp in endpoints:
+            sign = 1.0
+            xpt = sign * xp
+            plt.plot(xpt, yp, 'ko', markersize=4, zorder=5)
+            plt.annotate(f'{label}\n({xpt:.4f}\n{yp:.4f})',
+                         xy=(xpt, yp), xytext=(6, 6),
+                         textcoords='offset points',
+                         fontsize=7, color='black', zorder=6,
+                         ha='left', va='bottom')
+
         plt.axis('equal')
-        plt.title('Supersonic Turbine Blade Profile (MOC)')
+        plt.title(f'Supersonic Turbine Blade Profile (MOC) \n M_inlet={self.mach_inlet}, M_lower={self.mach_lower}, M_upper={self.mach_upper}')
         plt.show()
 
     def surface_mach_distribution(self, plot=True, n_arc=80):
@@ -547,3 +574,4 @@ if __name__ == "__main__":
 
     # 5. Surface Mach distribution
     mach_data = moc_solver.surface_mach_distribution(plot=True)
+    

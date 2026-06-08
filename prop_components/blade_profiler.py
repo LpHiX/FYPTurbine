@@ -20,7 +20,8 @@ class DisplacedBladeProfiler:
     to output the physically corrected metal blade contour.
     """
     
-    def __init__(self, turbine, moc_solver, bl_method='sasman_cresci'):
+    def __init__(self, turbine, moc_solver, bl_method='sasman_cresci',
+                 use_test_substitute=False):
         """
         Parameters:
         -----------
@@ -30,58 +31,80 @@ class DisplacedBladeProfiler:
             Configured MOC solver object.
         bl_method : str
             'sasman_cresci' or 'head'
+        use_test_substitute : bool
+            If True AND the turbine carries the legacy inert-gas substitute
+            sizing (`p01_n2`, `R_n2`, ...), evaluate the BL on that path.
+            Default False: use the conditions the turbine was actually SIZED
+            on (from_inert_gas_real -> gam3/R_3/T3/p3), i.e. the gas you are
+            really testing on. This stops a stale `_n2` sizing (R_n2=296.8)
+            from silently overriding the real test conditions.
         """
         self.turbine = turbine
         self.moc = moc_solver
         self.bl_method = bl_method
-        
+        self.use_test_substitute = use_test_substitute
+
         self.re_chord = None
         self.bl_results = {}
         self.displaced_coords = {}
         self.separation_risks = {}
-        
+
+    def _inlet_conditions(self):
+        """
+        Single source of truth for the rotor-inlet gas state feeding both the Re
+        and boundary-layer calculations. Returns the RELATIVE-frame inlet state,
+        which is what the rotor boundary layer actually sees.
+
+        `T0_rel` is the *relative* stagnation temperature
+        T3*(1 + (g-1)/2 * M_rel^2) -- the correct reference for the
+        Sasman-Cresci reference-temperature model. NOT the static T3, and NOT
+        the absolute nozzle stagnation T01.
+        """
+        t = self.turbine
+        if self.use_test_substitute and hasattr(t, 'p01_n2'):
+            gam, R = t.gam_n2, t.R_n2
+            T3, p3 = t.T3_n2, t.p3_n2
+            w3u = t.c3u_n2 - t.u
+            w3m = t.c3m
+        else:
+            gam, R = t.gam3, t.R_3
+            T3, p3 = t.T3, t.p3
+            w3u = t.c3u - t.u
+            w3m = t.c3m
+
+        W_rel = np.sqrt(w3u**2 + w3m**2)
+        M_in = W_rel / np.sqrt(gam * R * T3)        # relative inlet Mach
+        rho_in = p3 / (R * T3)                        # static density at rotor inlet
+        T0_rel = T3 * (1.0 + 0.5 * (gam - 1.0) * M_in**2)
+        return {'gam': gam, 'R': R, 'T3': T3, 'p3': p3,
+                'W_rel': W_rel, 'M_in': M_in, 'rho_in': rho_in, 'T0_rel': T0_rel}
+
     def calculate_reynolds_number(self, c_meters):
         """
-        Calculates Re_c based on the turbine's relative inlet conditions.
-        If using N2 testing parameters (p01_n2), it uses those. Otherwise, hot gas.
+        Calculates Re_c based on the turbine's relative inlet conditions,
+        sourced from `_inlet_conditions()` (test gas the turbine was sized on,
+        unless use_test_substitute=True).
         """
-        if hasattr(self.turbine, 'p01_n2'):
-            gam = self.turbine.gam_n2
-            R = self.turbine.R_n2
-            T3 = self.turbine.T3_n2
-            p3 = self.turbine.p3_n2
-            w3u = self.turbine.c3u_n2 - self.turbine.u
-            w3m = self.turbine.c3m
-        else:
-            gam = self.turbine.gam3
-            R = self.turbine.R_3
-            T3 = self.turbine.T3
-            p3 = self.turbine.p3
-            w3u = self.turbine.c3u - self.turbine.u
-            w3m = self.turbine.c3m
-            
-        # Relative velocity at rotor inlet
-        W_rel = np.sqrt(w3u**2 + w3m**2)
-        
-        # Static density at rotor inlet
-        rho_in = p3 / (R * T3)
-        
-        # Dynamic viscosity approximation (Sutherland for Air-like gas)
-        # Using a simple Sutherland's law for air
+        cond = self._inlet_conditions()
+        T3 = cond['T3']
+        W_rel = cond['W_rel']
+        rho_in = cond['rho_in']
+
+        # Dynamic viscosity at the static edge temperature (Sutherland, air-like).
         # mu = mu_ref * (T/T_ref)^1.5 * (T_ref + S) / (T + S)
         mu_ref = 1.716e-5
         T_ref = 273.15
         S = 110.4
         mu_in = mu_ref * (T3 / T_ref)**1.5 * (T_ref + S) / (T3 + S)
-        
+
         self.re_chord = rho_in * W_rel * c_meters / mu_in
-        
+
         print(f"Calculated Re_c: {self.re_chord:.1f}")
         print(f"  (rho_in={rho_in:.3f} kg/m3, U_in={W_rel:.1f} m/s, c={c_meters*1000:.2f} mm, mu_in={mu_in:.2e} Pa.s)")
-        
+
         return self.re_chord
         
-    def evaluate_boundary_layers(self, T0=500.0):
+    def evaluate_boundary_layers(self, re_chord=None):
         """
         Extracts Mach distributions and runs the boundary layer solver.
         """
@@ -90,24 +113,12 @@ class DisplacedBladeProfiler:
             
         # Get MOC surface data
         self.moc_mach_dist = self.moc.surface_mach_distribution(plot=False)
-        
-        # M_in is the relative inlet Mach number
-        if hasattr(self.turbine, 'p01_n2'):
-            gam = self.turbine.gam_n2
-            R = self.turbine.R_n2
-            T3 = self.turbine.T3_n2
-            w3u = self.turbine.c3u_n2 - self.turbine.u
-            w3m = self.turbine.c3m
-        else:
-            gam = self.turbine.gam3
-            R = self.turbine.R_3
-            T3 = self.turbine.T3
-            w3u = self.turbine.c3u - self.turbine.u
-            w3m = self.turbine.c3m
-            
-        W_rel = np.sqrt(w3u**2 + w3m**2)
-        M_in = W_rel / np.sqrt(gam * R * T3)
-        
+
+        # Rotor-inlet gas state (single source of truth; relative frame)
+        cond = self._inlet_conditions()
+        M_in = cond['M_in']       # relative inlet Mach
+        T03 = cond['T0_rel']      # relative stagnation temp -> BL reference-temperature model
+
         # Physical chord calculation
         x_te_inlet = self.moc.coords['lower_rot']['x'][-1]
         x_te_outlet = -x_te_inlet
@@ -119,9 +130,12 @@ class DisplacedBladeProfiler:
         # For now, we will assume a 10mm chord if it's a miniature turbine, to get Re_c right.
         # We can let the user pass true physical chord or derive it from the turbine.
         # We will assume c_meters = 0.01 (10mm) for a tiny turbine.
-        c_meters = 0.010 
+        c_meters = 0.005
         
-        self.calculate_reynolds_number(c_meters)
+        if re_chord is not None:
+            self.re_chord = re_chord
+        else:
+            self.calculate_reynolds_number(c_meters)
         
         # Run BL Solver
         if self.bl_method.lower() == 'sasman_cresci':
@@ -132,13 +146,13 @@ class DisplacedBladeProfiler:
         # Lower Surface
         s_lo = self.moc_mach_dist['lower']['s_norm']
         Me_lo = self.moc_mach_dist['lower']['mach']
-        s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_func(s_lo, Me_lo, self.re_chord, M_in, T0=T3)
+        s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_func(s_lo, Me_lo, self.re_chord, M_in, T0=T03)  # relative T0
         dstar_lo = Hi_lo * th_lo
         
         # Upper Surface
         s_up = self.moc_mach_dist['upper']['s_norm']
         Me_up = self.moc_mach_dist['upper']['mach']
-        s_up_bl, th_up, Hi_up, Me_up_bl = solve_func(s_up, Me_up, self.re_chord, M_in, T0=T3)
+        s_up_bl, th_up, Hi_up, Me_up_bl = solve_func(s_up, Me_up, self.re_chord, M_in, T0=T03)  # relative T0
         dstar_up = Hi_up * th_up
         
         self.bl_results = {
