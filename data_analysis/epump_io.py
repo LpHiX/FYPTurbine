@@ -67,6 +67,33 @@ def smooth(x, w=15):
     return np.convolve(x, k, mode="same")
 
 
+def _u2(N_rpm, d2):
+    """Impeller tip speed u2 = pi d2 n, n in rev/s."""
+    return np.pi * d2 * np.asarray(N_rpm, float) / 60.0
+
+
+def head_coeff(H_m, N_rpm, d2):
+    """Gülich head coefficient (Eq 3.4.8):  psi = 2 g H / u2^2.
+    Ideal radial-tip impeller approaches psi ~ 1. H in m, N in rpm, d2 in m."""
+    u2 = _u2(N_rpm, d2)
+    return 2.0 * G * np.asarray(H_m, float) / u2 ** 2
+
+
+def flow_coeff(Q_m3s, N_rpm, d2, b2, fq=1.0):
+    """Gülich outlet flow coefficient (Eq 3.4.6):
+        phi2 = Q / (fq * pi * d2 * b2 * u2) = c2m / u2
+    fq = 1 for a single-entry impeller. b2 = impeller outlet width (m).
+    Q in m3/s, N in rpm, d2/b2 in m."""
+    u2 = _u2(N_rpm, d2)
+    return np.asarray(Q_m3s, float) / (fq * np.pi * d2 * b2 * u2)
+
+
+def nondim(Q_m3s, H_m, N_rpm, d2, b2, fq=1.0):
+    """Convenience: Gülich (phi2, psi) pair for a head-flow point.
+    Returns (flow_coeff, head_coeff)."""
+    return flow_coeff(Q_m3s, N_rpm, d2, b2, fq), head_coeff(H_m, N_rpm, d2)
+
+
 # --------------------------------------------------------------------------- #
 # Loading / cataloguing
 # --------------------------------------------------------------------------- #
@@ -138,7 +165,7 @@ def build_catalog(logdir):
 # --------------------------------------------------------------------------- #
 # H-Q ramp analysis
 # --------------------------------------------------------------------------- #
-def analyse_hq(tag, d, t_lo=0.5, t_hi=21.5, spin_frac=0.75, n_bins=28):
+def analyse_hq(tag, d, t_lo=0.5, t_hi=20, spin_frac=0.75, n_bins=28):
     """Discharge-valve closing ramp at ~fixed ESC throttle. pt_out is the true
     pump discharge, so H = head_m(pout - pin) is the real developed head.
     The ESC has no speed loop -> RPM drifts ~8% over the ramp, so normalise to
