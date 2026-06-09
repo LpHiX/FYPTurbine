@@ -1,5 +1,6 @@
         
 import numpy as np
+import scipy.interpolate as intrp
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon, Circle, Rectangle
 
@@ -461,4 +462,106 @@ class BarskePump:
 
         plt.tight_layout()
         plt.show()
-    
+
+    # ------------------------------------------------------------------ #
+    # Lock (1966) forced-vortex analysis: flow-dependent head + diffuser  #
+    # throat cavitation. Replaces the flat Euler head with a drooping     #
+    # H-Q and a physical cutoff. Digitized curves = Lock Fig 10a/10b;     #
+    # equations ported from DynamicPumps (Struzinski) and validated       #
+    # against it at the design point. [CITE: Lock 1966]                   #
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def _lock_curves():
+        """Digitized Lock Fig 10a (h_0 slip factor) and 10b (C_h) for radial blades.
+        Returns (h_0(r_ratio, n_blades), C_h(blade_spacing/length))."""
+        r_ratio = np.array([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+        n_blades = np.array([2, 4, 8, 16])
+        h0 = np.transpose([
+            [0.498, 0.482, 0.435, 0.334, 0.190, 0.0],   # 2 blades
+            [0.636, 0.636, 0.606, 0.517, 0.332, 0.0],   # 4 blades
+            [0.768, 0.768, 0.768, 0.731, 0.518, 0.0],   # 8 blades
+            [0.864, 0.864, 0.864, 0.864, 0.753, 0.0]])  # 16 blades
+        h0_2D = intrp.RegularGridInterpolator((r_ratio, n_blades), h0, method="pchip")
+        h0_16 = intrp.PchipInterpolator(r_ratio, [0.864, 0.864, 0.864, 0.864, 0.753, 0.0])
+        h_0 = lambda r, n: float(h0_2D([[r, n]])[0]) if n <= 16 else float(h0_16(r))
+        bsl = [0.506, 0.606, 0.704, 0.804, 0.904, 1.003, 1.104, 1.202, 1.301, 1.401,
+               1.501, 1.603, 1.704, 1.803, 1.903, 2.003, 2.104, 2.206, 2.307, 2.406, 2.505]
+        Ch = [0.995, 0.994, 0.988, 0.980, 0.967, 0.955, 0.942, 0.926, 0.908, 0.890,
+              0.872, 0.854, 0.837, 0.819, 0.803, 0.787, 0.772, 0.757, 0.743, 0.729, 0.717]
+        Ch_i = intrp.interp1d(bsl, Ch, kind="linear", bounds_error=False, fill_value="extrapolate")
+        C_h = lambda s: float(np.clip(Ch_i(s), 0.0, 1.0))
+        return h_0, C_h
+
+    def analyse_lock(self, Q, RPM=None, D_3=0.0038, D_4=None, D_inlet=None,
+                     K_factor=0.17, eta_losses=0.194, V_r_ratio=1.0,
+                     p_inlet=3.0e5, p_vap=3171.0):
+        """Lock flow-dependent total head H(Q) [m] with diffuser-throat cavitation.
+
+        D_3 : as-built diffuser throat diameter (default 3.8 mm).
+        D_4 : diffuser outlet dia (default 2*D_3, i.e. area ratio 4).
+        D_inlet : inlet pipe dia (default impeller eye d_0).
+        Returns dict: H (breakdown applied), H_nobreak, H_ideal, Q_ops,
+        H_3 (throat head wrt inlet), NPSHr_throat (= -H_3), u_2, h_0, C_h.
+        """
+        g, rho = self.g, self.rho
+        RPM = self.RPM if RPM is None else RPM
+        omega = RPM * 2 * np.pi / 60
+        u_2 = omega * self.d_2 / 2
+        u_1 = omega * self.d_1 / 2
+        n_b = self.blade_number
+        D_4 = D_3 * 2.0 if D_4 is None else D_4
+        D_inlet = self.d_0 if D_inlet is None else D_inlet
+        h_0f, C_hf = self._lock_curves()
+        r_ratio = self.d_1 / self.d_2
+        bsl_ratio = (self.d_1 * np.pi / n_b) / ((self.d_2 - self.d_1) / 2)
+        h_0 = h_0f(r_ratio, n_b)
+        C_h = C_hf(bsl_ratio)
+
+        dummy_1a = h_0 * u_2**2 / g
+        dummy_1b = eta_losses * 24 / (g * D_3**4 * np.pi**2) * (1 - (D_3 / D_4)**2)**2
+        dummy_1c = 24 * (D_4**-4 - D_inlet**-4) / (np.pi**2 * g)
+        Q_ops = np.sqrt(dummy_1a / (dummy_1b + dummy_1c))
+
+        Q = np.asarray(Q, dtype=float)
+        H_total_ideal = (2 * u_2**2 - u_1**2) / (2 * g)
+        H_wo = dummy_1a - C_h * K_factor * V_r_ratio * (u_2**2 / g) * (self.d_1 / self.d_2) * (1 - Q / Q_ops)
+        H_loss_diff = (dummy_1b / 3) * Q**2
+        H_total = H_wo - H_loss_diff
+        H_static = H_total + (-dummy_1c / 3) * Q**2
+        H_3 = H_static + H_loss_diff - 8 * Q**2 * (D_3**-4 - D_4**-4) / (g * np.pi**2)
+        H_vp = (p_vap - p_inlet) / (rho * g)
+        broke = H_3 <= H_vp
+        H = np.where(broke, 0.0, H_total)
+        H_stat = np.where(broke, (-dummy_1c / 3) * Q**2, H_static)
+        return dict(H=H, H_static=H_stat, H_nobreak=H_total, H_ideal=H_total_ideal,
+                    Q_ops=float(Q_ops), H_3=H_3, NPSHr_throat=-H_3, u_2=u_2, h_0=h_0, C_h=C_h)
+
+    def efficiency_lock(self, Q, RPM=None, F_r_kN=0.05, seal_pdelta=None, disk_mult=1.0, **lock_kw):
+        """Pump efficiency vs flow using the Lock head + loss models.
+
+        eta_hyd  = hydraulic+disk efficiency (DynamicPumps convention; excludes
+                   seal/bearing) = rho g Q H_real / (rho g Q H_ideal + P_disk).
+        eta_ovr  = overall efficiency (adds seal+bearing mechanical losses),
+                   comparable to the measured rho g Q H / (tau_total omega).
+        Seal P_delta defaults to the developed-head pressure (in-operation load).
+        """
+        RPM = self.RPM if RPM is None else RPM
+        res = self.analyse_lock(Q, RPM=RPM, **lock_kw)
+        H_real = np.asarray(res["H"], float)
+        Q = np.asarray(Q, float)
+        P_useful = self.rho * self.g * Q * H_real
+        P_ideal_hyd = self.rho * self.g * Q * res["H_ideal"]
+        # impeller disk (paddle/churning) friction, Barske empirical, at this RPM.
+        # disk_mult scales it: measured partial-emission churning is ~2.5x the
+        # textbook estimate (the dominant loss; sets why eta ~20%).
+        P_disk = disk_mult * 1956 * self.rho * self.visc**0.2 * (RPM / 1000)**2.8 * \
+                 (self.d_2**4.6 + 4.6 * self.d_1**3.6 * self.b_1)
+        # seal (loaded by developed head) + bearings
+        pdel = self.rho * self.g * np.maximum(H_real, 0.0) if seal_pdelta is None else np.full_like(Q, seal_pdelta)
+        P_seal = np.array([self.mechanical_seal.power_loss(RPM, float(pd)) for pd in np.atleast_1d(pdel)])
+        P_bear = self.top_bearing.power_loss(RPM, F_r_kN, 0.0) + self.bot_bearing.power_loss(RPM, F_r_kN, 0.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            eta_hyd = P_useful / (P_ideal_hyd + P_disk)
+            eta_ovr = P_useful / (P_ideal_hyd + P_disk + P_seal + P_bear)
+        return dict(eta_hyd=eta_hyd, eta_ovr=eta_ovr, H=H_real, Q_ops=res["Q_ops"],
+                    P_disk=P_disk, P_seal=P_seal, P_bear=P_bear)

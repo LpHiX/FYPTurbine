@@ -1,0 +1,93 @@
+# Manual constants — numbers that do NOT come from data analysis.
+# This is where the "random numbers" live: geometry, FEA/structural limits,
+# material properties, rig dimensions, datasheet figures, etc.
+#
+# Each [table] is ONE value. Fields:
+#   val   (required)  the number (or a quoted string for a text label)
+#   unit  (optional)  siunitx unit; single-quoted literal so backslashes are kept
+#                     e.g. '\milli\meter', '\percent', '\watt', '\bar'. "" = dimensionless.
+#   unc   (optional)  1-sigma uncertainty in the same unit
+#   fmt   (optional)  python number format, default "g" (e.g. ".2f", ".3g")
+#   desc  (optional)  note for yourself / the macro comment
+#
+# Edit here, never in LaTeX. Run build_values.py + export_latex.py to propagate.
+# NB: \rpm is not a built-in siunitx unit — add  \DeclareSIUnit\rpm{rpm}  to the
+# preamble, or leave rpm values dimensionless (unit = "") and write "rpm" in prose.
+
+# ---------- pump geometry (barskesizer) ----------
+[pump_d2]
+val = 58.5
+unit = '\milli\meter'
+desc = "impeller tip diameter"
+
+[pump_d1]
+val = 21.5
+unit = '\milli\meter'
+desc = "impeller eye / inlet diameter"
+
+[pump_b2]
+val = 3.554
+unit = '\milli\meter'
+fmt = ".3f"
+desc = "blade height at exit"
+
+[pump_blades]
+val = 6
+desc = "blade count"
+
+[pump_throat]
+val = 3.8
+unit = '\milli\meter'
+desc = "as-built diffuser throat (filleted truncated cone at cutwater)"
+
+[pump_psi_design]
+val = 1.065
+fmt = ".3f"
+desc = "design head coefficient (Gulich)"
+
+# ---------- turbine design point (confirmed canonical) ----------
+[turb_power_design]
+val = 2.6
+unit = '\kilo\watt'
+desc = "turbine design shaft power"
+
+[turb_dmean]
+val = 95
+unit = '\milli\meter'
+desc = "turbine mean blade diameter"
+
+[turb_blade_height]
+val = 4
+unit = '\milli\meter'
+desc = "turbine design blade height (DOA 0.15)"
+
+[turb_doa]
+val = 0.15
+fmt = ".2f"
+desc = "degree of admission"
+
+[turb_p01_design]
+val = 7.65
+unit = '\bar'
+desc = "design turbine inlet pressure"
+
+[turb_start_limit]
+val = 1.408
+fmt = ".3f"
+desc = "Goldman supersonic-starting limit (relative inlet Mach)"
+
+# ---------- structural / FEA limits (hand-entered) ----------
+[turb_blade_sf]
+val = 39
+desc = "blade-bending safety factor (FEA, Tough 2000)"
+
+[turb_crit_speed]
+val = 99000
+unit = ''
+desc = "first critical bending speed (ross, Al shaft) [rpm]"
+
+# ---------- rig / build constants (the 'thickness of wood' example) ----------
+[rig_baseplate_thk]
+val = 18
+unit = '\milli\meter'
+desc = "CNC mounting baseplate thickness"

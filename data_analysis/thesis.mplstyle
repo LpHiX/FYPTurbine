@@ -1,0 +1,35 @@
+# Thesis figure style — fonts matched to the LaTeX body (10 pt), consistent everywhere.
+# Apply once per figure:  figstyle.use_style()   (or plt.style.use(".../thesis.mplstyle"))
+#
+# This single file is how Knoll's "same font/size on every figure" requirement is met:
+# every title, label, legend and tick uses one serif family at body size.
+# For BYTE-identical fonts to the document, uncomment the usetex/pgf lines below
+# (needs a working LaTeX install on PATH).
+
+font.family:        serif
+font.serif:         CMU Serif, Latin Modern Roman, DejaVu Serif
+mathtext.fontset:   cm
+font.size:          10
+axes.titlesize:     10
+axes.labelsize:     10
+xtick.labelsize:    9
+ytick.labelsize:    9
+legend.fontsize:    9
+
+figure.figsize:     6.0, 4.0
+figure.dpi:         150
+savefig.dpi:        300
+savefig.format:     pdf
+savefig.bbox:       tight
+
+axes.grid:          True
+grid.alpha:         0.3
+axes.prop_cycle:    cycler('color', ['1f77b4','d62728','2ca02c','ff7f0e','9467bd','8c564b'])
+lines.linewidth:    1.5
+lines.markersize:   4
+errorbar.capsize:   2
+
+# --- exact-font mode (optional) ---
+# text.usetex:      True
+# pgf.texsystem:    pdflatex
+# pgf.rcfonts:      False

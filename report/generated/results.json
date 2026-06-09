@@ -1,0 +1,177 @@
+{
+  "coupled_rpm": {
+    "val": 5400,
+    "unit": "",
+    "unc": null,
+    "fmt": "g",
+    "desc": "coupled self-regulated speed [rpm]"
+  },
+  "coupled_torque": {
+    "val": 0.27,
+    "unit": "\\newton\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "measured coupled shaft torque"
+  },
+  "pump_b2": {
+    "val": 3.554,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "blade height at exit"
+  },
+  "pump_blades": {
+    "val": 6,
+    "unit": "",
+    "unc": null,
+    "fmt": "g",
+    "desc": "blade count"
+  },
+  "pump_churn_mult": {
+    "val": 2.5,
+    "unit": "",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "disk/churning friction multiple over textbook"
+  },
+  "pump_d1": {
+    "val": 21.5,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": "g",
+    "desc": "impeller eye / inlet diameter"
+  },
+  "pump_d2": {
+    "val": 58.5,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": "g",
+    "desc": "impeller tip diameter"
+  },
+  "pump_eta_extrap": {
+    "val": 27,
+    "unit": "\\percent",
+    "unc": null,
+    "fmt": "g",
+    "desc": "Reynolds-extrapolated efficiency at 20k rpm (26-29 range)"
+  },
+  "pump_eta_peak": {
+    "val": 19.0,
+    "unit": "\\percent",
+    "unc": 2.0,
+    "fmt": ".0f",
+    "desc": "measured peak overall efficiency"
+  },
+  "pump_psi_design": {
+    "val": 1.065,
+    "unit": "",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "design head coefficient (Gulich)"
+  },
+  "pump_psi_meas": {
+    "val": 1.1,
+    "unit": "",
+    "unc": 0.05,
+    "fmt": ".2f",
+    "desc": "measured peak head coefficient"
+  },
+  "pump_seal_f": {
+    "val": 0.014,
+    "unit": "",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "fitted seal friction coefficient (water-film)"
+  },
+  "pump_throat": {
+    "val": 3.8,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": "g",
+    "desc": "as-built diffuser throat (filleted truncated cone at cutwater)"
+  },
+  "rig_baseplate_thk": {
+    "val": 18,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": "g",
+    "desc": "CNC mounting baseplate thickness"
+  },
+  "turb_blade_height": {
+    "val": 4,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": "g",
+    "desc": "turbine design blade height (DOA 0.15)"
+  },
+  "turb_blade_sf": {
+    "val": 39,
+    "unit": "",
+    "unc": null,
+    "fmt": "g",
+    "desc": "blade-bending safety factor (FEA, Tough 2000)"
+  },
+  "turb_crit_speed": {
+    "val": 99000,
+    "unit": "",
+    "unc": null,
+    "fmt": "g",
+    "desc": "first critical bending speed (ross, Al shaft) [rpm]"
+  },
+  "turb_dmean": {
+    "val": 95,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": "g",
+    "desc": "turbine mean blade diameter"
+  },
+  "turb_doa": {
+    "val": 0.15,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "degree of admission"
+  },
+  "turb_mw_design": {
+    "val": 1.33,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "design relative inlet Mach"
+  },
+  "turb_mw_test": {
+    "val": 1.58,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "coupled-test relative inlet Mach (> starting limit -> unstarted)"
+  },
+  "turb_p01_design": {
+    "val": 7.65,
+    "unit": "\\bar",
+    "unc": null,
+    "fmt": "g",
+    "desc": "design turbine inlet pressure"
+  },
+  "turb_power_design": {
+    "val": 2.6,
+    "unit": "\\kilo\\watt",
+    "unc": null,
+    "fmt": "g",
+    "desc": "turbine design shaft power"
+  },
+  "turb_start_limit": {
+    "val": 1.408,
+    "unit": "",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "Goldman supersonic-starting limit (relative inlet Mach)"
+  },
+  "turb_start_rpm": {
+    "val": 15300,
+    "unit": "",
+    "unc": null,
+    "fmt": "g",
+    "desc": "rotor-starting threshold speed [rpm]"
+  }
+}
