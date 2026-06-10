@@ -32,7 +32,7 @@ Rewriting this equation in terms of specific work $Y=P/\rho Q$ per unit mass:
      \label{eq:euler_specific_work}
 \end{equation}
 
-derive from bernouli, with rotating frame substitution $c^2=w^2-u^2+2\cross u \cross c_u$ and neglecting compressibility losses:
+derive from bernouli, with rotating frame substitution $c^2=w^2-u^2+2\times u \times c_u$ and neglecting compressibility losses:
 
 $$p_{1}+\frac{\rho}{2}w_{1}^2-\frac{\rho}{2}u_{1}^2=p_{2}+\frac{\rho}{2}w_{2}^2-\frac{\rho}{2}u_{2}^2$$
 
@@ -57,9 +57,82 @@ Then, the kinetic energy increase assuming negligible inlet prerotation is:
     \label{eq:pressure_rise_negligible_w_prerotation}
 \end{equation}
 
-\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. This forms a simple basic model for barske pump performance. Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
+
+
+
+\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. Barske uses the symbol $\psi$ for this coefficient, but as it conflicts with the commonly used symbol for head coefficient, this paper will instead use $c_k$. Combining the static and kinetic pressure rise, the total increase in pressure is:
+
+\begin{equation}
+    p_t = p_{s_{th}} + c_k p_{d_{th}}=\frac{1}{2}\rho\left((1+c_k) u_2^2 - u_1^2\right)
+    \label{eq:barske_pressure_rise}
+\end{equation}
+
+This forms a simple basic model for barske pump performance. 
+
+\subsection{Barske Pump sizing}
+
+The barske pump is sized by the methods provided by barske \cite{barske 1953} with the assitance of Gulich. First the inlet is sized by choosing a reasonable inlet velocity and calculating the inlet area:
+
+\begin{equation}
+    d_0 = \sqrt{\frac{4\dot{m}}{\pi \rho c_0}}
+    \label{eq:barske_inlet_diameter}
+\end{equation}
+
+The impeller blade inlet diameter is enlarged by a small amount as some pre-rotation is desirable for increased head. For example, $d_1\sim1.1d_0$.
+
+By substituting $u=\pi n d / 60$ into \cref{eq:barske_pressure_rise}, the required impeller tip diameter can be calculated:
+
+\begin{equation}
+    d_2 = \sqrt{\frac{1}{1+c_k}\left(\frac{7200p_t}{\rho n^2\pi^2} + d_1^2\right)}
+    \label{eq:barske_tip_diameter}
+\end{equation}
+
+Barske then gives these guidelines for other dimensions of the pump:
+
+\begin{align}
+    s_{ax} & \leq \min{0.75, \frac{d_2}{100}} \\
+    b_1 & \geq \frac{1}{4} d_1 \\ %note to self, b is blade height
+    b_2 & \geq \max{b_1 \frac{d_1}{d_2}, 3s_{ax}} \\
+\end{align}
+
+For the annular casing sizing, Barske doesn't have very specific numbers, so Gulich's guideline where B/H = 1.5 to 2.5 can be followed:
+
+\begin{align}
+    B & = 2 s_ax + b_2 \\
+    H & = B / 2
+\end{align}
+
+\todo{look at efficiency that dynamicpumps uses, and cavitation maybe as well, iirc they have first principles}
+
+To size the diffuser, Barske suggests sizing the diffuser throat to be around 0.8 to 0.9 of $u_2$, with the area of the diffuser outlet to be 3-4 times the area of the diffuser throat.
+
+\subsection{Barske Pump efficiency}
+
+Barske assumes that the disc friction losses can be approximated as a circular disc in a rotating fluid. Converting the equation into metric units gives:
+
+\begin{equation}
+    P_{RR} [\mathrm{W}] = 1956\times\rho\nu^{0.2}\left(\frac{n}{1000}\right)^{2.8}\left(d_2^{4.6}+4.6d_1^{3.6}b_1\right)
+\end{equation}
+
+As the hydraulic efficiency is defined as the useful power out of the pump over the total power into the pump, efficiency can be defined as:
+
+\begin{align}
+\eta_h & = \frac{\text{Useful power}}{\text{Input power}} = \frac{P}{P_{th}+P_{RR}}
+ & = \frac{Qp}{Qp_{th}+P_{RR}}
+ & = \frac{p}{p_{th}+P_{RR}/Q}
+\end{align}
+
+If total shaft efficiency is desired, the mechanical losses can be included:
+
+\begin{equation}
+    \eta=\frac{p}{p_{th}+\frac{P_F+P_{Mech}}{Q}}
+\end{equation}
+
+Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
 
 \todo{add cavitation of diffuser throat and shutoff flow here?}
+
+
 
 \subsection{Impulse Turbine}
 
@@ -113,3 +186,22 @@ Another way to increase the blade height is to decrease the meridonal velocity $
 
 For supersonic flow to develop within a turbine blade passage, a condition called "starting" must be satisfied. On the startup of a supersonic turbine, a normal shock starts at the inlet of the blade passage and as to pass through the whole passage before the flow into and out of the turbine passage can be supersonic. \todo{add derivation for this, later? also, loss models.}
 
+
+\subsection{Method of Characteristics Blade Profile Design}
+
+The design so far is based on 1D mean line theory. The design of the actual blade profile which will turn the supersonic flow in the desired direction is often accomplished using an application of the Method of Characteristics to transition a uniform flow field into vortex flow. \todo{add some history here, iirc sp290 has some stuff on why vortex flow, but here needs some stuff about how vortex flow was proven to be able to turn flows, and method of characteristics is used to turn the flow into such vortex flow, so obviously some explanation of vortex flow is required}. 
+
+\subsubsection{Supersonic Turbine Blade Terminology}
+
+Geometry is separated into the turbine blade, and the passage between the flow. Two surfaces are separately designed, and it is common to refer to the top surface as the convex, and the bottom surface as the concave one. This is in relation to the solid blades themselves as opposed to an alternate designation by the top and bottom of the blade passage.
+
+Vortex flow is a special type of supersonic flow in which flow follows a theoretical perfect arc around a central point. This is a very special type of flow field that is achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field.
+
+\subsubsection{Finite leading edge}
+
+In the theoretical method of characteristics, both the upper and lower surface at the turbine inlet is perfectly parallel to the nozzle exhaust angle. This is problematic because this implies the two surfaces will end at a infinitely sharp point where the at the infinitesimal leading edge, the angle between the upper and lower surfaces is zero. This is not manufacturable 
+
+
+- turbine discussion can continue, first type wedge angle, MOC, supersonic starting, radius, boundary layers.
+- in either design section I can talk about efficiencies 
+- from MOC, talk about upper and lower surface mach numbers, which have the NASA requirements, but also separation requirements. Note that upper surface separation is less important 
