@@ -76,6 +76,20 @@
     "fmt": ".2f",
     "desc": "measured peak head coefficient"
   },
+  "pump_rpm_design": {
+    "val": 20000,
+    "unit": "\\rpm",
+    "unc": null,
+    "fmt": "g",
+    "desc": "design shaft speed"
+  },
+  "pump_rpm_maxreached": {
+    "val": 9000,
+    "unit": "\\rpm",
+    "unc": null,
+    "fmt": "g",
+    "desc": "maximum speed reached"
+  },
   "pump_seal_f": {
     "val": 0.014,
     "unit": "",
@@ -96,6 +110,48 @@
     "unc": null,
     "fmt": "g",
     "desc": "CNC mounting baseplate thickness"
+  },
+  "samplepump_mdot": {
+    "val": 1.019367991845056,
+    "unit": "\\kilo\\gram\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "sample pump for introduction mdot"
+  },
+  "samplepump_n": {
+    "val": 71050.60009219854,
+    "unit": "\\rpm",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "sample pump for introduction shaft speed"
+  },
+  "samplepump_nq": {
+    "val": 20,
+    "unit": "",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "sample pump for introduction nq (metric: rpm, m^3/s, m \u2014 quoted bare, convention stated in prose)"
+  },
+  "samplepump_p": {
+    "val": 50.0,
+    "unit": "\\bar",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "sample pump for introduction discharge pressure"
+  },
+  "samplepump_rho": {
+    "val": 800,
+    "unit": "\\kilo\\gram\\per\\cubic\\metre",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "sample pump for introduction rho"
+  },
+  "samplepump_thrust": {
+    "val": 5.0,
+    "unit": "\\kilo\\newton",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "sample pump for introduction thrust"
   },
   "turb_blade_height": {
     "val": 4,

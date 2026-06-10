@@ -5,7 +5,7 @@
 \usepackage{upgreek}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\graphicspath{{figs/}{figs/ch1_intro/}{figs/ch2_background/}{figs/ch3_methodology/}{figs/ch4_results/}{figs/ch5_discussion/}{figs/app/}}
+\graphicspath{{figs/}}
 \usepackage[font=footnotesize,labelfont=bf]{caption}
 \usepackage[font=footnotesize,labelfont=bf]{subcaption}
 \usepackage{lmodern}
@@ -40,9 +40,12 @@
 }
 
 \usepackage{siunitx}
-\sisetup{per-mode=symbol}
+\usepackage{xspace}
+\sisetup{per-mode=symbol, separate-uncertainty=true}
+\DeclareSIUnit{\rpm}{rpm}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\usepackage{todonotes}
 
 % \usepackage{setspace}
 % \setstretch{0.9}
@@ -61,3 +64,5 @@
 \newcommand{\kwm}{k-\omega^2m}
 \newcommand{\NPSHa}{\ensuremath{\text{NPSH}_\text{a}}}
 \newcommand{\NPSHr}{\ensuremath{\text{NPSH}_\text{r}}}
+
+\input{generated/values.tex}

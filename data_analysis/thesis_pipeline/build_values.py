@@ -35,6 +35,18 @@ def build_computed(reg: Registry) -> Registry:
         psi_peak = compute_psi_peak(runs)          # returns a ufloat
         reg.add_ufloat("pump_psi_meas", psi_peak, desc="measured peak head coeff")
     """
+    # Introduction numbers
+
+    from quicknumbers.intro_ns import get_sample_pump
+    samplepump_thrust, samplepump_mdot, samplepump_nq, samplepump_n, samplepump_p, samplepump_rho = get_sample_pump()
+    reg.add("samplepump_thrust", samplepump_thrust/1000, unit=r"\kilo\newton", fmt=".0f", desc="sample pump for introduction thrust")
+    reg.add("samplepump_mdot", samplepump_mdot, unit=r"\kilo\gram\per\second", fmt=".1f", desc="sample pump for introduction mdot")
+    reg.add("samplepump_nq", samplepump_nq, unit="", fmt=".0f", desc="sample pump for introduction nq (metric: rpm, m^3/s, m — quoted bare, convention stated in prose)")
+    reg.add("samplepump_n", samplepump_n, unit=r"\rpm", fmt=".0f", desc="sample pump for introduction shaft speed")
+    reg.add("samplepump_p", samplepump_p / 1e5, unit=r"\bar", fmt=".0f", desc="sample pump for introduction discharge pressure")
+    reg.add("samplepump_rho", samplepump_rho, unit=r"\kilo\gram\per\cubic\metre", fmt=".0f", desc="sample pump for introduction rho")
+
+
     # --- pump (seed values; replace with computed ufloats) ---
     reg.add("pump_psi_meas", 1.10, unc=0.05, fmt=".2f",
             desc="measured peak head coefficient")

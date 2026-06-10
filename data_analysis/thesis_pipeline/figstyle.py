@@ -21,10 +21,25 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 STYLE = Path(__file__).resolve().parent.parent / "thesis.mplstyle"
+REPORT_FIGS = STYLE.parent.parent / "report" / "figs"
 
 
 def use_style():
     plt.style.use(str(STYLE))
+
+
+def save(fig, name, png_preview=False):
+    """Save a thesis figure as vector PDF into report/figs/ (graphicspath finds it).
+
+    Use the bare `name` (no path, no extension) in the thesis:
+        \\includegraphics[width=0.8\\textwidth]{name}
+    pdflatex picks the PDF; the optional PNG is just for eyeballing.
+    """
+    REPORT_FIGS.mkdir(parents=True, exist_ok=True)
+    fig.savefig(REPORT_FIGS / f"{name}.pdf", bbox_inches="tight")
+    if png_preview:
+        fig.savefig(REPORT_FIGS / f"{name}.png", dpi=150, bbox_inches="tight")
+    return REPORT_FIGS / f"{name}.pdf"
 
 
 def plot_data(ax, x, y, yerr=None, xerr=None, label=None, **kw):

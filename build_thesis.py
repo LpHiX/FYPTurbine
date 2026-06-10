@@ -32,7 +32,7 @@ def main(argv):
     if "--figs" in argv:
         run([PY, "make_figures.py"], cwd=ROOT / "data_analysis")
     # latexmk handles bib + reruns; swap for your build command if different.
-    run(["latexmk", "-pdf", "-interaction=nonstopmode", "main.tex"], cwd=REPORT)
+    # run(["latexmk", "-pdf", "-interaction=nonstopmode", "main.tex"], cwd=REPORT)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,16 @@
 # NB: \rpm is not a built-in siunitx unit — add  \DeclareSIUnit\rpm{rpm}  to the
 # preamble, or leave rpm values dimensionless (unit = "") and write "rpm" in prose.
 
+[pump_rpm_design]
+val = 20000
+unit = '\rpm'
+desc = "design shaft speed"
+
+[pump_rpm_maxreached]
+val = 9000
+unit = '\rpm'
+desc = "maximum speed reached"
+
 # ---------- pump geometry (barskesizer) ----------
 [pump_d2]
 val = 58.5
@@ -44,6 +54,8 @@ desc = "as-built diffuser throat (filleted truncated cone at cutwater)"
 val = 1.065
 fmt = ".3f"
 desc = "design head coefficient (Gulich)"
+
+
 
 # ---------- turbine design point (confirmed canonical) ----------
 [turb_power_design]
