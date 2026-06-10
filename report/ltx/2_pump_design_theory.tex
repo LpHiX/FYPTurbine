@@ -59,7 +59,12 @@ Then, the kinetic energy increase assuming negligible inlet prerotation is:
 
 \cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. This forms a simple basic model for barske pump performance. Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
 
+\todo{add cavitation of diffuser throat and shutoff flow here?}
+
 \subsection{Impulse Turbine}
+
+% In my notes, this can be found "SP-8110.md" file and "Supersonic Turbine Blade Pitch and Height.md"
+NASA special publication 8110 shows that for low $U/C_0$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency, just not at the low $U/C_0$ regime. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. \todo{need to explain what reaction and impulse turbines are, maybe with a diagram?}
 
 \todo{i dont know why reaction is bad here, oh and of course, need a diagram to show the velocity triangles.}
 
@@ -68,3 +73,16 @@ Turbines work with the same Euler turbine equation. In the supersonic impulse tu
 \begin{equation}
     \Delta h_{\textrm{use}}=c_{3u}u_3-c_{4u}u_4=u(c_{3u}-c_{4u})
 \end{equation}
+
+\todo{use maybe sp125 to derive}
+
+% todo: derivation
+
+Leading to the ideal efficiency of an impulse turbine to be:
+
+\begin{equation}
+    \eta_{\textrm{ideal}} = 4\phi(\cos\beta_3-\phi)
+    \label{eq:impulse_ideal_efficiency}
+\end{equation}
+
+Where $\phi$ is the flow coefficient defined as $\phi=c_3/u$ and $\beta_3$ is the blade angle at the inlet. The maximum ideal efficiency is achieved at $\phi=\cos\beta_3/2$. By taking the derivative of \cref{eq:impulse_ideal_efficiency}, the ideal $U/C_0$ is $0.5\cos\beta_3$. For a small turbine with a diameter of 
