@@ -63,16 +63,16 @@ Then, the kinetic energy increase assuming negligible inlet prerotation is:
 
 \subsection{Impulse Turbine}
 
-% In my notes, this can be found "SP-8110.md" file and "Supersonic Turbine Blade Pitch and Height.md"
-NASA special publication 8110 shows that for low $U/C_0$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency, just not at the low $U/C_0$ regime. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. \todo{need to explain what reaction and impulse turbines are, maybe with a diagram?}
-
 \todo{i dont know why reaction is bad here, oh and of course, need a diagram to show the velocity triangles.}
 
 Turbines work with the same Euler turbine equation. In the supersonic impulse turbine design, the blades are only occupy a small outer portion of the blisk, so the turbine equation can be simplified:
 
 \begin{equation}
     \Delta h_{\textrm{use}}=c_{3u}u_3-c_{4u}u_4=u(c_{3u}-c_{4u})
+    \label{eq:turbine_specific_work}
 \end{equation}
+
+From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher $\Delta h_0$ according to equation \cref{eq:euler_specific_work}. This means that high absolute velocities, and for the maximum amount of the flow angled in the circumferential direction is optimal. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus the supersonic velocities. Then for the angles, the highest turning angle achievable is optimal. The amount of flow turning is usually limited by the achievable geometry.
 
 \todo{use maybe sp125 to derive}
 
@@ -85,4 +85,31 @@ Leading to the ideal efficiency of an impulse turbine to be:
     \label{eq:impulse_ideal_efficiency}
 \end{equation}
 
-Where $\phi$ is the flow coefficient defined as $\phi=c_3/u$ and $\beta_3$ is the blade angle at the inlet. The maximum ideal efficiency is achieved at $\phi=\cos\beta_3/2$. By taking the derivative of \cref{eq:impulse_ideal_efficiency}, the ideal $U/C_0$ is $0.5\cos\beta_3$. For a small turbine with a diameter of 
+Where $\phi$ is the flow coefficient defined as $\phi=c_3/u$ and $\beta_3$ is the blade angle at the inlet. The maximum ideal efficiency is achieved at $\phi=\cos\beta_3/2$. By taking the derivative of \cref{eq:impulse_ideal_efficiency}, the ideal $U/C_0$ is $0.5\cos\beta_3$. For a small turbine with a diameter of \todo{possibly add an example to show U/C0 for such turbines.}
+
+
+% In my notes, this can be found "SP-8110.md" file and "Supersonic Turbine Blade Pitch and Height.md"
+NASA special publication 8110 shows that for low $U/C_0$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency, just not at the low $U/C_0$ regime. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. \todo{need to explain what reaction and impulse turbines are, maybe with a diagram?}
+
+
+
+Another problem with designing small turbines is with the low blade height required. By calculating the mass flux through the turbine, the blade height can be designed:
+
+\begin{equation}
+    H_3 = \frac{\dot{m}}{\rho_3 c_{3m} d_{\textrm{mean}}}
+    \label{eq:turbine_blade_height_full_admission}
+\end{equation}
+
+Where $\rho_3$ is the density of the turbine gas at the turbine inlet. Using the example turbine above, the required blade height would be \todo{addvalue}. By introducing partial admission, the mass flow through the turbine can be restricted to a smaller arc around the annulus at a slight cost to efficiency. The partial admission ratio $\zeta$ can be included into the blade height formula as so:
+
+\begin{equation}
+    H_3 = \frac{\dot{m}}{\zeta \rho_3 c_{3m} d_{\textrm{mean}}}
+    \label{eq:turbine_blade_height}
+\end{equation}
+
+By reducing the partial admission to \todo{addvalue}, the blade height is increased to \todo{addvalue}. The design of the turbine blade height is very important due to multiple reasons. Firstly, the aspect ratio of the turbine blade determines the magnitude of of the wall boundary layer blockage. For this reason, a aspect ratio between \todo{addvalue} is desired.
+
+Another way to increase the blade height is to decrease the meridonal velocity $c_{3m}$. This is achieved by increasing the angle that the flow has to turn as $c_{3m}=c_3\sin(\beta_3)$. 
+
+For supersonic flow to develop within a turbine blade passage, a condition called "starting" must be satisfied. On the startup of a supersonic turbine, a normal shock starts at the inlet of the blade passage and as to pass through the whole passage before the flow into and out of the turbine passage can be supersonic. \todo{add derivation for this, later? also, loss models.}
+

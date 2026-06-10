@@ -10,3 +10,7 @@ def get_sample_pump():
     nq = 20
     n = nq * H**0.75 / q**0.5  # metric n_q = n*Q^0.5 / H^0.75  ->  n [rpm]
     return thrust, mdot, nq, n, p, density_keroesene
+
+
+def get_sample_turbine():
+    diameter = 0
