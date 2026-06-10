@@ -14,6 +14,7 @@ The Barske impeller pump design which was developed for the need for manufacturi
 
 Barske comments that the number of impeller blades does not seem to be critical, with 3-6 being operated successfully. However, altering the number of blades can be used to elminite fluid vibrations \cite{barske 1953}. Lock provides corrections for blades from 1 to 16 \cite{lock fig 10A}.
 
+The open impeller choice is to further reduce disc friction losses \todo{is this true?} by minimizing surface area. Conventional impellers uses shrouds to guide the flow and reduce secondary flows. However, as in a Barske pump the impeller serves only to generate the forced vortex flow, this was deemed unnecessary by at least Barske and Lock. This also removes axial thrust loads on the impeller, helping with sealing and mechanical design of the shaft. Also, simplify manufacturing.
 
 Conventional pump design with current design tools produce nonsensical geometries and results at low specific speeds because of one number that is used in the design process, which is the slip coefficient. The slip coefficient determines the angular deflection of the fluid leaving the impeller from the blade angle at the impeller exit. This number is usually determined empirically based on regression fits from existing data. However, at $n_q\approx 7$, the equations relating blade exit angle, slip coefficient and head coefficient mathematically does not have a converging root. Physically, there is no blade geometry that can bend the blade enough to keep the flow attached to the blade. This is further motivates the forced vortex Barske architecture, as it does not rely on attached flow, removing slip factor from the design process entirely.
 
@@ -56,4 +57,14 @@ Then, the kinetic energy increase assuming negligible inlet prerotation is:
     \label{eq:pressure_rise_negligible_w_prerotation}
 \end{equation}
 
-Which is the theoretical total pressure a barske impeller generates at the blade tips. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5, but
+\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. This forms a simple basic model for barske pump performance. Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
+
+\subsection{Impulse Turbine}
+
+\todo{i dont know why reaction is bad here, oh and of course, need a diagram to show the velocity triangles.}
+
+Turbines work with the same Euler turbine equation. In the supersonic impulse turbine design, the blades are only occupy a small outer portion of the blisk, so the turbine equation can be simplified:
+
+\begin{equation}
+    \Delta h_{\textrm{use}}=c_{3u}u_3-c_{4u}u_4=u(c_{3u}-c_{4u})
+\end{equation}
