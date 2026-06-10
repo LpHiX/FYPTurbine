@@ -1,6 +1,5 @@
 \section{Design Background}
 
-
 \subsection{Barske Impeller}
 
 \todo{I just realized I don't have the numbers to back me up that disc friction is better. I will waffle, then fill with literature and numbers later on.}
@@ -18,4 +17,43 @@ Barske comments that the number of impeller blades does not seem to be critical,
 
 Conventional pump design with current design tools produce nonsensical geometries and results at low specific speeds because of one number that is used in the design process, which is the slip coefficient. The slip coefficient determines the angular deflection of the fluid leaving the impeller from the blade angle at the impeller exit. This number is usually determined empirically based on regression fits from existing data. However, at $n_q\approx 7$, the equations relating blade exit angle, slip coefficient and head coefficient mathematically does not have a converging root. Physically, there is no blade geometry that can bend the blade enough to keep the flow attached to the blade. This is further motivates the forced vortex Barske architecture, as it does not rely on attached flow, removing slip factor from the design process entirely.
 
+All theories relating to pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation:
 
+\begin{equation}
+    P=T_{shaft}\omega=\rho Q \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega=\rho Q\left(u_2c_{2u}-u_1c_{1u}\right)
+    \label{eq:euler_turbine_equation}
+\end{equation}
+
+Rewriting this equation in terms of specific work $Y=P/\rho Q$ per unit mass:
+
+\begin{equation}
+    Y = \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega = u_2c_{2u}-u_1c_{1u}
+     \label{eq:euler_specific_work}
+\end{equation}
+
+derive from bernouli, with rotating frame substitution $c^2=w^2-u^2+2\cross u \cross c_u$ and neglecting compressibility losses:
+
+$$p_{1}+\frac{\rho}{2}w_{1}^2-\frac{\rho}{2}u_{1}^2=p_{2}+\frac{\rho}{2}w_{2}^2-\frac{\rho}{2}u_{2}^2$$
+
+and as such the theoretical rise in static pressure:
+
+\begin{equation}
+    \Delta p_{st} = p_2-p_1 = \frac{\rho}{2}\left(w_1^2-w_2^2\right)+\frac{\rho}{2}\left(u_2^2-u_1^2\right)
+    \label{eq:pressure_rise}
+\end{equation}
+
+In Barske, Lobanoff and Lock the relative velocity $w$ is assumed to be negligable, ending up with:
+
+\begin{equation}
+    \Delta p_{st} = \frac{\rho}{2}\left(u_2^2-u_1^2\right)
+    \label{eq:pressure_rise_negligible_w}
+\end{equation}
+
+Then, the kinetic energy increase assuming negligible inlet prerotation is:
+
+\begin{equation}
+    \Delta p_{st} = \frac{\rho}{2}u_2^2
+    \label{eq:pressure_rise_negligible_w_prerotation}
+\end{equation}
+
+Which is the theoretical total pressure a barske impeller generates at the blade tips. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5, but
