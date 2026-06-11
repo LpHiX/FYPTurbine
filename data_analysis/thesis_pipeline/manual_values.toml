@@ -46,9 +46,14 @@ val = 6
 desc = "blade count"
 
 [pump_throat]
+val = 3.0
+unit = '\milli\meter'
+desc = "true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 — the 3.8 mm cone cutwater is downstream of the minimum)"
+
+[pump_throat_cutwater]
 val = 3.8
 unit = '\milli\meter'
-desc = "as-built diffuser throat (filleted truncated cone at cutwater)"
+desc = "cone cutwater diameter, downstream of the true throat (NOT the minimum area)"
 
 [pump_psi_design]
 val = 1.065

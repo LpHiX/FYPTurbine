@@ -90,9 +90,9 @@ By substituting $u=\pi n d / 60$ into \cref{eq:barske_pressure_rise}, the requir
 Barske then gives these guidelines for other dimensions of the pump:
 
 \begin{align}
-    s_{ax} & \leq \min{0.75, \frac{d_2}{100}} \\
+    s_{ax} & \leq \min{\left(0.75, \frac{d_2}{100}\right)} \\
     b_1 & \geq \frac{1}{4} d_1 \\ %note to self, b is blade height
-    b_2 & \geq \max{b_1 \frac{d_1}{d_2}, 3s_{ax}} \\
+    b_2 & \geq \max{\left(b_1 \frac{d_1}{d_2}, 3s_{ax}\right)} \\
 \end{align}
 
 For the annular casing sizing, Barske doesn't have very specific numbers, so Gulich's guideline where B/H = 1.5 to 2.5 can be followed:
@@ -129,6 +129,45 @@ If total shaft efficiency is desired, the mechanical losses can be included:
 \end{equation}
 
 Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
+
+
+By writing the total theoretical pressure gain in head:
+
+\begin{equation}
+    H_T = \frac{U_2^2 - U_1^2}{2g} + \frac{U_2^2}{2g}
+\end{equation}
+
+Lock uses busemann's corrections and derives a refined total head, taking into account prerotation:
+
+\begin{equation}
+    H_{TH} = h_0\frac{U_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{op}}\right)\!\frac{D_1}{D_2}\,\frac{U_2^2}{g}
+\end{equation}
+
+\begin{equation}
+H_{SP} = H_{TH} - \underbrace{\zeta_{LD}\left[1-\left(\tfrac{D_3}{D_4}\right)^2\right]^2\frac{V_3^2}{2g}}_{\text{diffuser-nozzle loss}} - \frac{V_4^2}{2g} + \frac{V_0^2}{2g}
+\end{equation}
+
+Where $\zeta_{LD}=0.194$ is the diffuser loss coefficient from Hydraulic Institute's Pipe Friction Manual \cite{hydraulicpipemanual}.
+
+By expressing $V^2/2g$ by $(8/g\pi^2)Q^2/D^4$ with $V=4Q/\pi D^2$, the head can be expressed as a function of flow rate:
+
+\begin{equation}
+    H_{SP} = h_0\frac{U_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{op}}\right)\!\frac{D_1}{D_2}\,\frac{U_2^2}{g} - \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4} + \frac{1}{D_4^4} - \frac{1}{D_0^4}\right)
+\end{equation}
+
+To find the optimum flow rate used to shape the pump curve, the derivative of the head with respect to flow rate can be taken and set to zero:
+
+\begin{equation}
+    Q_{op} = \sqrt{\frac{h_0\frac{U_2^2}{g}}{\frac{24}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4}\left(1-\left(\tfrac{D_3}{D_4}\right)^2\right) + \frac{1}{D_4^4} - \frac{1}{D_0^4}\right)}}
+\end{equation}
+
+Lock and Barske suggest that the flow cutoff point is limited by the diffuser throat. To find the static pressure at the diffuser throat, reversing the transfer between dynamic head into static head provided by the previous equations \todo{link to the previous equations}:
+
+\begin{equation}
+    H_3 = H_{SP} + \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4}\left(1-\left(\frac{D_3}{D_4}\right)^2\right) + \frac{1}{D_4^4} - \frac{1}{D_3^4}\right)
+\end{equation}
+
+Then solving for the $Q$ at which $H_3$ is equal to vapor pressure head $H_{vap}=\frac{1}{\rho g}\left(p_{vap}-p_{inlet}\right)$ gives the flow cutoff point.
 
 \todo{add cavitation of diffuser throat and shutoff flow here?}
 

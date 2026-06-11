@@ -1,5 +1,9 @@
 """
-make_figures.py — batch regenerator for thesis figures + numeric summary.
+make_figures.py — campaign QA: per-run overview time-series + numeric summary.
+
+SUPERSEDED for thesis figures by thesis_figures.py (2026-06-10), which
+build_thesis.py --figs now calls. Keep this for raw-campaign QA/provenance
+(the per-run overviews and AI_analysis_summary.md), not for thesis output.
 
 Imports the SAME analysis core as the interactive notebook (epump_io.py) so the
 figures in the thesis are byte-for-byte reproducible from raw H5 with one run:

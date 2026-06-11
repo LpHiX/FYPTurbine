@@ -189,12 +189,17 @@ def analyse_hq(tag, d, t_lo=0.5, t_hi=20, spin_frac=0.75, n_bins=28):
     Hraw = head_m(d["pout"][m] - d["pin"][m])
     qb = np.linspace(0, np.nanpercentile(q, 99.5), n_bins)
     Hb, qc, idx = [], [], np.digitize(q, qb)
+    Hsem, qsem, nsel = [], [], []   # random-P per bin: SEM of the median (1.253 s/sqrt(n))
     for i in range(1, len(qb)):
         sel = idx == i
         if sel.sum() >= 3:
             qc.append(np.nanmedian(q[sel]))
             Hb.append(np.nanmedian(H[sel]))
+            Hsem.append(1.253 * np.nanstd(H[sel]) / np.sqrt(sel.sum()))
+            qsem.append(1.253 * np.nanstd(q[sel]) / np.sqrt(sel.sum()))
+            nsel.append(int(sel.sum()))
     qc, Hb = np.array(qc), np.array(Hb)
+    Hsem, qsem, nsel = np.array(Hsem), np.array(qsem), np.array(nsel)
     q_runout = np.nan
     for i in range(len(Hb) - 1):
         if Hb[i] >= 0 >= Hb[i + 1]:
@@ -202,6 +207,7 @@ def analyse_hq(tag, d, t_lo=0.5, t_hi=20, spin_frac=0.75, n_bins=28):
             break
     return dict(q=qraw, H=Hraw, qn=q, Hn=H, rpm=Nref,
                 qbin=qc, Hbin=Hb,
+                Hbin_sem=Hsem, qbin_sem=qsem, bin_n=nsel,
                 H_shutoff=float(np.nanmax(Hb)) if len(Hb) else np.nan,
                 q_runout=q_runout, q_max=float(np.nanmax(qraw)))
 
@@ -257,23 +263,24 @@ def analyse_cav(tag, d, cav_start=23.0, settle=1.2, drop_pct=0.97):
         if q_ref < 0.03:               # shutoff: no meaningful suction sweep
             continue
         nb = np.linspace(np.nanmin(ns), np.nanmax(ns), 20)
-        cen, Hmed = [], []
+        cen, Hmed, Hsem = [], [], []
         di = np.digitize(ns, nb)
         for b in range(1, len(nb)):
             m = di == b
             if m.sum() >= 4:
                 cen.append(float(np.nanmedian(ns[m])))
                 Hmed.append(float(np.nanmedian(Hs[m])))
+                Hsem.append(1.253 * float(np.nanstd(Hs[m])) / np.sqrt(m.sum()))
         if len(cen) < 5:
             continue
-        cen = np.array(cen); Hmed = np.array(Hmed)
+        cen = np.array(cen); Hmed = np.array(Hmed); Hsem = np.array(Hsem)
         hi = cen >= np.nanpercentile(cen, 70)
         H_ref = float(np.nanmedian(Hmed[hi]))
         if H_ref < 2.0:
             results.append(dict(level=level, H_ref=H_ref, q_ref=q_ref,
                                 npshr=np.nan, npsha_min=float(np.nanmin(ns)),
                                 broke=False, lowhead=True,
-                                cen=cen, Hmed=Hmed, n=ns, H=Hs))
+                                cen=cen, Hmed=Hmed, Hmed_sem=Hsem, n=ns, H=Hs))
             continue
         thr = drop_pct * H_ref
         # Breakdown anchored at the LOW-NPSHa end: walk upward from the lowest
@@ -296,5 +303,5 @@ def analyse_cav(tag, d, cav_start=23.0, settle=1.2, drop_pct=0.97):
         results.append(dict(level=level, H_ref=H_ref, q_ref=q_ref, lowhead=False,
                             npshr=npshr, npsha_min=float(np.nanmin(ns)),
                             broke=broke, nss=nss,
-                            cen=cen, Hmed=Hmed, n=ns, H=Hs))
+                            cen=cen, Hmed=Hmed, Hmed_sem=Hsem, n=ns, H=Hs))
     return dict(rpm=float(np.nanmedian(d["rpm"][cav_mask])), steps=results)

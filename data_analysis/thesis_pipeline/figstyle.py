@@ -43,7 +43,10 @@ def save(fig, name, png_preview=False):
 
 
 def plot_data(ax, x, y, yerr=None, xerr=None, label=None, **kw):
-    """Experimental data: markers only, with error bars."""
+    """Experimental data: markers only, with error bars (thin, small caps)."""
+    kw.setdefault("elinewidth", 0.6)
+    kw.setdefault("capsize", 1.2)
+    kw.setdefault("capthick", 0.6)
     return ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt="o", linestyle="none",
                        label=label, **kw)
 
