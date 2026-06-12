@@ -13,6 +13,20 @@
     "fmt": ".2f",
     "desc": "measured coupled shaft torque"
   },
+  "lock_k1_modified": {
+    "val": 0.53,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "modified pre-rotation coefficient"
+  },
+  "lock_k1_original": {
+    "val": 0.17,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "original pre-rotation coefficient from Lock's paper"
+  },
   "pump_b2": {
     "val": 3.554,
     "unit": "\\milli\\meter",

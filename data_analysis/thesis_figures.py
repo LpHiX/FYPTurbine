@@ -369,7 +369,8 @@ def fig_psi_phi():
 
 def fig_eta_phi():
     """7.2 — overall efficiency vs flow: measured (binned, error bars) vs
-    Lock + fitted churning (solid). Cavitation-onset annotation: TODO(Martin)."""
+    Lock model. Untuned churning x1 (model default, dashed) and fitted
+    churning x2.5 (solid) per run. Cavitation-onset annotation: TODO(Martin)."""
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
     cols = plt.cm.viridis(np.linspace(0, 0.9, len(exp_runs())))
     for (lbl, e), c in zip(exp_runs().items(), cols):
@@ -397,16 +398,21 @@ def fig_eta_phi():
             sig = np.hypot(sem, ec * rel_sys)
             plot_data(ax, [qc], [ec * 100], yerr=[_cover(sig) * 100], color=c, ms=3)
         qth = np.linspace(1e-5, (np.nanpercentile(Q, 98)) * 1.1, 60)
+        et0 = pump().efficiency_lock(qth, RPM=e["N"], D_3=D3, D_inlet=DINLET,
+                                     K_factor=K_FIT, eta_losses=ETAL_FIT,
+                                     disk_mult=1.0)
+        plot_theory(ax, qth * 1000, np.asarray(et0["eta_ovr"]) * 100, color=c, alpha=.6)
         et = pump().efficiency_lock(qth, RPM=e["N"], D_3=D3, D_inlet=DINLET,
                                     K_factor=K_FIT, eta_losses=ETAL_FIT,
                                     disk_mult=DISK_MULT)
         plot_tuned(ax, qth * 1000, np.asarray(et["eta_ovr"]) * 100, color=c)
         ax.plot([], [], "o", color=c, ms=3, label=f"{lbl} ~{e['N']:.0f} rpm")
+    ax.plot([], [], "k--", label=r"Lock, untuned churning $\times$1")
     ax.plot([], [], "k-", label=rf"Lock + fitted churning $\times${DISK_MULT}")
     ax.axhline(ETA_DESIGN_PCT, color="gray", ls=":", label=f"design ~{ETA_DESIGN_PCT:.0f}%")
     # TODO(Martin): annotate observed cavitation onset (arrow) once phi_onset chosen
     ax.set(xlabel="Q [l/s]", ylabel="overall efficiency [%]", ylim=(0, None))
-    ax.legend()
+    ax.legend(fontsize=6)
     return save(fig, "results_eta_flow")
 
 

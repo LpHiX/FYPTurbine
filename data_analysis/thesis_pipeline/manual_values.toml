@@ -24,6 +24,16 @@ val = 9000
 unit = '\rpm'
 desc = "maximum speed reached"
 
+[lock_k1_original]
+val = 0.17
+fmt = ".2f"
+desc = "original pre-rotation coefficient from Lock's paper"
+
+[lock_k1_modified]
+val = 0.53
+fmt = ".2f"
+desc = "modified pre-rotation coefficient"
+
 # ---------- pump geometry (barskesizer) ----------
 [pump_d2]
 val = 58.5

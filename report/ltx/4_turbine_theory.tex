@@ -1,178 +1,5 @@
-\section{Design Background}
 
-\subsection{Barske Impeller}
-
-\todo{I just realized I don't have the numbers to back me up that disc friction is better. I will waffle, then fill with literature and numbers later on.}
-
-Centrifugal pumpss have multiple main sources of losses. The one that becomes significant at low specific speeds is the disc friction losses. When a rotor object rotates in a fluid, the shear stresses in the fluid cause a drag torque on the object. In most centrifugal pumps the impeller is disc shaped, and the loss is called disc friction loss. \todo{gulich pdf pg 144 says axial case cleareance only has a very small effect on disc friction. It also says that due to leakage flow, partload recirculation and exchange of momentum, tolerance of calculated disc friction loss can be at least +/-25\%, also, somehow head coefficient is related to disc friction? it says to maximize it for low specific speed}. With low specific speed pumps, disk frction is the main source of loss. At $n_q=10$, $\psi_{\textrm{opt}=1}$ and $\mathrm{Re}=10^7$, the disc friction is approxiomately $30\%$ of the usefulf power of the impeller \cite{gulich page 103}. Gulich suggests that a high head coefficient \todo{high head coeffient not defined yet} reduces the diameter and consequently less disk frciont since $P_{RR}\sim D^5$. This is the reason why low specific speed centrifugal pumps physically cannot achieve the same high efficiencies as higher specific speed pumps. \todo{this paragraph is almost fully copied from gulich, need to rephrase.}
-
-\todo{gulich page 429 says impeller losses are low at low specific speeds, referencing fig 3.33. Oop, fig3.33 shows the disc friction loss i think?}On the other hand, at low specific speeds, impeller losses are low as shown by \cref{fig3.33gulich}. \todo{explain this graph} As a result, surface finish on the impeller blades are largely unimportant, allowing for simpler manufacturing processes. Conversely, collector losses become dominant. \todo{need to explain what a collector is} Gulich explains \cite{gulich 7.12} that for $n_q<12$ even higher efficiencies are expected than with volutes. This simplifies the design and manufacturing of the pump, which is a significant advantage at small scales where tolerances are both harder to achieve but contribute to more significant losses. \todo{need to explain what a volute is} This is important as the high fluid velocity at the peripheri makes the surface finish of the annular casing of primary importance for pump efficiency \cite{lock design features}.
-
-The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications became one of the highest efficiency designs at this specific speed. \todo{i might want a section on explaining basic pump and turbine geometry and terminology before this.} The barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{something}. The barske impeller is instead designed to induced almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barske unconventional paper}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses. 
-
-\todo{I know that conventional pumps are impossible to design at this specific speed, but still need to explain lock's assertion that "The efficiencies of forced vortex pumps in the same specific speed range and capacity are higher than those of similar conventional pump"}
-
-Barske comments that the number of impeller blades does not seem to be critical, with 3-6 being operated successfully. However, altering the number of blades can be used to elminite fluid vibrations \cite{barske 1953}. Lock provides corrections for blades from 1 to 16 \cite{lock fig 10A}.
-
-The open impeller choice is to further reduce disc friction losses \todo{is this true?} by minimizing surface area. Conventional impellers uses shrouds to guide the flow and reduce secondary flows. However, as in a Barske pump the impeller serves only to generate the forced vortex flow, this was deemed unnecessary by at least Barske and Lock. This also removes axial thrust loads on the impeller, helping with sealing and mechanical design of the shaft. Also, simplify manufacturing.
-
-Conventional pump design with current design tools produce nonsensical geometries and results at low specific speeds because of one number that is used in the design process, which is the slip coefficient. The slip coefficient determines the angular deflection of the fluid leaving the impeller from the blade angle at the impeller exit. This number is usually determined empirically based on regression fits from existing data. However, at $n_q\approx 7$, the equations relating blade exit angle, slip coefficient and head coefficient mathematically does not have a converging root. Physically, there is no blade geometry that can bend the blade enough to keep the flow attached to the blade. This is further motivates the forced vortex Barske architecture, as it does not rely on attached flow, removing slip factor from the design process entirely.
-
-All theories relating to pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation:
-
-\begin{equation}
-    P=T_{shaft}\omega=\rho Q \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega=\rho Q\left(u_2c_{2u}-u_1c_{1u}\right)
-    \label{eq:euler_turbine_equation}
-\end{equation}
-
-Rewriting this equation in terms of specific work $Y=P/\rho Q$ per unit mass:
-
-\begin{equation}
-    Y = \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega = u_2c_{2u}-u_1c_{1u}
-     \label{eq:euler_specific_work}
-\end{equation}
-
-derive from bernouli, with rotating frame substitution $c^2=w^2-u^2+2\times u \times c_u$ and neglecting compressibility losses:
-
-$$p_{1}+\frac{\rho}{2}w_{1}^2-\frac{\rho}{2}u_{1}^2=p_{2}+\frac{\rho}{2}w_{2}^2-\frac{\rho}{2}u_{2}^2$$
-
-and as such the theoretical rise in static pressure:
-
-\begin{equation}
-    \Delta p_{st} = p_2-p_1 = \frac{\rho}{2}\left(w_1^2-w_2^2\right)+\frac{\rho}{2}\left(u_2^2-u_1^2\right)
-    \label{eq:pressure_rise}
-\end{equation}
-
-In Barske, Lobanoff and Lock the relative velocity $w$ is assumed to be negligable, ending up with:
-
-\begin{equation}
-    \Delta p_{st} = \frac{\rho}{2}\left(u_2^2-u_1^2\right)
-    \label{eq:pressure_rise_negligible_w}
-\end{equation}
-
-Then, the kinetic energy increase assuming negligible inlet prerotation is:
-
-\begin{equation}
-    \Delta p_{st} = \frac{\rho}{2}u_2^2
-    \label{eq:pressure_rise_negligible_w_prerotation}
-\end{equation}
-
-
-
-
-\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. Barske uses the symbol $\psi$ for this coefficient, but as it conflicts with the commonly used symbol for head coefficient, this paper will instead use $c_k$. Combining the static and kinetic pressure rise, the total increase in pressure is:
-
-\begin{equation}
-    p_t = p_{s_{th}} + c_k p_{d_{th}}=\frac{1}{2}\rho\left((1+c_k) u_2^2 - u_1^2\right)
-    \label{eq:barske_pressure_rise}
-\end{equation}
-
-This forms a simple basic model for barske pump performance. 
-
-\subsection{Barske Pump sizing}
-
-The barske pump is sized by the methods provided by barske \cite{barske 1953} with the assitance of Gulich. First the inlet is sized by choosing a reasonable inlet velocity and calculating the inlet area:
-
-\begin{equation}
-    d_0 = \sqrt{\frac{4\dot{m}}{\pi \rho c_0}}
-    \label{eq:barske_inlet_diameter}
-\end{equation}
-
-The impeller blade inlet diameter is enlarged by a small amount as some pre-rotation is desirable for increased head. For example, $d_1\sim1.1d_0$.
-
-By substituting $u=\pi n d / 60$ into \cref{eq:barske_pressure_rise}, the required impeller tip diameter can be calculated:
-
-\begin{equation}
-    d_2 = \sqrt{\frac{1}{1+c_k}\left(\frac{7200p_t}{\rho n^2\pi^2} + d_1^2\right)}
-    \label{eq:barske_tip_diameter}
-\end{equation}
-
-Barske then gives these guidelines for other dimensions of the pump:
-
-\begin{align}
-    s_{ax} & \leq \min{\left(0.75, \frac{d_2}{100}\right)} \\
-    b_1 & \geq \frac{1}{4} d_1 \\ %note to self, b is blade height
-    b_2 & \geq \max{\left(b_1 \frac{d_1}{d_2}, 3s_{ax}\right)} \\
-\end{align}
-
-For the annular casing sizing, Barske doesn't have very specific numbers, so Gulich's guideline where B/H = 1.5 to 2.5 can be followed:
-
-\begin{align}
-    B & = 2 s_ax + b_2 \\
-    H & = B / 2
-\end{align}
-
-\todo{look at efficiency that dynamicpumps uses, and cavitation maybe as well, iirc they have first principles}
-
-To size the diffuser, Barske suggests sizing the diffuser throat to be around 0.8 to 0.9 of $u_2$, with the area of the diffuser outlet to be 3-4 times the area of the diffuser throat.
-
-\subsection{Barske Pump efficiency}
-
-Barske assumes that the disc friction losses can be approximated as a circular disc in a rotating fluid. Converting the equation into metric units gives:
-
-\begin{equation}
-    P_{RR} [\mathrm{W}] = 1956\times\rho\nu^{0.2}\left(\frac{n}{1000}\right)^{2.8}\left(d_2^{4.6}+4.6d_1^{3.6}b_1\right)
-\end{equation}
-
-As the hydraulic efficiency is defined as the useful power out of the pump over the total power into the pump, efficiency can be defined as:
-
-\begin{align}
-\eta_h & = \frac{\text{Useful power}}{\text{Input power}} = \frac{P}{P_{th}+P_{RR}}
- & = \frac{Qp}{Qp_{th}+P_{RR}}
- & = \frac{p}{p_{th}+P_{RR}/Q}
-\end{align}
-
-If total shaft efficiency is desired, the mechanical losses can be included:
-
-\begin{equation}
-    \eta=\frac{p}{p_{th}+\frac{P_F+P_{Mech}}{Q}}
-\end{equation}
-
-Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
-
-
-By writing the total theoretical pressure gain in head:
-
-\begin{equation}
-    H_T = \frac{U_2^2 - U_1^2}{2g} + \frac{U_2^2}{2g}
-\end{equation}
-
-Lock uses busemann's corrections and derives a refined total head, taking into account prerotation:
-
-\begin{equation}
-    H_{TH} = h_0\frac{U_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{op}}\right)\!\frac{D_1}{D_2}\,\frac{U_2^2}{g}
-\end{equation}
-
-\begin{equation}
-H_{SP} = H_{TH} - \underbrace{\zeta_{LD}\left[1-\left(\tfrac{D_3}{D_4}\right)^2\right]^2\frac{V_3^2}{2g}}_{\text{diffuser-nozzle loss}} - \frac{V_4^2}{2g} + \frac{V_0^2}{2g}
-\end{equation}
-
-Where $\zeta_{LD}=0.194$ is the diffuser loss coefficient from Hydraulic Institute's Pipe Friction Manual \cite{hydraulicpipemanual}.
-
-By expressing $V^2/2g$ by $(8/g\pi^2)Q^2/D^4$ with $V=4Q/\pi D^2$, the head can be expressed as a function of flow rate:
-
-\begin{equation}
-    H_{SP} = h_0\frac{U_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{op}}\right)\!\frac{D_1}{D_2}\,\frac{U_2^2}{g} - \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4} + \frac{1}{D_4^4} - \frac{1}{D_0^4}\right)
-\end{equation}
-
-To find the optimum flow rate used to shape the pump curve, the derivative of the head with respect to flow rate can be taken and set to zero:
-
-\begin{equation}
-    Q_{op} = \sqrt{\frac{h_0\frac{U_2^2}{g}}{\frac{24}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4}\left(1-\left(\tfrac{D_3}{D_4}\right)^2\right) + \frac{1}{D_4^4} - \frac{1}{D_0^4}\right)}}
-    \label{eq:lock_optimum_flow}
-\end{equation}
-
-Lock and Barske suggest that the flow cutoff point is limited by the diffuser throat. To find the static pressure at the diffuser throat, reversing the transfer between dynamic head into static head provided by the previous equations \todo{link to the previous equations}:
-
-\begin{equation}
-    H_3 = H_{SP} + \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4}\left(1-\left(\frac{D_3}{D_4}\right)^2\right) + \frac{1}{D_4^4} - \frac{1}{D_3^4}\right)
-\end{equation}
-
-Then solving for the $Q$ at which $H_3$ is equal to vapor pressure head $H_{vap}=\frac{1}{\rho g}\left(p_{vap}-p_{inlet}\right)$ gives the flow cutoff point.
-
-\todo{add cavitation of diffuser throat and shutoff flow here?}
-
-
+\section{Turbine Literature and Theory}
 
 \subsection{Impulse Turbine}
 
@@ -327,7 +154,7 @@ To transition from the uniform inlet flow to the vortex flow, method of characte
 
 \todo{explain new axis}
 
-To achieve this, the flow angles from $\beta_i$ to $\alpha_i$ is discretized into $k$ interval of $\phi_0$ to $\phi_k$. It is shown by \cite{find the ref from goldman 1968 ref 2} that the flow angle and dimensionless radius $R^*$ is related along its characteristic line with:
+To achieve this, the flow angles from $\beta_i$ to $\alpha_i$ is discretized into $k$ interval of $\phi_0$ to $\phi_k$. It is shown by \todo{find the ref from goldman 1968 ref 2} that the flow angle and dimensionless radius $R^*$ is related along its characteristic line with:
 
 \begin{equation}
     \phi = \pm \frac{1}{2}f(R^*) + \textrm{constant}
@@ -379,7 +206,7 @@ There are two main factors to consider when choosing the inlet, outlet and surfa
 
 Separation occurs in high adverse pressure gradients. In supersonic flow, this happens whenever the flow is decelerating along the surface.  There are two main regions on the blade surfaces which separation can occur. At the upper surface, the inlet transition arc accelerates the flow from the inlet velocity until the vortex flow, then decelerates the flow until the outlet. At the lower surface, the inlet transition arc decelerates the flow from the inlet velocity until the vortex flow, then accelerates the flow until the outlet. 
 
-Goldman believes that separation on the lower surface is probably not as important as the flow would tend to reattach shortly as the pressure gradient becomes favourable again \cite{goldman 1970}. Goldman uses the value of the incompressible form factor $H_i$ along the blade surface to predict separation, where  Schlichting found \todo{find goldman ref 12} that separation usually occurs in the range of $H_i$ from 1.8 to 2.4.
+Goldman believes that separation on the lower surface is probably not as important as the flow would tend to reattach shortly as the pressure gradient becomes favourable again \cite{goldman1970}. Goldman uses the value of the incompressible form factor $H_i$ along the blade surface to predict separation, where  Schlichting found \todo{find goldman ref 12} that separation usually occurs in the range of $H_i$ from 1.8 to 2.4.
 
 To find $H_i$ along both surfaces, Sasman and Cresci \cite{sasmancresci} provides a method to calculate the compressible turbulent integral boundary layer with two ODEs. 
 
@@ -456,4 +283,4 @@ For supersonic axial velocity turbines, a wedge can be designed on the convex su
 
 \subsubsection{Nozzle Design}
 
-Historically, the optimal nozzle design for a ideal inviscid gas was designed with the Method of Characteristics as well. Rao provides a method to achieve this \cite{rao nozzle design}. NASA special pubplication 8120 explains that a single canted parabola closely approximates the ideal nozzle contour and should be used for high performance nozzles. In this paper, the nozzle was a simple conical nozzle with a 7 degree half angle. It can be seen from \todo{add figure 7 from nasa sp8120} that the performance of a conical nozzle for low area ratios lead to a efficiency loss below 2\%.
+Historically, the optimal nozzle design for a ideal inviscid gas was designed with the Method of Characteristics as well. Rao provides a method to achieve this \cite{raonozzledesign}. NASA special pubplication 8120 explains that a single canted parabola closely approximates the ideal nozzle contour and should be used for high performance nozzles. In this paper, the nozzle was a simple conical nozzle with a 7 degree half angle. It can be seen from \todo{add figure 7 from nasa sp8120} that the performance of a conical nozzle for low area ratios lead to a efficiency loss below 2\%.
