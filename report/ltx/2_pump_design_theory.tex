@@ -159,6 +159,7 @@ To find the optimum flow rate used to shape the pump curve, the derivative of th
 
 \begin{equation}
     Q_{op} = \sqrt{\frac{h_0\frac{U_2^2}{g}}{\frac{24}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4}\left(1-\left(\tfrac{D_3}{D_4}\right)^2\right) + \frac{1}{D_4^4} - \frac{1}{D_0^4}\right)}}
+    \label{eq:lock_optimum_flow}
 \end{equation}
 
 Lock and Barske suggest that the flow cutoff point is limited by the diffuser throat. To find the static pressure at the diffuser throat, reversing the transfer between dynamic head into static head provided by the previous equations \todo{link to the previous equations}:
@@ -226,7 +227,51 @@ Another way to increase the blade height is to decrease the meridonal velocity $
 For supersonic flow to develop within a turbine blade passage, a condition called "starting" must be satisfied. On the startup of a supersonic turbine, a normal shock starts at the inlet of the blade passage and as to pass through the whole passage before the flow into and out of the turbine passage can be supersonic. \todo{add derivation for this, later? also, loss models.}
 
 
+\subsection{Loss models}
+\label{subsec:weissloss}
+
+The main loss model used in the design of the turbine is the one provided by Weiß \cite{weiss}. There are more general loss models provided by texts such as NASA SP-290, giving loss models for tip-clearance, disk friction, partial admission and incidence losses. However, those models were built on large full-admission, subsonic to transonic turbines. Weiss specifically derived his loss model for the specialized application of a supersonic impulse turbines at small scales (1-200kW). As the regime of the turbine considered in this thesis matches closer to Weiss's model compared to SP-290's model, Weiss's model is used. Weiss describes different models lead to stage efficiency differences of about 10\% points. Derived from rocket turbopumps literature and adjusted by in-house measurements, Weiss provides three efficiencies.
+
+
+\begin{equation}
+    k_N = \sqrt{1 - \left( 0.0029\,M_3^3 - 0.0502\,M_3^2 + 0.2241\,M_3 - 0.0877 \right)}
+    \label{eq:weiss_nozzle_coeff}
+\end{equation}
+
+\cref{eq:weiss_nozzle_coeff} is the nozzle loss coefficient, relating the actual velocity to the theoretical isentropic velocity by $k_N=c_{No}/c_{No,is}$. 
+
+\begin{equation}
+    \begin{aligned}
+        k_R ={}& 0.957
+            - 3.62\times10^{-4}\,\Delta\beta
+            - 2.58\times10^{-2}\,M_{w3} \\
+            &+ 6.39\times10^{-6}\,\Delta\beta^2
+            + 6.74\times10^{-2}\,M_{w3}^2 \\
+            &- 7.53\times10^{-8}\,\Delta\beta^3
+            - 4.30\times10^{-2}\,M_{w3}^3 \\
+            &- 2.38\times10^{-4}\,\Delta\beta\, M_{w3}
+            + 1.45\times10^{-6}\,\Delta\beta^2 M_{w3}
+            + 4.25\times10^{-5}\,\Delta\beta\, M_{w3}^2
+    \end{aligned}
+    \label{eq:weiss_rotor_coeff}
+\end{equation}
+
+\cref{eq:weiss_rotor_coeff} is the loss of velocity along the blade passage through a theoretically impulse blade, relating the actual velocity to the theoretical velocity by $k_R=w_{exit}/w_{inlet}$.
+
+\begin{equation}
+    P_v = \frac{1.85}{2}\,(1 - \varepsilon)\,\rho_3 \left( \frac{n}{60} \right)^{3} d_m^4 \,(4.5\,b)
+    \label{eq:weiss_ventilation}
+\end{equation}
+
+Finally, \cref{eq:weiss_ventilation} captures the losses due to partial admission. Weiss calls this loss ventillation losses, but it can also be called windage losses. Ventilation losses refers to the the non-admitted arc being dragged through stagnant air.
+
+\todo{FUCKS SAKE LMAO, look at comment}
+% Weiss says this: There are somewell-known turbine loss models in literaturee.g. by Refs. [39e41] etc. All of them are mainly developed for and based on the data from subsonic MW-class multistage steam and gas turbines working with full admission. 
+% 39 - Traupel W Thermische, 40 - Craig HRM, 41 - Kacker SC
+
+
 \subsection{Method of Characteristics Blade Profile Design}
+\label{subsec:method_of_characteristics}
 
 The design so far is based on 1D mean line theory. The design of the actual blade profile which will turn the supersonic flow in the desired direction is often accomplished using an application of the Method of Characteristics to transition a uniform flow field into vortex flow. \todo{add some history here, iirc sp290 has some stuff on why vortex flow, but here needs some stuff about how vortex flow was proven to be able to turn flows, and method of characteristics is used to turn the flow into such vortex flow, so obviously some explanation of vortex flow is required}. 
 
@@ -234,13 +279,181 @@ The design so far is based on 1D mean line theory. The design of the actual blad
 
 Geometry is separated into the turbine blade, and the passage between the flow. Two surfaces are separately designed, and it is common to refer to the top surface as the convex, and the bottom surface as the concave one. This is in relation to the solid blades themselves as opposed to an alternate designation by the top and bottom of the blade passage.
 
-Vortex flow is a special type of supersonic flow in which flow follows a theoretical perfect arc around a central point. This is a very special type of flow field that is achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field.
+Vortex flow is a special type of supersonic flow in which flow follows a theoretical perfect arc around a central point. This is a very special type of flow field that is achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. MOC generates the profile for desired mach numbers. Later analysis will need to be required to choose these desired Mach numbers.
+
+A special condition of vortex flow satisfies the equation
+
+\begin{equation}
+    \frac{V}{r} = \textrm{constant}
+    \label{eq:vortex_condition}
+\end{equation}
+
+Boxer and Goldman nondimensionalizes this equation using the critical velocity $M^{*}=V/a^*$ where $a^*=\sqrt{\gamma R T^*}$ is the speed of sound at the sonic point. As $a^*$ only depends on stagnation temperature, it is constant along any streamline of fixed stagnation enthalpy. Then, a nondimensional radius $r^*$ is introduced as the sonic velocity streamline in the vortex field, giving the following condition:
+
+\begin{equation}
+    \frac{M^*}{r^*} = 1
+    \label{eq:vortex_condition_nondim}
+\end{equation}
+
+The Prantdl-Meyer angle can be defined from the critical mach number $M^*$ as:
+
+\begin{equation}
+\nu(M) = \frac{\pi}{4}\left(\sqrt{\frac{\gamma+1}{\gamma-1}} - 1\right) + \frac{1}{2}\left(\sqrt{\frac{\gamma+1}{\gamma-1}} \arcsin\left[(\gamma-1)M^{*2} - \gamma\right] + \arcsin\left(\frac{\gamma+1}{M^{*2}} - \gamma\right)\right)
+\label{eq:prandtl_meyer_angle}
+\end{equation}
+
+And the converting between Mach number and Critical Mach number is given by:
+
+\begin{equation}
+M^* = \sqrt{\frac{(\gamma+1)M^2/2}{1 + (\gamma-1)M^2/2}}
+\label{eq:mach_to_critical_mach}
+\end{equation}
+
+Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} can be used to derive the nondimensional radius of the upper and lower surfaces of the blade. The end points of this circular arc is exactly the angle by which the inlet flow has to be turned to achieve the surface mach number. 
+
+\begin{equation}
+\begin{aligned}
+    \alpha_{l-i} & = \beta_1 - (\nu_i - \nu_l) \\
+    \alpha_{u-i} & = \beta_1 + (\nu_i - \nu_u)
+\end{aligned}
+\label{eq:inlet_flow_turning_angle}
+\end{equation}
+
+The equations for the outlet are the same as in \cref{eq:inlet_flow_turning_angle}.
+
+\subsubsection{Transition arcs}
+
+To transition from the uniform inlet flow to the vortex flow, method of characteristics is used to generate the blade profile to achieve this in a shockless manner. 
+
+\todo{explain new axis}
+
+To achieve this, the flow angles from $\beta_i$ to $\alpha_i$ is discretized into $k$ interval of $\phi_0$ to $\phi_k$. It is shown by \cite{find the ref from goldman 1968 ref 2} that the flow angle and dimensionless radius $R^*$ is related along its characteristic line with:
+
+\begin{equation}
+    \phi = \pm \frac{1}{2}f(R^*) + \textrm{constant}
+    \label{eq:characteristic_line_equation}
+\end{equation}
+
+The positive gives the expansion line and the negative gives the compression line. Where $f(R^*)$ is:
+
+\begin{equation}
+    f(R^*) = \sqrt{\frac{\gamma + 1}{\gamma - 1}}\arcsin\left(\frac{\gamma-1}{R^{*2}} - \gamma\right) + \arcsin\left(\left(\gamma+1\right)R^{*2} - \gamma\right)
+    \label{eq:f_R_star}
+\end{equation}
+
+$f(R^*)$ for a given flow angle can be calculated with:
+
+\begin{equation}
+    f(R^*_k) = 2\nu_i - \frac{\pi}{2}\left(\sqrt{\frac{\gamma+1}{\gamma-1}} - 1\right) - 2k\Delta\nu
+    \label{eq:f_R_star_k}
+\end{equation}
+
+The result of \cref{eq:f_R_star_k} can be used to numerically solve for $R^*_k$ with \cref{eq:f_R_star}, and points corresponding to each flow angle along the major expansion characteristic line can be calculated with:
+\begin{equation}
+    \begin{aligned}
+    x^*_{k} & = -R^*_k \sin(\phi_k) \\
+    y^*_{k} & = R^*_k \cos(\phi_k)
+    \end{aligned}
+\end{equation}
+
+The wall segments are generated by starting from the end point of the circular arc, then finding the intersection of the previous wall segment and the mach line from this point. The slope of the mach line with respect to to the $x^*$ axis is given by:
+
+\begin{equation}
+    m_k = \tan\left(\frac{\phi_k+\phi_{k-1}}{2}+\frac{\mu_k+\mu_{k-1}}{2}\right)
+\end{equation}
+
+Where
+\begin{equation}
+    \mu_k = -\arcsin\left(\frac{1}{M_k}\right) = -\arcsin\left(\sqrt{\left(\frac{\gamma+1}{2}\right)R^{*2}_k - \frac{\gamma-1}{2}}\right)
+\end{equation}
+
+By iterating through the flow angles for both the upper and lower surfaces for the inlet and outlet, the full theoretical MOC blade profile can be generated.
+
+\todo{add "i" to the variables to define inlet}
+
+\subsection{Choosing mach numbers}
+
+There are two main factors to consider when choosing the inlet, outlet and surface mach numbers. One is to prevent flow separation, and the other is to ensure that supersonic flow within the blade passage can "start".
+
+\subsubsection{Flow separation}
+
+Separation occurs in high adverse pressure gradients. In supersonic flow, this happens whenever the flow is decelerating along the surface.  There are two main regions on the blade surfaces which separation can occur. At the upper surface, the inlet transition arc accelerates the flow from the inlet velocity until the vortex flow, then decelerates the flow until the outlet. At the lower surface, the inlet transition arc decelerates the flow from the inlet velocity until the vortex flow, then accelerates the flow until the outlet. 
+
+Goldman believes that separation on the lower surface is probably not as important as the flow would tend to reattach shortly as the pressure gradient becomes favourable again \cite{goldman 1970}. Goldman uses the value of the incompressible form factor $H_i$ along the blade surface to predict separation, where  Schlichting found \todo{find goldman ref 12} that separation usually occurs in the range of $H_i$ from 1.8 to 2.4.
+
+To find $H_i$ along both surfaces, Sasman and Cresci \cite{sasmancresci} provides a method to calculate the compressible turbulent integral boundary layer with two ODEs. 
+
+Once a MOC blade profile is generated and the mach number at every point along the blade is known, the momentum-integral equation and shape-factor equation can be solved as an initial value problem starting from the leading edge goverened by the following equations:
+
+\begin{equation}
+    \frac{df}{d(s/c)} = 1.268\left[-\frac{f}{M_e}\frac{dM_e}{d(s/c)}\left(1 + g_w H_i\right) + A\,c\right]
+\end{equation}
+
+\begin{equation}
+    A\,c = 0.123\,e^{-1.561 H_i}\, M_e\, \mathrm{Re}_0\, \frac{T_e}{T_0}\left(\frac{\bar\mu}{\mu_0}\right)^{0.268}
+\end{equation}
+
+\begin{equation}
+\frac{dH_i}{d(s/c)} = \underbrace{-\frac{1}{2M_e}\frac{dM_e}{d(s/c)}\,H_i(H_i+1)^2(H_i-1)\left[1 + (g_w-1)\frac{H_i^2+4H_i-1}{(H_i+1)(H_i+3)}\right]}_{\text{pressure-gradient term: deceleration drives } H_i \text{ up}} \\ + \underbrace{\frac{H_i^2-1}{f}\,A\,c\left[H_i - \frac{0.011\,(H_i+1)(H_i-1)^2}{H_i^2\,(C_f/2)}\frac{T_e}{\bar T}\right]}_{\text{shear term: wall friction relaxes } H_i \text{ back toward equilibrium}}
+\end{equation}
+
+With initial conditions of a flat-plate $\frac{\theta_0}{c} = 0.036\,\frac{s_0}{c}\,\mathrm{Re}_{s_0}^{-1/5}$. \todo{cite this}
+% i found delta = 0.37x/(Re to 1/5) from anderson 19.1 page 1052, prandtl u/U = (y/delta) to 1/7 then shoving into the equation of momentum thickness gives 7/72 delta, which is 0.0359722222, done.
+
+The initial condition for the shape factor is chosen so that it matches closely to the rapidly converging value $ H_{i,0} = 1.67$. \todo{make this more rigorous}
+
+It is important to note that Goldman provides equations in his NASA TN D-4421 1968 paper that has been shown to not be conservative enough, with tests by Erikson saying that his criteria is a little too optimistic. The method described here is from Goldman's NASA TM X-2095 paper.
+
+\todo{should I remove these?}
+%  it took me a while to understand, but I think I finally understand it. Sasman and cresci developed a way to transform (stretch) the surface arc coordinates from compressible to incompressible coordinates, somehow deriving their eq 18, 19, 20 which can be solved as an IVP with initial conditions in 
+
+\todo{addd graphs to show validation against goldman, I already have this.}
+
+\subsubsection{Starting}
+
+On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passsage must be able to "swallow" this shock, allowing the shock to move through the whole passage.
+
+To do so, the do so, the post shock flow with a reduced total pressure must have enough of a flow area pass the required mass flow similar to the choked flow condition. A similar condition is the unstart of a supersonic wind tunnel or a supersonic internal intake. However, Boxer noticed in 1952 that due to the large velocity gradient between the channel walls due to tue turning, the flow cannot be assumed one directional as in the previous examples. Goldman in 1968 provides the condition accounting for the "reduction of mass flow due to curvilinear flow" to calculate the maximum inlet design mach number to ensure starting as:
+
+\begin{equation}
+\frac{p_{02}}{p_{01}}(M_i) \;\geq\; \frac{Q}{1-C}
+\end{equation}
+
+Where $p_{02}/p_{01}$ is the total pressure loss across the normal shock, $M_i$ is the inlet design mach number, $Q$ is named the vortex parameter \cite{sudhof} and $C$ is the reduction in mass flow due to two-dimensional flow. Solving this equation for $M_i$ gives the maximum inlet design mach number to ensure starting. \todo{perhaps put in the starting graph, showing starting limit as a function of inlet and surface mach numbers?}
+
+Historically, starting was a major problem for supersonic turbines. Before the theory was established, Colclough had to build a special jig in which every blade could be pivoted to vary the contraction until the blade started.
+
+\subsubsection{Mach number selection}
+
+The separation criterion limits the acceleration of the flow along the upper surface, and the deceleration of the flow along the lower surface. Then, the starting criterion provides an additional limit on the inlet design mach number based on these surface mach numbers. 
+
+However, Goldman notes that for optimum efficiency, the maximum spread of surface number leads to maximum efficiencies. It comes from the obvious fact that a loss of velocity across the impulse blade leads to a loss of kinetic energy, so he posits the efficiency of an impulse blade to be:
+
+\begin{equation}
+    \eta = \left(\frac{w_{exit}}{w_{exit,ideal}}\right)^2
+\end{equation}
+
+
+
+This is nearly the same as Weiss' \cref{eq:weiss_rotor_coeff} loss. Weiss derived his empirical model only of 1D parameters such as inlet mach number and the angled the flow is turned. 
+
+What this efficiency tries to capture is the boundary layer friction losses, shocks, and exit wake mixing losses. The effect of spreading the surface mach numbers becomes clear by looking at the vortex equation \cref{eq:vortex_condition_nondim}. The larger the mach number spread, the larger the difference in $R^*$ between the upper and lower surface, the larger physical passage width. The wider the channel compared to the blade chord, the lower fraction of the boundary layer thickness to passage width, the lower the wetted surface area per unit flow, and thus the lower the losses.
+
+This is the challenge of supersonic turbine blade design, maximum efficiency is achieved by riding along the edge of separation and starting.
 
 \subsubsection{Finite leading edge}
 
-In the theoretical method of characteristics, both the upper and lower surface at the turbine inlet is perfectly parallel to the nozzle exhaust angle. This is problematic because this implies the two surfaces will end at a infinitely sharp point where the at the infinitesimal leading edge, the angle between the upper and lower surfaces is zero. This is not manufacturable 
+In \cref{subsec:method_of_characteristics}, the upper and lower surface are mathematically designed to produce no shocks in transitioning the unifrom flow from the nozzle exit into the vortex flow. For no shocks to form, both surfaces must be perfectly parallel to the starting flow. This is problematic because this implies the point where the two surfaces intersect at the leading edge, the angle between the upper and lower surfaces is zero. This creates an impossible to manufacture zero thickness leading edge. Boxer suggests a few methods to solve this issue. He separates design into turbines with a subsonic or supersonic axial velocity component. 
+
+For subsonic axial velocity turbines, either lower or upper surface can be designed with an incidence angle to the inlet flow. Angling the upper convex surface and keeping the lower concave surface parallel to the inlet flow, the compressive oblique shock will be generated along the region between the inlet and the nozzle exit, affecting the flow in the next blade passage. Kantrowitz shows that in steady state a compression shock of equal strength will be created to obtain the steady state condition \cite{kantrowitz}. To solve this, a small angle wedge can be placed shortly after the leading edge to generate a small expansion wave to cancel out the shock. 
+
+Another method is angling the lower concave surface so that the shock stays within the blade passasge and does not affect the upstream flow. The oblique comrpession shock can then be designed to intersect the upper surface at an angle to fully cancel out the shock.
+
+For supersonic axial velocity turbines, a wedge can be designed on the convex surface with a low enough angle from the design inlet flow so that the shock stays within the blade passage and can be cancelled out by a kink on the concave surface.
+
+\todo{figures to explain this}
 
 
-- turbine discussion can continue, first type wedge angle, MOC, supersonic starting, radius, boundary layers.
-- in either design section I can talk about efficiencies 
-- from MOC, talk about upper and lower surface mach numbers, which have the NASA requirements, but also separation requirements. Note that upper surface separation is less important 
+\subsubsection{Nozzle Design}
+
+Historically, the optimal nozzle design for a ideal inviscid gas was designed with the Method of Characteristics as well. Rao provides a method to achieve this \cite{rao nozzle design}. NASA special pubplication 8120 explains that a single canted parabola closely approximates the ideal nozzle contour and should be used for high performance nozzles. In this paper, the nozzle was a simple conical nozzle with a 7 degree half angle. It can be seen from \todo{add figure 7 from nasa sp8120} that the performance of a conical nozzle for low area ratios lead to a efficiency loss below 2\%.

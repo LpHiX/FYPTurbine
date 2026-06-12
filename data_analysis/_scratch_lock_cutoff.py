@@ -29,7 +29,7 @@ for ax, d3mm in zip(axes, (3.8, 3.0)):
         qg = np.linspace(1e-6, 0.7e-3, 1200)  # to 0.7 l/s, well past any cutoff
         res = tf.pump().analyse_lock(qg, RPM=e["N"], D_3=d3mm / 1000,
                                      D_inlet=tf.DINLET, K_factor=tf.K_FIT,
-                                     eta_losses=0.194, p_inlet=tf.P_INLET)
+                                     eta_losses=1.1, p_inlet=tf.P_INLET)
         Hs = np.asarray(res["H_static"], float)
         broke = np.asarray(res["H_3"], float) <= (3171.0 - tf.P_INLET) / (tf.RHO * tf.G)
         icut = int(np.argmax(broke)) if broke.any() else None
