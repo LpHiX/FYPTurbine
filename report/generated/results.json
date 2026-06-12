@@ -1,4 +1,18 @@
 {
+  "air_gam": {
+    "val": 1.4,
+    "unit": "",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "heat capacity ratio, air"
+  },
+  "air_r": {
+    "val": 287.0,
+    "unit": "\\joule\\per\\kilo\\gram\\per\\kelvin",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "specific gas constant, air"
+  },
   "coupled_rpm": {
     "val": 5400,
     "unit": "",
@@ -27,18 +41,39 @@
     "fmt": ".2f",
     "desc": "original pre-rotation coefficient from Lock's paper"
   },
+  "pump_b1": {
+    "val": 6.449553157118543,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "blade height at impeller inlet"
+  },
   "pump_b2": {
-    "val": 3.554,
+    "val": 3.5539576979391696,
     "unit": "\\milli\\meter",
     "unc": null,
     "fmt": ".3f",
-    "desc": "blade height at exit"
+    "desc": "blade height at impeller exit"
+  },
+  "pump_bc": {
+    "val": 4.724391886016829,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "annular casing axial width b_c (= b2 + 2 s_ax)"
+  },
+  "pump_blade_stress": {
+    "val": 4.356615494286515,
+    "unit": "\\mega\\pascal",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "centrifugal blade root stress estimate (sizing model, not FEA)"
   },
   "pump_blades": {
     "val": 6,
     "unit": "",
     "unc": null,
-    "fmt": "g",
+    "fmt": ".0f",
     "desc": "blade count"
   },
   "pump_churn_mult": {
@@ -48,19 +83,47 @@
     "fmt": ".1f",
     "desc": "disk/churning friction multiple over textbook"
   },
-  "pump_d1": {
-    "val": 21.5,
+  "pump_d0": {
+    "val": 19.544100476116796,
     "unit": "\\milli\\meter",
     "unc": null,
-    "fmt": "g",
-    "desc": "impeller eye / inlet diameter"
+    "fmt": ".2f",
+    "desc": "suction eye diameter (sized for 1 m/s inlet velocity)"
+  },
+  "pump_d1": {
+    "val": 21.49851052372848,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "impeller inlet (blade leading-edge) diameter, 1.1 d0"
   },
   "pump_d2": {
-    "val": 58.5,
+    "val": 58.52170940388293,
     "unit": "\\milli\\meter",
     "unc": null,
-    "fmt": "g",
+    "fmt": ".1f",
     "desc": "impeller tip diameter"
+  },
+  "pump_d3_sized": {
+    "val": 2.791244514357828,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "sizing-model diffuser throat (as-built TRUE throat = pump_throat 3.0)"
+  },
+  "pump_d4_sized": {
+    "val": 5.582489028715656,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "sizing-model diffuser exit diameter (2 d3)"
+  },
+  "pump_eta_design": {
+    "val": 23.369270073160926,
+    "unit": "\\percent",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "design-point overall efficiency (Barske loss model, as-designed Karassik seal f=0.07)"
   },
   "pump_eta_extrap": {
     "val": 27,
@@ -76,12 +139,75 @@
     "fmt": ".0f",
     "desc": "measured peak overall efficiency"
   },
+  "pump_hc": {
+    "val": 2.5,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "annular casing radial height h_c"
+  },
+  "pump_head_design": {
+    "val": 203.8735983690112,
+    "unit": "\\meter",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design head rise"
+  },
+  "pump_mdot_design": {
+    "val": 0.3,
+    "unit": "\\kilo\\gram\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "design mass flow rate"
+  },
+  "pump_npshr_design": {
+    "val": 3.0525713134755526,
+    "unit": "\\meter",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "NPSHr estimate at design (suction specific speed n_s=150, Lobanoff)"
+  },
+  "pump_nq_design": {
+    "val": 6.420515249471524,
+    "unit": "",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "metric specific speed n_q = n sqrt(Q)/H^0.75 (rpm, m^3/s, m)"
+  },
+  "pump_pfric_design": {
+    "val": 1174.9760077852945,
+    "unit": "\\watt",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "Barske disk/churning friction estimate at design"
+  },
+  "pump_pmech_design": {
+    "val": 341.8139169323448,
+    "unit": "\\watt",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "bearing + seal mechanical loss estimate at design"
+  },
+  "pump_power_design": {
+    "val": 2567.474286195555,
+    "unit": "\\watt",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design required shaft power"
+  },
+  "pump_pressure_design": {
+    "val": 20.0,
+    "unit": "\\bar",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design pressure rise"
+  },
   "pump_psi_design": {
-    "val": 1.065,
+    "val": 1.0650469397827578,
     "unit": "",
     "unc": null,
     "fmt": ".3f",
-    "desc": "design head coefficient (Gulich)"
+    "desc": "design head coefficient 2gH/u2^2 (Gulich)"
   },
   "pump_psi_meas": {
     "val": 1.1,
@@ -90,11 +216,18 @@
     "fmt": ".2f",
     "desc": "measured peak head coefficient"
   },
+  "pump_q_design": {
+    "val": 0.3,
+    "unit": "\\liter\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "design volume flow rate"
+  },
   "pump_rpm_design": {
     "val": 20000,
     "unit": "\\rpm",
     "unc": null,
-    "fmt": "g",
+    "fmt": ".0f",
     "desc": "design shaft speed"
   },
   "pump_rpm_maxreached": {
@@ -103,6 +236,13 @@
     "unc": null,
     "fmt": "g",
     "desc": "maximum speed reached"
+  },
+  "pump_sax": {
+    "val": 0.5852170940388293,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "impeller-casing axial gap s_ax"
   },
   "pump_seal_f": {
     "val": 0.014,
@@ -115,7 +255,7 @@
     "val": 3.0,
     "unit": "\\milli\\meter",
     "unc": null,
-    "fmt": "g",
+    "fmt": ".1f",
     "desc": "true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 \u2014 the 3.8 mm cone cutwater is downstream of the minimum)"
   },
   "pump_throat_cutwater": {
@@ -124,6 +264,34 @@
     "unc": null,
     "fmt": "g",
     "desc": "cone cutwater diameter, downstream of the true throat (NOT the minimum area)"
+  },
+  "pump_tip_force": {
+    "val": 6.9824724546109325,
+    "unit": "\\newton",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "per-blade tip force from design torque"
+  },
+  "pump_torque_design": {
+    "val": 1.2258786717280745,
+    "unit": "\\newton\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "design shaft torque"
+  },
+  "pump_u1_design": {
+    "val": 22.513187574822748,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "blade speed at impeller inlet, design"
+  },
+  "pump_u2_design": {
+    "val": 61.28379077958512,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "blade tip speed at design"
   },
   "rig_baseplate_thk": {
     "val": 18,
@@ -174,12 +342,47 @@
     "fmt": ".0f",
     "desc": "sample pump for introduction thrust"
   },
-  "turb_blade_height": {
-    "val": 4,
-    "unit": "\\milli\\meter",
+  "supply_pump_head_design": {
+    "val": 2.2,
+    "unit": "\\meter",
     "unc": null,
     "fmt": "g",
-    "desc": "turbine design blade height (DOA 0.15)"
+    "desc": "design head for the supply pump"
+  },
+  "turb_a3_design": {
+    "val": 46.38569012837237,
+    "unit": "\\square\\milli\\meter",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "total nozzle exit area"
+  },
+  "turb_area_ratio": {
+    "val": 1.3077595638536124,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "nozzle expansion area ratio A3/A_th"
+  },
+  "turb_athroat": {
+    "val": 35.469585855435334,
+    "unit": "\\square\\milli\\meter",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "total geometric nozzle throat area"
+  },
+  "turb_beta3_design": {
+    "val": 15,
+    "unit": "\\degree",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "rotor blade angle from tangential (design relative flow angle)"
+  },
+  "turb_blade_height": {
+    "val": 4.003345336526252,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "rotor blade height (from continuity at DOA)"
   },
   "turb_blade_sf": {
     "val": 39,
@@ -188,6 +391,34 @@
     "fmt": "g",
     "desc": "blade-bending safety factor (FEA, Tough 2000)"
   },
+  "turb_c3_design": {
+    "val": 464.10885241980753,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design nozzle-exit absolute velocity"
+  },
+  "turb_c3m_design": {
+    "val": 120.12021000692131,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design nozzle-exit meridional component"
+  },
+  "turb_c3u_design": {
+    "val": 448.29472676167387,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design nozzle-exit swirl component"
+  },
+  "turb_c4_design": {
+    "val": 276.75424755516525,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design rotor-exit absolute velocity"
+  },
   "turb_crit_speed": {
     "val": 99000,
     "unit": "",
@@ -195,12 +426,19 @@
     "fmt": "g",
     "desc": "first critical bending speed (ross, Al shaft) [rpm]"
   },
+  "turb_deltab_design": {
+    "val": 141.99560488952844,
+    "unit": "\\degree",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "rotor relative turning angle (symmetric impulse blade)"
+  },
   "turb_dmean": {
-    "val": 95,
+    "val": 95.0,
     "unit": "\\milli\\meter",
     "unc": null,
-    "fmt": "g",
-    "desc": "turbine mean blade diameter"
+    "fmt": ".0f",
+    "desc": "turbine mean (pitch) diameter"
   },
   "turb_doa": {
     "val": 0.15,
@@ -209,12 +447,54 @@
     "fmt": ".2f",
     "desc": "degree of admission"
   },
-  "turb_mw_design": {
-    "val": 1.33,
+  "turb_eta_h_design": {
+    "val": 0.4892874757057249,
     "unit": "",
     "unc": null,
     "fmt": ".2f",
-    "desc": "design relative inlet Mach"
+    "desc": "hydraulic (diagram) efficiency at design"
+  },
+  "turb_eta_ts_design": {
+    "val": 0.4738039978293815,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "design total-to-static efficiency (Weiss loss model, net of ventilation)"
+  },
+  "turb_kn_design": {
+    "val": 0.9165952634289919,
+    "unit": "",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "nozzle velocity coefficient k_N (Weiss, fn of M3)"
+  },
+  "turb_kr_design": {
+    "val": 0.8074914256536466,
+    "unit": "",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "rotor velocity coefficient k_R (Weiss, fn of turning + Mw3)"
+  },
+  "turb_m3_design": {
+    "val": 1.6675522050258451,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "design nozzle-exit absolute Mach number"
+  },
+  "turb_mdot_design": {
+    "val": 0.0428,
+    "unit": "\\kilo\\gram\\per\\second",
+    "unc": null,
+    "fmt": ".4f",
+    "desc": "design air mass flow rate"
+  },
+  "turb_mw_design": {
+    "val": 1.3255172348399216,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "design rotor-inlet relative Mach M_w3 (Goldman startable: < 1.408)"
   },
   "turb_mw_test": {
     "val": 1.58,
@@ -223,19 +503,75 @@
     "fmt": ".2f",
     "desc": "coupled-test relative inlet Mach (> starting limit -> unstarted)"
   },
+  "turb_nozzle_exit_len": {
+    "val": 3.862244050840221,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "per-nozzle exit width"
+  },
+  "turb_nozzle_throat_len": {
+    "val": 2.953328851565984,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "per-nozzle throat width"
+  },
+  "turb_nozzles": {
+    "val": 3,
+    "unit": "",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "number of nozzles"
+  },
   "turb_p01_design": {
-    "val": 7.65,
+    "val": 7.648499482612923,
     "unit": "\\bar",
     "unc": null,
-    "fmt": "g",
-    "desc": "design turbine inlet pressure"
+    "fmt": ".2f",
+    "desc": "design inlet total pressure (incl. nozzle total-pressure loss)"
+  },
+  "turb_p03_design": {
+    "val": 5.1709334375500955,
+    "unit": "\\bar",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "nozzle-exit total pressure (isentropic expansion requirement)"
+  },
+  "turb_p3_design": {
+    "val": 1.1,
+    "unit": "\\bar",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "rotor-inlet static pressure at design"
+  },
+  "turb_pe_design": {
+    "val": 1.1,
+    "unit": "\\bar",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "design exit static pressure"
   },
   "turb_power_design": {
     "val": 2.6,
     "unit": "\\kilo\\watt",
     "unc": null,
-    "fmt": "g",
+    "fmt": ".1f",
     "desc": "turbine design shaft power"
+  },
+  "turb_pw_design": {
+    "val": 84.95066411682814,
+    "unit": "\\watt",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "ventilation (partial-admission windage) power at design"
+  },
+  "turb_rpm_design": {
+    "val": 20000,
+    "unit": "\\rpm",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "turbine design shaft speed (common shaft)"
   },
   "turb_start_limit": {
     "val": 1.408,
@@ -250,5 +586,40 @@
     "unc": null,
     "fmt": "g",
     "desc": "rotor-starting threshold speed [rpm]"
+  },
+  "turb_t01_design": {
+    "val": 300.0,
+    "unit": "\\kelvin",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design turbine inlet total temperature (air)"
+  },
+  "turb_t3_design": {
+    "val": 192.7839587384616,
+    "unit": "\\kelvin",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "rotor-inlet static temperature at design"
+  },
+  "turb_u_c3_design": {
+    "val": 0.21435438441861307,
+    "unit": "",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "blade-jet speed ratio u/c3 at design"
+  },
+  "turb_u_cs_design": {
+    "val": 0.19647621345333804,
+    "unit": "",
+    "unc": null,
+    "fmt": ".3f",
+    "desc": "blade-speed ratio u/c_s (isentropic spouting velocity)"
+  },
+  "turb_u_design": {
+    "val": 99.48376736367679,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "mean blade speed at design"
   }
 }

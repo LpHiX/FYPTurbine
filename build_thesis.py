@@ -29,6 +29,7 @@ def run(cmd, cwd=None):
 def main(argv):
     run([PY, "build_values.py"], cwd=PIPE)      # -> results.json
     run([PY, "export_latex.py"], cwd=PIPE)      # -> values.tex
+    run([PY, "export_tables.py"], cwd=PIPE)     # -> generated/tables/*.tex
     # if "--figs" in argv:
     run([PY, "thesis_figures.py"], cwd=ROOT / "data_analysis")
     # latexmk handles bib + reruns; swap for your build command if different.

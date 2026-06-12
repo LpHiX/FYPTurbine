@@ -2,24 +2,48 @@
 % Regenerate:  python build_values.py && python export_latex.py
 % Requires \usepackage{siunitx} and \usepackage{xspace} in the preamble.
 
+\newcommand{\valAirGam}{\num{1.4}\xspace}  % heat capacity ratio, air
+\newcommand{\valAirR}{\qty{287}{\joule\per\kilo\gram\per\kelvin}\xspace}  % specific gas constant, air
 \newcommand{\valCoupledRpm}{\num{5400}\xspace}  % coupled self-regulated speed [rpm]
 \newcommand{\valCoupledTorque}{\qty{0.27}{\newton\meter}\xspace}  % measured coupled shaft torque
 \newcommand{\valLockKOneModified}{\num{0.53}\xspace}  % modified pre-rotation coefficient
 \newcommand{\valLockKOneOriginal}{\num{0.17}\xspace}  % original pre-rotation coefficient from Lock's paper
-\newcommand{\valPumpBTwo}{\qty{3.554}{\milli\meter}\xspace}  % blade height at exit
+\newcommand{\valPumpBOne}{\qty{6.45}{\milli\meter}\xspace}  % blade height at impeller inlet
+\newcommand{\valPumpBTwo}{\qty{3.554}{\milli\meter}\xspace}  % blade height at impeller exit
+\newcommand{\valPumpBc}{\qty{4.72}{\milli\meter}\xspace}  % annular casing axial width b_c (= b2 + 2 s_ax)
+\newcommand{\valPumpBladeStress}{\qty{4.36}{\mega\pascal}\xspace}  % centrifugal blade root stress estimate (sizing model, not FEA)
 \newcommand{\valPumpBlades}{\num{6}\xspace}  % blade count
 \newcommand{\valPumpChurnMult}{\num{2.5}\xspace}  % disk/churning friction multiple over textbook
-\newcommand{\valPumpDOne}{\qty{21.5}{\milli\meter}\xspace}  % impeller eye / inlet diameter
+\newcommand{\valPumpDZero}{\qty{19.54}{\milli\meter}\xspace}  % suction eye diameter (sized for 1 m/s inlet velocity)
+\newcommand{\valPumpDOne}{\qty{21.5}{\milli\meter}\xspace}  % impeller inlet (blade leading-edge) diameter, 1.1 d0
 \newcommand{\valPumpDTwo}{\qty{58.5}{\milli\meter}\xspace}  % impeller tip diameter
+\newcommand{\valPumpDThreeSized}{\qty{2.79}{\milli\meter}\xspace}  % sizing-model diffuser throat (as-built TRUE throat = pump_throat 3.0)
+\newcommand{\valPumpDFourSized}{\qty{5.58}{\milli\meter}\xspace}  % sizing-model diffuser exit diameter (2 d3)
+\newcommand{\valPumpEtaDesign}{\qty{23.4}{\percent}\xspace}  % design-point overall efficiency (Barske loss model, as-designed Karassik seal f=0.07)
 \newcommand{\valPumpEtaExtrap}{\qty{27}{\percent}\xspace}  % Reynolds-extrapolated efficiency at 20k rpm (26-29 range)
 \newcommand{\valPumpEtaPeak}{\qty{19 +- 2}{\percent}\xspace}  % measured peak overall efficiency
-\newcommand{\valPumpPsiDesign}{\num{1.065}\xspace}  % design head coefficient (Gulich)
+\newcommand{\valPumpHc}{\qty{2.50}{\milli\meter}\xspace}  % annular casing radial height h_c
+\newcommand{\valPumpHeadDesign}{\qty{204}{\meter}\xspace}  % design head rise
+\newcommand{\valPumpMdotDesign}{\qty{0.3}{\kilo\gram\per\second}\xspace}  % design mass flow rate
+\newcommand{\valPumpNpshrDesign}{\qty{3.1}{\meter}\xspace}  % NPSHr estimate at design (suction specific speed n_s=150, Lobanoff)
+\newcommand{\valPumpNqDesign}{\num{6.4}\xspace}  % metric specific speed n_q = n sqrt(Q)/H^0.75 (rpm, m^3/s, m)
+\newcommand{\valPumpPfricDesign}{\qty{1175}{\watt}\xspace}  % Barske disk/churning friction estimate at design
+\newcommand{\valPumpPmechDesign}{\qty{342}{\watt}\xspace}  % bearing + seal mechanical loss estimate at design
+\newcommand{\valPumpPowerDesign}{\qty{2567}{\watt}\xspace}  % design required shaft power
+\newcommand{\valPumpPressureDesign}{\qty{20}{\bar}\xspace}  % design pressure rise
+\newcommand{\valPumpPsiDesign}{\num{1.065}\xspace}  % design head coefficient 2gH/u2^2 (Gulich)
 \newcommand{\valPumpPsiMeas}{\num{1.10 +- 0.05}\xspace}  % measured peak head coefficient
+\newcommand{\valPumpQDesign}{\qty{0.3}{\liter\per\second}\xspace}  % design volume flow rate
 \newcommand{\valPumpRpmDesign}{\qty{20000}{\rpm}\xspace}  % design shaft speed
 \newcommand{\valPumpRpmMaxreached}{\qty{9000}{\rpm}\xspace}  % maximum speed reached
+\newcommand{\valPumpSax}{\qty{0.59}{\milli\meter}\xspace}  % impeller-casing axial gap s_ax
 \newcommand{\valPumpSealF}{\num{0.014}\xspace}  % fitted seal friction coefficient (water-film)
-\newcommand{\valPumpThroat}{\qty{3}{\milli\meter}\xspace}  % true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 — the 3.8 mm cone cutwater is downstream of the minimum)
+\newcommand{\valPumpThroat}{\qty{3.0}{\milli\meter}\xspace}  % true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 — the 3.8 mm cone cutwater is downstream of the minimum)
 \newcommand{\valPumpThroatCutwater}{\qty{3.8}{\milli\meter}\xspace}  % cone cutwater diameter, downstream of the true throat (NOT the minimum area)
+\newcommand{\valPumpTipForce}{\qty{6.98}{\newton}\xspace}  % per-blade tip force from design torque
+\newcommand{\valPumpTorqueDesign}{\qty{1.23}{\newton\meter}\xspace}  % design shaft torque
+\newcommand{\valPumpUOneDesign}{\qty{22.5}{\meter\per\second}\xspace}  % blade speed at impeller inlet, design
+\newcommand{\valPumpUTwoDesign}{\qty{61.3}{\meter\per\second}\xspace}  % blade tip speed at design
 \newcommand{\valRigBaseplateThk}{\qty{18}{\milli\meter}\xspace}  % CNC mounting baseplate thickness
 \newcommand{\valSamplepumpMdot}{\qty{1.0}{\kilo\gram\per\second}\xspace}  % sample pump for introduction mdot
 \newcommand{\valSamplepumpN}{\qty{71051}{\rpm}\xspace}  % sample pump for introduction shaft speed
@@ -27,14 +51,43 @@
 \newcommand{\valSamplepumpP}{\qty{50}{\bar}\xspace}  % sample pump for introduction discharge pressure
 \newcommand{\valSamplepumpRho}{\qty{800}{\kilo\gram\per\cubic\metre}\xspace}  % sample pump for introduction rho
 \newcommand{\valSamplepumpThrust}{\qty{5}{\kilo\newton}\xspace}  % sample pump for introduction thrust
-\newcommand{\valTurbBladeHeight}{\qty{4}{\milli\meter}\xspace}  % turbine design blade height (DOA 0.15)
+\newcommand{\valSupplyPumpHeadDesign}{\qty{2.2}{\meter}\xspace}  % design head for the supply pump
+\newcommand{\valTurbAThreeDesign}{\qty{46.4}{\square\milli\meter}\xspace}  % total nozzle exit area
+\newcommand{\valTurbAreaRatio}{\num{1.31}\xspace}  % nozzle expansion area ratio A3/A_th
+\newcommand{\valTurbAthroat}{\qty{35.5}{\square\milli\meter}\xspace}  % total geometric nozzle throat area
+\newcommand{\valTurbBetaThreeDesign}{\qty{15}{\degree}\xspace}  % rotor blade angle from tangential (design relative flow angle)
+\newcommand{\valTurbBladeHeight}{\qty{4.0}{\milli\meter}\xspace}  % rotor blade height (from continuity at DOA)
 \newcommand{\valTurbBladeSf}{\num{39}\xspace}  % blade-bending safety factor (FEA, Tough 2000)
+\newcommand{\valTurbCThreeDesign}{\qty{464}{\meter\per\second}\xspace}  % design nozzle-exit absolute velocity
+\newcommand{\valTurbCThreemDesign}{\qty{120}{\meter\per\second}\xspace}  % design nozzle-exit meridional component
+\newcommand{\valTurbCThreeuDesign}{\qty{448}{\meter\per\second}\xspace}  % design nozzle-exit swirl component
+\newcommand{\valTurbCFourDesign}{\qty{277}{\meter\per\second}\xspace}  % design rotor-exit absolute velocity
 \newcommand{\valTurbCritSpeed}{\num{99000}\xspace}  % first critical bending speed (ross, Al shaft) [rpm]
-\newcommand{\valTurbDmean}{\qty{95}{\milli\meter}\xspace}  % turbine mean blade diameter
+\newcommand{\valTurbDeltabDesign}{\qty{142}{\degree}\xspace}  % rotor relative turning angle (symmetric impulse blade)
+\newcommand{\valTurbDmean}{\qty{95}{\milli\meter}\xspace}  % turbine mean (pitch) diameter
 \newcommand{\valTurbDoa}{\num{0.15}\xspace}  % degree of admission
-\newcommand{\valTurbMwDesign}{\num{1.33}\xspace}  % design relative inlet Mach
+\newcommand{\valTurbEtaHDesign}{\num{0.49}\xspace}  % hydraulic (diagram) efficiency at design
+\newcommand{\valTurbEtaTsDesign}{\num{0.47}\xspace}  % design total-to-static efficiency (Weiss loss model, net of ventilation)
+\newcommand{\valTurbKnDesign}{\num{0.917}\xspace}  % nozzle velocity coefficient k_N (Weiss, fn of M3)
+\newcommand{\valTurbKrDesign}{\num{0.807}\xspace}  % rotor velocity coefficient k_R (Weiss, fn of turning + Mw3)
+\newcommand{\valTurbMThreeDesign}{\num{1.67}\xspace}  % design nozzle-exit absolute Mach number
+\newcommand{\valTurbMdotDesign}{\qty{0.0428}{\kilo\gram\per\second}\xspace}  % design air mass flow rate
+\newcommand{\valTurbMwDesign}{\num{1.33}\xspace}  % design rotor-inlet relative Mach M_w3 (Goldman startable: < 1.408)
 \newcommand{\valTurbMwTest}{\num{1.58}\xspace}  % coupled-test relative inlet Mach (> starting limit -> unstarted)
-\newcommand{\valTurbPZeroOneDesign}{\qty{7.65}{\bar}\xspace}  % design turbine inlet pressure
+\newcommand{\valTurbNozzleExitLen}{\qty{3.86}{\milli\meter}\xspace}  % per-nozzle exit width
+\newcommand{\valTurbNozzleThroatLen}{\qty{2.95}{\milli\meter}\xspace}  % per-nozzle throat width
+\newcommand{\valTurbNozzles}{\num{3}\xspace}  % number of nozzles
+\newcommand{\valTurbPZeroOneDesign}{\qty{7.65}{\bar}\xspace}  % design inlet total pressure (incl. nozzle total-pressure loss)
+\newcommand{\valTurbPZeroThreeDesign}{\qty{5.17}{\bar}\xspace}  % nozzle-exit total pressure (isentropic expansion requirement)
+\newcommand{\valTurbPThreeDesign}{\qty{1.10}{\bar}\xspace}  % rotor-inlet static pressure at design
+\newcommand{\valTurbPeDesign}{\qty{1.1}{\bar}\xspace}  % design exit static pressure
 \newcommand{\valTurbPowerDesign}{\qty{2.6}{\kilo\watt}\xspace}  % turbine design shaft power
+\newcommand{\valTurbPwDesign}{\qty{85}{\watt}\xspace}  % ventilation (partial-admission windage) power at design
+\newcommand{\valTurbRpmDesign}{\qty{20000}{\rpm}\xspace}  % turbine design shaft speed (common shaft)
 \newcommand{\valTurbStartLimit}{\num{1.408}\xspace}  % Goldman supersonic-starting limit (relative inlet Mach)
 \newcommand{\valTurbStartRpm}{\num{15300}\xspace}  % rotor-starting threshold speed [rpm]
+\newcommand{\valTurbTZeroOneDesign}{\qty{300}{\kelvin}\xspace}  % design turbine inlet total temperature (air)
+\newcommand{\valTurbTThreeDesign}{\qty{193}{\kelvin}\xspace}  % rotor-inlet static temperature at design
+\newcommand{\valTurbUCThreeDesign}{\num{0.214}\xspace}  % blade-jet speed ratio u/c3 at design
+\newcommand{\valTurbUCsDesign}{\num{0.196}\xspace}  % blade-speed ratio u/c_s (isentropic spouting velocity)
+\newcommand{\valTurbUDesign}{\qty{99.5}{\meter\per\second}\xspace}  % mean blade speed at design

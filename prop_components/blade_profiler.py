@@ -10,9 +10,9 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
-    from quicktests.goldman_exact import solve_bl, solve_bl_sasman_cresci
+    from quicktests.goldman_exact import solve_bl_sasman_cresci
 except ImportError:
-    print("Warning: Could not import solve_bl or solve_bl_sasman_cresci from quicktests.goldman_exact")
+    print("Warning: Could not import solve_bl_sasman_cresci from quicktests.goldman_exact")
 
 class DisplacedBladeProfiler:
     """
@@ -30,7 +30,7 @@ class DisplacedBladeProfiler:
         moc_solver : SupersonicTurbineMOC
             Configured MOC solver object.
         bl_method : str
-            'sasman_cresci' or 'head'
+            'sasman_cresci' (the Head solver was removed 2026-06-12)
         use_test_substitute : bool
             If True AND the turbine carries the legacy inert-gas substitute
             sizing (`p01_n2`, `R_n2`, ...), evaluate the BL on that path.
@@ -141,7 +141,8 @@ class DisplacedBladeProfiler:
         if self.bl_method.lower() == 'sasman_cresci':
             solve_func = solve_bl_sasman_cresci
         else:
-            solve_func = solve_bl
+            raise ValueError(f"bl_method '{self.bl_method}' no longer available - "
+                             "the Head solver was removed; use 'sasman_cresci'")
             
         # Lower Surface
         s_lo = self.moc_mach_dist['lower']['s_norm']

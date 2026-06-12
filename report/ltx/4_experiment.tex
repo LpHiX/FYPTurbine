@@ -1,1 +1,75 @@
 \section{Experimental Setup}
+
+The experimental setup was designed for three specific configurations: Electric motor driven pump testing, Isolated turbine coupled to a hysteris brake, and integrated turbine and pump testing.
+
+\subsection{Test Configurations}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{placeholder.png}
+        \caption{TODO}
+        \label{fig:electric-pump-config}
+    \end{subfigure}
+    \hfill % Adds flexible space between figures
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{placeholder.png}
+        \caption{TODO}
+        \label{fig:turbine-brake-config}
+    \end{subfigure}
+    \hfill % Adds flexible space between figures
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{placeholder.png}
+        \caption{TODO}
+        \label{fig:turbopump-config}
+    \end{subfigure}
+    \caption{TODO}
+    \label{fig:test-configs}
+\end{figure}
+
+In all three configurations, there is a driving component, the torquemter and a load. \cref{fig:electric-pump-config} shows the electric motor driven pump testing configuration. The electric motor test is used to gather most of the data because the motor is more controllable, repeatable and safer. In this configuration. The second configuration in \cref{fig:turbine-brake-config} connects the turbine to a hysteris brake to test the turbine in isolation. Due to time constraints, this configuration was not tested. The final configuration in \cref{fig:turbopump-config} connects the turbine and pump together to test the performance of the integrated system.
+
+%torqumeter accuracy chain: dsp6001 0.05% VDC accuracy, input from tm306 at 0.02% accuracy, from <0.1% accuracy in tm306 itself. 
+\subsection{Mechanical Layout and Shaft Train}
+
+At the design 20,000 RPM for the rig, shaft alignment, rigidity and maintainability were the main drivers. At 20,000 RPM, available shaft couplers had barely any tolerance for misalignment. The Magtrol MIC-5-2470 couplers had a maximum 0.8mm axial, 0.36mm radial and$0.7^\circ$ angular misalignment tolerance at 35,000 RPM. Shaft couplers had to be used to connect rotary components to the transducers, a requirement that doesn't have to be satisfied by turbopump units as the shaft can be machined as a single piece.
+
+The central component of each configuration in \cref{fig:test-configs} is the Magtrol's TM306 inline torquemeter as it allows the stated <0.1\% torque measurement accuracy. As the torquemeter was designed to be mounted onto a base plate, a base plate design was chosen instead of an integrated assembly like a normal turbopump.
+
+The base plate is a \valRigBaseplateThk plywood with a laminate on both sides to be semi-waterproof, to have a flat surface for mounting, rigid but also cheap. M6 and M8 Countersunk holes were drilled into the base plate with a CNC router to allow for precise mounting of the components. 
+
+\subsubsection{Shaft alignment}
+
+The reason the shafts had to be aligned was because flexible shaft couplers were used. These tolerate some misalignment at high speeds, an essential requirement for a test rig where two or more shaft have to be mechanically connected.
+
+The alignment of each component to the torquemeter had many challenges. Mounting magnetic dial indicators onto the shafts was not possible due to three reasons. The shafts were made of austenitic stainless steels so they were non-magnetic, the shafts were short and had a low diameter (10-15mm diameter, with maximum stub length of 20mm). A short stub length is highly desirable in rotordyanmics to increase rigidty and increase the first critical speed.
+
+The shaft couplers were also single piece, so the shaft couplers which do not have a edge true to the shaft axis. This meant that the shaft couplers could not be installed after the shafts were aligned, as the couplers would have to be installed before the shafts were aligned. The space the shaft couplers took up meant it was even more difficult to use the shaft stubs for alignment.
+
+It was decided to use the flat faces of the torquemeter base as the reference for alignment. By designing the pump and turbine mounts to have a similar rectangular base and assuming that each shaft was true to the rectangular base, alignment was finally possible. Angular alignment was achieved by 3D printing a spacer with two parallel edges for the pump or turbine to sit flat against onto the torquemeter. Then, radial misalignment was achieved by designing the face parallel to the shaft to be the parallel to the torquemeter face. A straight edge could then be used as a guide to align the shaft while tightening the mounting bolts. This procedure is shown in \cref{fig:shaft-alignment}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{placeholder.png}
+    \caption{TODO}
+    \label{fig:shaft-alignment}
+\end{figure}
+
+As the TM306 torquemeter's shaft with the base plate was machined to be preciscely 80.00 mm from the base plate, this same height was built into the pump and turbine mounts to achieve radial aligment in the vertical direction.
+
+
+\subsection{Water Circuit}
+
+The water circuit is as follows: A water tank is pumped by the supply pump into an inlet throttle valve then into the experimental pump inlet. The pump outlet is then throttled by an outlet throttle valve before being returned to the water tank. Pressure sensors are placed at the inlet and outlet of the pump to measure the head rise across the pump. Flow rate is measured by a flow meter placed in the inlet line before the inlet throttle valve instead of the return line due to space constraints placed by the blast shield.
+
+The inlet throttle valve allows a reduction in pump inlet pressure to characterise the cavitation behaviour of the pump. The outlet throttle valve allows for a reduction in flow rate to characterise the head and cavitation behaviour of the pump at different flow rates.
+
+A water feed system was designed to supply the pump with water. The water feed system has three requirements. It must be able to supply the pump with water at a flow rate above the maximum flow rate of the experimental pump, with a large margin of pressure above the pump's NPSHR. The feed system must be able to throttle the outlet of the pump to allow for the full range of flow rates to be tested. Then, the inlet pressure must also be able to be throttled to characterise the cavitation limits of the pump at every flow regime.
+
+To accomplish this
+
+The location chosen for the experiment required a safe test area and a control room separated to allow for the failure of the test rig without risk to the operator. For this reason, the experiment was conducted within the Imperial College Hypersonics Lab. The test room contains equipment that had to be protected, so a blast shield was designed and set up around the turbomachinery stand to protect the equipment from the possibility of mechanical failure and fragmentation.
+

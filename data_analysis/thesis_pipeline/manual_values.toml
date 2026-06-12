@@ -1,6 +1,9 @@
-# Manual constants — numbers that do NOT come from data analysis.
-# This is where the "random numbers" live: geometry, FEA/structural limits,
-# material properties, rig dimensions, datasheet figures, etc.
+# Manual constants — numbers the CODE CANNOT PRODUCE.
+# As-built/CAD dimensions, FEA results, datasheet figures, fitted literature
+# constants, rig dimensions. Everything the design models compute (geometry,
+# design point, velocity triangles, efficiencies) now comes from
+# build_values.build_design() — do NOT re-add those here (duplicate keys
+# make the build fail loudly, by design).
 #
 # Each [table] is ONE value. Fields:
 #   val   (required)  the number (or a quoted string for a text label)
@@ -11,18 +14,16 @@
 #   desc  (optional)  note for yourself / the macro comment
 #
 # Edit here, never in LaTeX. Run build_values.py + export_latex.py to propagate.
-# NB: \rpm is not a built-in siunitx unit — add  \DeclareSIUnit\rpm{rpm}  to the
-# preamble, or leave rpm values dimensionless (unit = "") and write "rpm" in prose.
-
-[pump_rpm_design]
-val = 20000
-unit = '\rpm'
-desc = "design shaft speed"
 
 [pump_rpm_maxreached]
 val = 9000
 unit = '\rpm'
 desc = "maximum speed reached"
+
+[supply_pump_head_design]
+val = 2.2
+unit = '\meter'
+desc = "design head for the supply pump"
 
 [lock_k1_original]
 val = 0.17
@@ -34,30 +35,11 @@ val = 0.53
 fmt = ".2f"
 desc = "modified pre-rotation coefficient"
 
-# ---------- pump geometry (barskesizer) ----------
-[pump_d2]
-val = 58.5
-unit = '\milli\meter'
-desc = "impeller tip diameter"
-
-[pump_d1]
-val = 21.5
-unit = '\milli\meter'
-desc = "impeller eye / inlet diameter"
-
-[pump_b2]
-val = 3.554
-unit = '\milli\meter'
-fmt = ".3f"
-desc = "blade height at exit"
-
-[pump_blades]
-val = 6
-desc = "blade count"
-
+# ---------- as-built / CAD (NOT what the sizing model outputs) ----------
 [pump_throat]
 val = 3.0
 unit = '\milli\meter'
+fmt = ".1f"
 desc = "true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 — the 3.8 mm cone cutwater is downstream of the minimum)"
 
 [pump_throat_cutwater]
@@ -65,39 +47,7 @@ val = 3.8
 unit = '\milli\meter'
 desc = "cone cutwater diameter, downstream of the true throat (NOT the minimum area)"
 
-[pump_psi_design]
-val = 1.065
-fmt = ".3f"
-desc = "design head coefficient (Gulich)"
-
-
-
-# ---------- turbine design point (confirmed canonical) ----------
-[turb_power_design]
-val = 2.6
-unit = '\kilo\watt'
-desc = "turbine design shaft power"
-
-[turb_dmean]
-val = 95
-unit = '\milli\meter'
-desc = "turbine mean blade diameter"
-
-[turb_blade_height]
-val = 4
-unit = '\milli\meter'
-desc = "turbine design blade height (DOA 0.15)"
-
-[turb_doa]
-val = 0.15
-fmt = ".2f"
-desc = "degree of admission"
-
-[turb_p01_design]
-val = 7.65
-unit = '\bar'
-desc = "design turbine inlet pressure"
-
+# ---------- analysis constants quoted in prose ----------
 [turb_start_limit]
 val = 1.408
 fmt = ".3f"
@@ -115,6 +65,6 @@ desc = "first critical bending speed (ross, Al shaft) [rpm]"
 
 # ---------- rig / build constants (the 'thickness of wood' example) ----------
 [rig_baseplate_thk]
-val = 18
+val = 20
 unit = '\milli\meter'
 desc = "CNC mounting baseplate thickness"

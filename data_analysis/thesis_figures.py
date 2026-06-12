@@ -24,18 +24,11 @@ Uncertainty model (plain RSS, systematic B + random P in quadrature):
   - Propagation through derived quantities (psi, phi, eta) is done with the
     `uncertainties` package (linear propagation, no hand partials).
 
-Figure register mapping (AI SK-FIGURES.md):
-  3.1  theory_hq        -> theory_HQ_tuned.pdf
-  7.1  psi_phi          -> results_psi_phi.pdf
-  7.2  eta_phi          -> results_eta_flow.pdf
-  7.2b eta_extrap       -> results_eta_extrap_20k.pdf
-  (—)  churning         -> results_churning_power.pdf  (disk_mult corroboration)
-  (—)  hq_extrap        -> results_HQ_extrap_20k.pdf   (objective-3 figure)
-  7.3  npshr_vs_q       -> results_npshr_vs_q.pdf
-  (—)  coupled_hq       -> results_coupled_HQ.pdf      (coupled-run proof)
-  7.5  coupled_torque   -> results_coupled_torque.pdf
-  8.1  turbine_starting -> turbine_starting.pdf
-  4.4  turbine_eta_uc0  -> turbine_theory.pdf
+Figure register: AI SK-FIGURES.md (vault) is the single source of truth for
+figure -> chapter placement and status. This file only owns generation.
+Removed 2026-06-12 (Martin's call): psi_phi (duplicates theory_hq right panel),
+eta_extrap (superseded by the fitted eta-Re trend, plots_round2 P2),
+turbine_starting (cut for now).
 """
 from __future__ import annotations
 
@@ -68,7 +61,7 @@ from uncertainties import unumpy as unp
 import epump_io as ep
 from figstyle import use_style, save, plot_data, plot_theory, plot_tuned
 from prop_components.barskepump import BarskePump
-from prop_components.turbine import Turbine, SupersonicStartingGoldman
+from prop_components.turbine import Turbine
 from mech_components.bearing import Bearing
 from mech_components.mechanicalseal import MechanicalSeal
 
@@ -363,7 +356,7 @@ def churning_shutoff():
 # FIGURES
 # =========================================================================== #
 def fig_theory_hq():
-    """3.1 — H-Q + psi-phi, data vs Lock default (dashed) vs fitted (solid),
+    """H-Q + psi-phi, data vs Lock default (dashed) vs fitted (solid),
     with error bars and the video throat-clear markers on the H-Q panel."""
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.5, 2.8))
     cols = plt.cm.viridis(np.linspace(0, 0.9, len(exp_runs())))
@@ -400,32 +393,8 @@ def fig_theory_hq():
     return save(fig, "theory_HQ_tuned")
 
 
-def fig_psi_phi():
-    """7.1 — standalone psi-phi collapse, 5 speeds + Lock default/fitted."""
-    fig, ax = plt.subplots(figsize=(4.8, 3.2))
-    cols = plt.cm.viridis(np.linspace(0, 0.9, len(exp_runs())))
-    for (lbl, e), c in zip(exp_runs().items(), cols):
-        phi, psi = u_psi_phi(e["q"], e["H"], e["N"], e["Hsem"], e["qsem"])
-        plot_data(ax, unp.nominal_values(phi), unp.nominal_values(psi),
-                  yerr=_cover(unp.std_devs(psi)), xerr=_cover(unp.std_devs(phi)),
-                  color=c, ms=3, label=f"{lbl} ~{e['N']:.0f} rpm")
-    Nref = max(e["N"] for e in exp_runs().values())
-    u2 = np.pi * D2 * Nref / 60
-    qth = np.linspace(1e-6, 0.022 * np.pi * D2 * B2 * u2, 80)
-    plot_theory(ax, qth / (np.pi * D2 * B2 * u2),
-                2 * G * np.asarray(lock(qth, Nref, K_DEFAULT, ETAL_DEFAULT)["H_static"]) / u2 ** 2,
-                color="k", label="Lock (default)")
-    plot_tuned(ax, qth / (np.pi * D2 * B2 * u2),
-               2 * G * np.asarray(lock(qth, Nref, K_FIT, ETAL_FIT)["H_static"]) / u2 ** 2,
-               color="k", label="Lock (fitted)")
-    ax.set(xlabel=r"flow coefficient $\phi_2$", ylabel=r"head coefficient $\psi$",
-           ylim=(-0.1, None))
-    ax.axhline(0, color="k", lw=.5); ax.legend()
-    return save(fig, "results_psi_phi")
-
-
 def fig_eta_phi():
-    """7.2 — overall efficiency vs flow: measured (binned, error bars) vs
+    """Overall efficiency vs flow: measured (binned, error bars) vs
     Lock model. Untuned churning x1 (model default, dashed) and fitted
     churning x2.5 (solid) per run. Cavitation-onset annotation: TODO(Martin)."""
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
@@ -473,26 +442,8 @@ def fig_eta_phi():
     return save(fig, "results_eta_flow")
 
 
-def fig_eta_extrap():
-    """7.2b — efficiency Reynolds step-up to 20k rpm."""
-    fig, ax = plt.subplots(figsize=(4.8, 3.2))
-    eta_T, N_meas = 0.19, 7483
-    Ns = np.linspace(3500, 20000, 100)
-    for a in (0.1, 0.15, 0.2):
-        plot_tuned(ax, Ns, (1 - (1 - eta_T) * (N_meas / Ns) ** a) * 100,
-                   alpha=0.8, label=rf"Re step-up $a={a}$")
-    ax.axhline(ETA_DESIGN_PCT, color="gray", ls=":", label=f"design ~{ETA_DESIGN_PCT:.0f}%")
-    ax.axvline(N_DES, color="k", lw=.5)
-    sig = _cover(0.01)  # TODO(Martin): real eta uncertainty from fig_eta_phi point
-    plot_data(ax, [N_meas], [eta_T * 100], yerr=[sig * 100], color="C0",
-              label=f"measured @{N_meas} rpm")
-    ax.set(xlabel="shaft speed [rpm]", ylabel="overall efficiency [%]")
-    ax.legend()
-    return save(fig, "results_eta_extrap_20k")
-
-
 def fig_churning():
-    """(extra) — shutoff churning power vs speed: measured (markers) vs Barske
+    """Shutoff churning power vs speed: measured (markers) vs Barske
     disk model (dashed) vs the disk_mult-scaled Barske fitted from efficiency.
     Corroborates whether the fitted disk_mult is recovered DIRECTLY from the
     shutoff shaft power. Also prints the corroboration table."""
@@ -539,7 +490,7 @@ def fig_churning():
 
 
 def fig_hq_extrap():
-    """(extra) — H-Q extrapolated to 20k (affinity on the pooled psi-phi master
+    """H-Q extrapolated to 20k (affinity on the pooled psi-phi master
     curve) vs Lock, with the design point marked."""
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
     PHI, PSI = pooled_psi_phi()
@@ -563,7 +514,7 @@ def fig_hq_extrap():
 
 
 def fig_npshr_vs_q():
-    """7.3 — NPSHr vs Q: 3% breakdown (data) + video throat onsets + Lock
+    """NPSHr vs Q: 3% breakdown (data) + video throat onsets + Lock
     throat curve (dashed) + the high-flow clearing comparison."""
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
     for lbl in CAV_RUNS:
@@ -612,7 +563,7 @@ def _coupled_window():
 
 
 def fig_coupled_hq():
-    """(extra) — turbine-driven H-Q scatter vs motor-driven curves."""
+    """Turbine-driven H-Q scatter vs motor-driven curves."""
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
     w = _coupled_window()
     sel = (w["rpm"] > 2000) & (w["H"] > -2)
@@ -628,7 +579,7 @@ def fig_coupled_hq():
 
 
 def fig_coupled_torque():
-    """7.5 — coupled turbine torque vs speed: measured (markers) vs naive
+    """Coupled turbine torque vs speed: measured (markers) vs naive
     STARTED model (dashed) vs unstarted model (solid + band)."""
     t = turbine_design()
     gam, Rg = TRB["GAM"], TRB["R_GAS"]
@@ -677,51 +628,8 @@ def fig_coupled_torque():
     return save(fig, "results_coupled_torque")
 
 
-def fig_turbine_starting():
-    """8.1 — Goldman rotor-starting map: Mw3 vs speed, limit, test range, design."""
-    t = turbine_design()
-    gam, Rg = TRB["GAM"], TRB["R_GAS"]
-    beta = np.deg2rad(TRB["BETA_DEG"]); r_mean = TRB["D_MEAN_MM"] / 2000.0
-    M3 = t.M3
-    T3s = T01_TEST / (1 + 0.5 * (gam - 1) * M3 ** 2)
-    a3s = np.sqrt(gam * Rg * T3s); c3s = M3 * a3s
-    c3us, c3ms = c3s * np.cos(beta), c3s * np.sin(beta)
-
-    g = SupersonicStartingGoldman(gam)
-    Msl = g.mstar_from_mach(MACH_LOWER, gam)
-    Msu = g.mstar_from_mach(MACH_UPPER, gam)
-    Mw3_max = g.max_inlet_mach(Msl, Msu)
-
-    def Mw3_super(rpm):
-        u = rpm * 2 * np.pi / 60 * r_mean
-        return np.hypot(c3us - u, c3ms) / a3s
-
-    from scipy.optimize import brentq
-    rpm_thresh = brentq(lambda n: Mw3_super(n) - Mw3_max, 1000, 30000)
-
-    w = _coupled_window()
-    rpm_w = w["rpm"][w["rpm"] > 2000]
-
-    fig, ax = plt.subplots(figsize=(4.8, 3.2))
-    ns = np.linspace(1000, 21000, 200)
-    plot_tuned(ax, ns, [Mw3_super(n) for n in ns], color="C0",
-               label=r"rotor inlet $M_{w3}$ (started branch)")
-    ax.axhline(Mw3_max, color="k", ls="--",
-               label=rf"Goldman limit $M_{{w3,max}}={Mw3_max:.3f}$")
-    ax.axvspan(rpm_w.min(), rpm_w.max(), color="C1", alpha=.2, label="test speed range")
-    ax.axvline(rpm_thresh, color="C3", ls=":", label=f"starting threshold {rpm_thresh:.0f} rpm")
-    ax.plot([TRB["RPM_DES"]], [t.Mw3], "k*", ms=12,
-            label=rf"design 20k ($M_{{w3}}$={t.Mw3:.2f}, started)")
-    ax.annotate("UNSTARTED\n(bow shock, subsonic passage)",
-                (4000, Mw3_super(4000)), xytext=(7000, 1.75), fontsize=8, color="C3",
-                arrowprops=dict(arrowstyle="->", color="C3"))
-    ax.set(xlabel="shaft speed [rpm]", ylabel=r"rotor relative inlet Mach $M_{w3}$")
-    ax.legend(loc="lower left")
-    return save(fig, "turbine_starting")
-
-
 def fig_turbine_eta_uc0():
-    """4.4 — impulse stage efficiency vs blade-jet ratio: ideal (dashed) vs
+    """Impulse stage efficiency vs blade-jet ratio: ideal (dashed) vs
     Weiss-coefficient real (solid), design point marked."""
     t = turbine_design()
     beta = np.deg2rad(TRB["BETA_DEG"])
@@ -742,18 +650,288 @@ def fig_turbine_eta_uc0():
 
 
 # =========================================================================== #
+# diagram / design / validation figures (MoC blade, Barske geometry, Goldman)
+# =========================================================================== #
+MACH_IN_MOC, BETA_MOC_DEG, DV_MOC = 1.3, 75.0, 0.004  # as-designed (turbinemoc.ipynb)
+MOC_SPREAD_NARROW = (1.25, 1.35)   # illustration only: near-degenerate passage
+GOLDMAN = dict(M_in=2.5, beta_deg=70.0, Re=35000, nu_l_deg=22.0, nu_u_deg=49.0)
+
+
+def moc_design():
+    if "moc" not in _cache:
+        from prop_components.turbinemoc import SupersonicTurbineMOC
+        m = SupersonicTurbineMOC(gamma=TRB["GAM"], mach_inlet=MACH_IN_MOC,
+                                 mach_lower=MACH_LOWER, mach_upper=MACH_UPPER,
+                                 beta_inlet_deg=BETA_MOC_DEG, dv=DV_MOC)
+        m.generate()
+        _cache["moc"] = m
+    return _cache["moc"]
+
+
+def _draw_passage(ax, moc, color="k", lw=1.2):
+    """Blade passage in the unrotated frame: inlet transitions + vortex arcs +
+    mirrored outlet transitions + TE closure. Geometry logic mirrors
+    SupersonicTurbineMOC.plot_blade(unrotated=True), restyled for the thesis."""
+    res = moc.results
+    xl, yl = moc.coords["lower"]["x"], moc.coords["lower"]["y"]
+    xu, yu = moc.coords["upper"]["x"], moc.coords["upper"]["y"]
+    Rl, Ru = res["Rl"], res["Ru"]
+    a_l, a_u = res["alpha_lower_inlet"], res["alpha_upper_inlet"]
+    for x, y in ((xl, yl), (xu, yu)):
+        ax.plot(x, y, color=color, lw=lw)
+        ax.plot(-x, y, color=color, lw=lw)
+    th = np.linspace(np.pi / 2 - a_l, np.pi / 2 + a_l, 100)
+    ax.plot(Rl * np.cos(th), Rl * np.sin(th), color=color, lw=lw)
+    th = np.linspace(np.pi / 2 - a_u, np.pi / 2 + a_u, 100)
+    ax.plot(Ru * np.cos(th), Ru * np.sin(th), color=color, lw=lw)
+    y_te = yu[-1] + (xl[-1] - xu[-1]) * np.tan(moc.beta_inlet - a_u)
+    ax.plot([xu[-1], xl[-1]], [yu[-1], y_te], color=color, lw=lw)
+    ax.plot([-xu[-1], -xl[-1]], [yu[-1], y_te], color=color, lw=lw)
+    ax.set_aspect("equal")
+    return Rl, Ru
+
+
+def fig_moc_contour():
+    """MoC blade passage, as-designed blade (M_in 1.3, surfaces 1.05/1.5),
+    upper/lower surfaces labelled. Pairs with moc_separation_design."""
+    moc = moc_design()
+    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    Rl, Ru = _draw_passage(ax, moc)
+    ax.annotate(rf"lower (concave) surface, $M_l={moc.mach_lower}$",
+                xy=(0, Rl), xytext=(0, Rl * 1.12), ha="center", fontsize=7,
+                arrowprops=dict(arrowstyle="->", lw=0.7))
+    ax.annotate(rf"upper (convex) surface, $M_u={moc.mach_upper}$",
+                xy=(0, Ru), xytext=(0, Ru * 0.72), ha="center", fontsize=7,
+                arrowprops=dict(arrowstyle="->", lw=0.7))
+    ax.set(xlabel=r"$x/r^{*}_{\!s}$", ylabel=r"$y/r^{*}_{\!s}$")
+    return save(fig, "moc_contour_design")
+
+
+def fig_moc_spread():
+    """TWO PDFs (thesis subfigure pair): same inlet (M 1.3, beta 75) with
+    (a) nearly-uniform surface Machs -> sliver passage, (b) the design spread
+    1.05/1.5 -> wide passage. Shared axis limits so widths compare directly."""
+    from prop_components.turbinemoc import SupersonicTurbineMOC
+    built = []
+    for name, (ml, mu) in (("moc_spread_narrow", MOC_SPREAD_NARROW),
+                           ("moc_spread_wide", (MACH_LOWER, MACH_UPPER))):
+        m = SupersonicTurbineMOC(gamma=TRB["GAM"], mach_inlet=MACH_IN_MOC,
+                                 mach_lower=ml, mach_upper=mu,
+                                 beta_inlet_deg=BETA_MOC_DEG, dv=DV_MOC)
+        m.generate()
+        built.append((name, m))
+    xm, ylo, yhi = 0.0, np.inf, -np.inf
+    for _, m in built:
+        r = m.results
+        for k in ("lower", "upper"):
+            xm = max(xm, float(np.max(np.abs(m.coords[k]["x"]))))
+            ylo = min(ylo, float(np.min(m.coords[k]["y"])))
+        # the vortex arcs extend beyond the transition-line endpoints
+        xm = max(xm, r["Rl"] * np.sin(r["alpha_lower_inlet"]),
+                 r["Ru"] * np.sin(r["alpha_upper_inlet"]))
+        ylo = min(ylo, r["Rl"] * np.cos(r["alpha_lower_inlet"]),
+                  r["Ru"] * np.cos(r["alpha_upper_inlet"]))
+        yhi = max(yhi, r["Rl"])
+    path = None
+    for name, m in built:
+        fig, ax = plt.subplots(figsize=(3.1, 3.1))
+        _draw_passage(ax, m)
+        ax.text(0.03, 0.03, rf"$M_l={m.mach_lower}$,  $M_u={m.mach_upper}$",
+                transform=ax.transAxes, va="bottom", fontsize=8)
+        ax.set(xlim=(-1.1 * xm, 1.1 * xm), ylim=(0.95 * ylo, 1.05 * yhi),
+               xlabel=r"$x/r^{*}_{\!s}$", ylabel=r"$y/r^{*}_{\!s}$")
+        path = save(fig, name)
+    return path
+
+
+def fig_moc_separation():
+    """Hi along both surfaces of the AS-DESIGNED blade at design-point inlet
+    conditions (Sasman-Cresci BL on the MoC Mach distributions) vs the
+    Schlichting 1.8-2.4 separation band. Pairs with moc_contour_design."""
+    from prop_components.blade_profiler import DisplacedBladeProfiler
+    prof = DisplacedBladeProfiler(turbine_design(), moc_design(),
+                                  bl_method="sasman_cresci")
+    prof.evaluate_boundary_layers()
+    fig, ax = plt.subplots(figsize=(4.0, 3.0))
+    for side, c in (("lower", "C0"), ("upper", "C3")):
+        r = prof.bl_results[side]
+        plot_tuned(ax, r["s"], r["Hi"], color=c, label=f"{side} surface")
+    ax.axhspan(1.8, 2.4, color="C3", alpha=0.10)
+    ax.axhline(1.8, color="gray", lw=0.6, ls="--")
+    ax.axhline(2.4, color="gray", lw=0.6, ls="--")
+    ax.text(0.02, 0.97, "separation range $H_i$ = 1.8–2.4",
+            transform=ax.transAxes, va="top", fontsize=7, color="0.3")
+    ax.set(xlabel="fraction of surface arc length $s/c$",
+           ylabel="incompressible form factor $H_i$")
+    ax.legend(loc="lower right")
+    return save(fig, "moc_separation_design")
+
+
+def _dim(ax, p0, p1, text, tpos=None, fs=6.5, **kw):
+    """Double-headed dimension arrow between p0 and p1 with a label."""
+    ax.annotate("", xy=p1, xytext=p0,
+                arrowprops=dict(arrowstyle="<->", lw=0.6, shrinkA=0, shrinkB=0, **kw))
+    if tpos is None:
+        tpos = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
+    ax.text(*tpos, text, fontsize=fs, ha="center", va="center",
+            bbox=dict(fc="white", ec="none", pad=0.4))
+
+
+def fig_barske_geometry():
+    """TWO PDFs (thesis subfigure pair): Barske pump geometry schematics driven
+    by the sized geometry object — (a) meridional half-section with d0/d1/d2,
+    b1/b2, s_ax, casing B x H; (b) end view with blades, annular casing and the
+    tangential conical diffuser (throat d3 -> exit d4). Schematic: radial
+    proportions true, wall thicknesses and diffuser arrangement illustrative."""
+    p = pump()
+    mm = 1000.0
+    r0, r1, r2 = p.d_0 / 2 * mm, p.d_1 / 2 * mm, p.d_2 / 2 * mm
+    b1, b2, sax = p.b_1 * mm, p.b_2 * mm, p.s_ax * mm
+    Bc, Hc = p.B * mm, p.H * mm
+    d3, d4 = p.d_3 * mm, p.d_4 * mm
+    Rc = r2 + Hc          # casing inner radius
+    rsh = 5.0             # shaft radius, illustrative
+
+    # ---- (a) meridional half-section: x axial [mm], y radial [mm] ----
+    # The section is physically very thin (B ~ 4.7 mm vs r2 ~ 29 mm), so the
+    # axial direction is exaggerated for legibility (set_aspect below); state
+    # "axial direction exaggerated" in the caption. Note the casing front is
+    # CONICAL: it follows the tapered blade front (b1 at root > b2 at tip,
+    # B = 2*s_ax + b2 applies at the tip radius only).
+    fig, ax = plt.subplots(figsize=(3.6, 3.2))
+    wall = dict(color="0.25", lw=1.4)
+    imp = dict(color="C0", lw=1.2)
+    xf1 = 2 * sax + b1            # front wall axial position at the root radius
+    ax.axhline(0, color="k", lw=0.6, ls="-.")                     # shaft axis
+    # casing: rear wall, outer wall, conical front wall, eye + inlet pipe
+    ax.plot([0, 0], [rsh, Rc], **wall)
+    ax.plot([0, Bc], [Rc, Rc], **wall)
+    ax.plot([Bc, Bc], [Rc, r2], **wall)
+    ax.plot([Bc, xf1], [r2, r1], **wall)                           # conical front
+    ax.plot([xf1, xf1], [r1, r0], **wall)
+    ax.plot([xf1, xf1 + 3.0], [r0, r0], **wall)                    # inlet pipe wall
+    # impeller: hub + tapered blade (root b1 at r1 -> tip b2 at r2)
+    ax.plot([sax, sax + b1, sax + b1], [0, 0, r1], **imp)          # hub
+    ax.plot([sax, sax], [0, r2], **imp)                            # rear face
+    ax.plot([sax, sax + b2], [r2, r2], **imp)                      # blade tip
+    ax.plot([sax + b2, sax + b1], [r2, r1], **imp)                 # tapered front edge
+    ax.plot([-1.5, sax], [rsh * 0.5, rsh * 0.5], color="0.5", lw=2)  # shaft stub
+    # dimensions (diameters staggered left/right of the section)
+    _dim(ax, (-1.2, 0), (-1.2, r2), r"$d_2/2$", tpos=(-2.1, r2 * 0.45))
+    _dim(ax, (xf1 + 1.2, 0), (xf1 + 1.2, r1), r"$d_1/2$",
+         tpos=(xf1 + 2.4, r1 * 0.45))
+    _dim(ax, (xf1 + 2.4, 0), (xf1 + 2.4, r0), r"$d_0/2$",
+         tpos=(xf1 + 3.6, r0 * 0.75))
+    _dim(ax, (sax, r1 * 1.10), (sax + b1, r1 * 1.10), r"$b_1$",
+         tpos=(sax + b1 / 2, r1 * 1.28))
+    _dim(ax, (sax, r2 + 0.45 * Hc), (sax + b2, r2 + 0.45 * Hc), r"$b_2$",
+         tpos=(sax + b2 / 2, r2 + 1.05 * Hc))
+    _dim(ax, (0, r2 * 0.80), (sax, r2 * 0.80), r"$s_{ax}$",
+         tpos=(-1.4, r2 * 0.80))
+    _dim(ax, (0, Rc + 1.6), (Bc, Rc + 1.6), r"$B$", tpos=(Bc / 2, Rc + 3.2))
+    _dim(ax, (sax + b2 / 2, r2), (sax + b2 / 2, Rc), r"$H$",
+         tpos=(sax + b2 / 2 + 1.3, (r2 + Rc) / 2))
+    ax.set_aspect(0.22)   # axial exaggeration ~4.5x — caption must say so
+    ax.set(xlim=(-3.5, xf1 + 5.0), ylim=(-1.5, Rc + 5.0))
+    ax.axis("off")
+    save(fig, "barske_meridional")
+
+    # ---- (b) end view: impeller, annular casing, tangential diffuser ----
+    fig, ax = plt.subplots(figsize=(3.4, 3.4))
+    th = np.linspace(0, 2 * np.pi, 200)
+    ax.plot(Rc * np.cos(th), Rc * np.sin(th), **wall)              # casing bore
+    ax.plot(r2 * np.cos(th), r2 * np.sin(th), color="C0", lw=1.0, ls=":")
+    ax.plot(r1 * np.cos(th), r1 * np.sin(th), **imp)               # hub
+    ax.plot(r0 * np.cos(th), r0 * np.sin(th), color="0.6", lw=0.8, ls="--")  # eye
+    tb = p.blade_thickness * mm
+    for k in range(p.blade_number):                                # radial blades
+        a = 2 * np.pi * k / p.blade_number
+        ca, sa = np.cos(a), np.sin(a)
+        ax.plot([r1 * ca - tb / 2 * sa, r2 * ca - tb / 2 * sa],
+                [r1 * sa + tb / 2 * ca, r2 * sa + tb / 2 * ca], **imp)
+        ax.plot([r1 * ca + tb / 2 * sa, r2 * ca + tb / 2 * sa],
+                [r1 * sa - tb / 2 * ca, r2 * sa - tb / 2 * ca], **imp)
+        ax.plot([r2 * ca - tb / 2 * sa, r2 * ca + tb / 2 * sa],
+                [r2 * sa + tb / 2 * ca, r2 * sa - tb / 2 * ca], **imp)
+    # tangential conical diffuser, inner wall tangent at top of the casing bore
+    Ld = 2.2 * d4
+    ax.plot([0, Ld], [Rc, Rc], **wall)                             # inner wall
+    ax.plot([0, Ld], [Rc + d3, Rc + d4], **wall)                   # diverging wall
+    ax.plot([0, 0], [Rc, Rc + d3], color="0.25", lw=0.8)           # cutwater/throat
+    _dim(ax, (0.06 * Ld, Rc), (0.06 * Ld, Rc + d3 + 0.06 * (d4 - d3)),
+         r"$d_3$", tpos=(-0.35 * d4, Rc + d3 * 2.2))
+    _dim(ax, (Ld, Rc), (Ld, Rc + d4), r"$d_4$", tpos=(Ld + 0.75 * d4, Rc + d4 / 2))
+    ax.annotate("annular casing", xy=(-Rc * 0.72, Rc * 0.72),
+                xytext=(-1.55 * Rc, 1.25 * Rc), fontsize=7,
+                arrowprops=dict(arrowstyle="->", lw=0.7))
+    # rotation arrow (counter-clockwise, towards the tangential diffuser)
+    rr = 0.55 * r1
+    tha = np.linspace(np.deg2rad(150), np.deg2rad(30), 40)
+    ax.plot(rr * np.cos(tha), rr * np.sin(tha), color="0.4", lw=0.8)
+    ax.annotate("", xy=(rr * np.cos(tha[-1] - 0.12), rr * np.sin(tha[-1] - 0.12)),
+                xytext=(rr * np.cos(tha[-1]), rr * np.sin(tha[-1])),
+                arrowprops=dict(arrowstyle="<-", lw=0.8, color="0.4"))
+    ax.text(0, rr * 0.45, r"$\omega$", fontsize=8, ha="center", color="0.4")
+    ax.set_aspect("equal")
+    ax.set(xlim=(-1.6 * Rc, 1.7 * Rc), ylim=(-1.25 * Rc, 1.45 * Rc))
+    ax.axis("off")
+    return save(fig, "barske_plan")
+
+
+def fig_goldman_validation():
+    """TWO PDFs (thesis subfigure pair): replication of Goldman TM X-2095's
+    'typical' design case (M_in 2.5, beta 70 deg, Re 35e3, nu_l 22 / nu_u 49)
+    with the MoC + Sasman-Cresci toolchain — (a) surface Mach distributions
+    (cf. Goldman Fig. 5), (b) Hi with the separation band (cf. Goldman Fig. 4).
+    Compare side-by-side with the paper's scanned figures."""
+    from quicktests.goldman_exact import (M_from_nu, build_blade_surface,
+                                          run_single_case_sasman_cresci)
+    gd = GOLDMAN
+    Ml = M_from_nu(np.deg2rad(gd["nu_l_deg"]))
+    Mu = M_from_nu(np.deg2rad(gd["nu_u_deg"]))
+    s_lo_f, Me_lo_f, _ = build_blade_surface(gd["M_in"], Ml, gd["beta_deg"],
+                                             side="lower", M_other=Mu)
+    s_up_f, Me_up_f, _ = build_blade_surface(gd["M_in"], Mu, gd["beta_deg"],
+                                             side="upper", M_other=Ml)
+    (s_lo, Hi_lo, _, _, s_up, Hi_up, _, _) = run_single_case_sasman_cresci(
+        gd["M_in"], Ml, Mu, gd["beta_deg"], gd["Re"])
+
+    fig, ax = plt.subplots(figsize=(3.1, 2.8))
+    plot_tuned(ax, s_lo_f, Me_lo_f, color="C0", label="lower surface")
+    plot_tuned(ax, s_up_f, Me_up_f, color="C3", label="upper surface")
+    ax.set(xlabel="fraction of chord", ylabel="surface Mach number $M_e$",
+           xlim=(0, 1), ylim=(1.5, 3.5))
+    ax.legend(loc="lower right")
+    save(fig, "goldman_validation_mach")
+
+    fig, ax = plt.subplots(figsize=(3.1, 2.8))
+    plot_tuned(ax, s_lo, Hi_lo, color="C0", label="lower surface")
+    plot_tuned(ax, s_up, Hi_up, color="C3", label="upper surface")
+    ax.axhspan(1.8, 2.4, color="C3", alpha=0.10)
+    ax.axhline(1.8, color="gray", lw=0.6, ls="--")
+    ax.axhline(2.4, color="gray", lw=0.6, ls="--")
+    ax.set(xlabel="fraction of chord", ylabel="incompressible form factor $H_i$",
+           xlim=(0, 1), ylim=(1.3, 2.6))
+    ax.legend(loc="upper left")
+    return save(fig, "goldman_validation_hi")
+
+
+# =========================================================================== #
 FIGURES = {
-    "theory_hq": fig_theory_hq,            # 3.1
-    "psi_phi": fig_psi_phi,                # 7.1
-    "eta_phi": fig_eta_phi,                # 7.2
-    "eta_extrap": fig_eta_extrap,          # 7.2b
-    "churning": fig_churning,              # extra (disk_mult corroboration)
-    "hq_extrap": fig_hq_extrap,            # extra (objective 3)
-    "npshr_vs_q": fig_npshr_vs_q,          # 7.3
-    "coupled_hq": fig_coupled_hq,          # extra
-    "coupled_torque": fig_coupled_torque,  # 7.5
-    "turbine_starting": fig_turbine_starting,  # 8.1
-    "turbine_eta_uc0": fig_turbine_eta_uc0,    # 4.4
+    "theory_hq": fig_theory_hq,            # H-Q + psi-phi pair (keep combined)
+    "eta_phi": fig_eta_phi,
+    "churning": fig_churning,              # disk_mult corroboration
+    "hq_extrap": fig_hq_extrap,            # objective-3 figure
+    "npshr_vs_q": fig_npshr_vs_q,
+    "coupled_hq": fig_coupled_hq,
+    "coupled_torque": fig_coupled_torque,
+    "turbine_eta_uc0": fig_turbine_eta_uc0,
+    # diagram / design / validation
+    "moc_contour": fig_moc_contour,        # as-designed passage, labelled
+    "moc_spread": fig_moc_spread,          # 2 PDFs: narrow vs wide Mach spread
+    "moc_separation": fig_moc_separation,  # Hi on as-designed blade vs 1.8-2.4
+    "barske_geometry": fig_barske_geometry,  # 2 PDFs: meridional + end view
+    "goldman_validation": fig_goldman_validation,  # 2 PDFs: Mach + Hi replication
 }
 
 
