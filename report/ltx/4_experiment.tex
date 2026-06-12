@@ -65,11 +65,81 @@ As the TM306 torquemeter's shaft with the base plate was machined to be precisce
 
 The water circuit is as follows: A water tank is pumped by the supply pump into an inlet throttle valve then into the experimental pump inlet. The pump outlet is then throttled by an outlet throttle valve before being returned to the water tank. Pressure sensors are placed at the inlet and outlet of the pump to measure the head rise across the pump. Flow rate is measured by a flow meter placed in the inlet line before the inlet throttle valve instead of the return line due to space constraints placed by the blast shield.
 
+\subsubsection{Inlet and Outlet Throttle Valves}
+
 The inlet throttle valve allows a reduction in pump inlet pressure to characterise the cavitation behaviour of the pump. The outlet throttle valve allows for a reduction in flow rate to characterise the head and cavitation behaviour of the pump at different flow rates.
 
-A water feed system was designed to supply the pump with water. The water feed system has three requirements. It must be able to supply the pump with water at a flow rate above the maximum flow rate of the experimental pump, with a large margin of pressure above the pump's NPSHR. The feed system must be able to throttle the outlet of the pump to allow for the full range of flow rates to be tested. Then, the inlet pressure must also be able to be throttled to characterise the cavitation limits of the pump at every flow regime.
+The selection of the size of the inlet and outlet valves are crucial to the quality of the data. Ball valves were chosen as there were spares available, and they could be throttled in a controllable and repeatable manner by the angle of the valve handle. Custom 3D printed housings were designed to attach a servo motor to the valve handle in direct drive to allow for precise, remote and repeatable control of each valves. 
 
-To accomplish this
+The main requirement for both valves were so that the range of required flow rates and pressure drop through each valve corresponded to a large range in valve opening angles. For the inlet valve, fully open must have a large margin to the cavitation limit of the pump, ideally, cavitation would start at around 50\% valve opening and could be further reduced until the valve is closed. For the outlet valve, fully open must be at least 1.5 times the cut-off flow rate of the pump.
+
+
+%cite:
+% https://www.mydatabook.org/fluid-mechanics/flow-coefficient-opening-and-closure-curves-of-full-bore-ball-valves/
+% https://www.engineeringtoolbox.com/ball-valves-flow-coefficients-d_223.html
+% https://tameson.co.uk/pages/ball-valve-size-calculator
+
+This requirement is further driven by the $1-3^\circ$ resolution of the servo motors available in the department. Data for Kv against opening angle were extrapolated from online data \todo{add citation}  from 1/8" in to 3/4" in were studied. However, as the data was extrapolated from data of ball valves with larger diameters, they had to be experimentally validated. The flow through a ball valve is also highly dependent on inlet and oulet conditions such as contraction or expansion of pipe diameter at the ports \cite{swagelokMS-06-84}. The size of my pipes were limited to what I could find in spare drawers, adding to the uncertainty.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{placeholder.png}
+        \caption{TODO}
+        \label{fig:servo-valves}
+    \end{subfigure}
+    \hfill % Adds flexible space between figures
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{placeholder.png}
+        \caption{TODO}
+        \label{fig:valve-kv-test}
+    \end{subfigure}
+    \caption{TODO}
+    % \label{fig:TODO}
+\end{figure}
+
+\cref{fig:valve-kv-test} shows the experimentally measured Kv against opening angle values were lower than expected. However, this worked in my favour as it actually increased the range of useful valve opening angles.
 
 The location chosen for the experiment required a safe test area and a control room separated to allow for the failure of the test rig without risk to the operator. For this reason, the experiment was conducted within the Imperial College Hypersonics Lab. The test room contains equipment that had to be protected, so a blast shield was designed and set up around the turbomachinery stand to protect the equipment from the possibility of mechanical failure and fragmentation.
 
+\subsection{Air supply}
+
+Originally, a 100 bar compressed air supply was designed and parts readied to be used to drive the turbine. Unfortunately due to time constraints, the shop air supply within the hypersonics lab was used instead. Details of the 100 bar compressed air supply can be found in \todo{add appendix reference}. The shop air which was limited to 7 barg was connected to partially assembled parts of original feed system. The shop air was connected to a GRT20s-280N100-SSKN-L 0-280 to 0-100 bar regulator with a Kv of 1.5. This regulator fed into the the main 1" valve, teed into a 1/2" vent valve and finally into the turbine inlet.
+
+Both valves were Swagelok pneumatically actuated spring return ball valves. The main valve was the  SS-65TS16-35C with a Cv of 40 and the vent valve was SS-45S8-33C with a Cv of 12. These valves were driven by 2 5/2 solenoid valves connected to the shop air supply.
+
+Due to droop in the shop air regulator, maximum turbine inlet pressure at max flow was measured to be 3.1 bara. There was no budget for an air flowmeter.
+
+\subsection{Instrumentation and Data Acquisition}
+
+For cost and time reasons, a custom data acquisition and control system was designed to allow for remote operation of the test rig. 
+
+\subsubsection{Main Architecture}
+
+For safety reasons, the electronics were enclosed in a plastic box placed in the test room, controlled by a LAN cable fed under the wall between the test room and the control room into my laptop.
+
+The main main computer inside this box was a Raspberry Pi 5 running a backend written in Python. The Raspberry Pi communicated with 3 ESP32S3 microcontrollers over a UART serial connection at 921600 baud. One ESP32S3 was used as the actuator controller, one was used as a ADC and flowmeter DAQ, and one was used as a thermocouple DAQ. Breadboards would require too many wires to maintain and unstable, while there was not enough time to make custom PCBs. Soldered perfboard was used to connect the components. The Raspberry Pi communicates through the LAN cable through UDP to a laptop in the control room, allowing for live data readout and control of the test rig with a GUI written in Python and Qt.
+
+\subsubsection{ADC Measurements}
+
+Pressure, torque, RPM, voltage and current were measured with a MCP3208 8 channel 12-bit ADC connected to the ESP32S3. The MCP3208 was powered by a LT3042 LDO at 5.11V to reduce noise. This 5.11V was also used to power the pressure sensors. As the pressure transducers were ratiometric, both the ADC and the pressure transducers track bacck to the same voltage reference, reducing drift and noise.
+
+The custom backend could only send UART signals back and forth to the ESPs at a 50 Hz loop. The MCP3208 was capable of sampling up to 100 ksps, so the ESP32 was programmed to collect 32 samples and average them per channel before sending the averaged data back to the Raspberry Pi. High frequency data couldn't be collected due to the UART connection being the bottleneck, but this averaging allowed for measurement of voltage at a resolution higher than 12-bits.
+
+Originally, a separate computer running Magtrol's M-Test software was planned to be used to read the torque and RPM from the DSP6001. However, by connecting the DSP6001's analog output for torque and RPM to the MCP3208, the torque and RPM data could be integrated into the same DAQ system as the pressure sensors, allowing for time-exact data synchronisation and simpler data collection.
+
+To measure the torque and RPM, the TM306 torquemeter was connected to the Magtrol DSP6001 dynamometer controller. The DSP6001 outputs a -10V to 10V analog signal for torque, and 0 to 10V for RPM. The DSP6001 was set to output 1V per 0.25 Nm and 1V per 5000 RPM. Because the MCP3208 could only measure positive voltages, an OPA2134 op-amp was used to shift the expected -5V to 5V torque signal to 0V to 5V. As the op-amp was not rail-to-rail, a buck converter was used to generate a -9V and 9V supply for the op-amp.
+
+The motor's voltage and current were also measured by the ADC. The 24V supply to the motor ESC was measured with a voltage divider, and the current was measured with a WCS1600 DC hall effect current sensor.
+
+\subsubsection{Other sensors}
+
+K-Type thermocouples although are less accurate for such a small temperature range were chosen for their cost. The thermocouples were read by an Adafruit MAX31855 thermocouple amplifier breakout board with integrated voltage regulator connected to the ESP32S3. 
+
+A E-WFS-GE turbine flowmeter with a range of 2 to 45 L/min with a cited accuracy of $\pm10\%$ was used. To calibrate the flowmeter, a bucket and stopwatch was used to compare the flowmeter to the integrated flow rate over a period of time. The flowmeter was found to be accurate to $\pm3\%$ \cite{flowmtr}. The turbine generates pulses based on its rotation rate. The ESP32 measures the interval between these pulses to calculate the flow rate. % https://www.networktechinc.com/pdf/e-wfs-g.pdf
+
+\subsection{Actuator Control}
+
+This ESP32 was responsible for controlling the inlet and outlet throttle valve angles, 
