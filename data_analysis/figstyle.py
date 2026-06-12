@@ -20,7 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-STYLE = Path(__file__).resolve().parent.parent / "thesis.mplstyle"
+STYLE = Path(__file__).resolve().parent / "thesis.mplstyle"
 REPORT_FIGS = STYLE.parent.parent / "report" / "figs"
 
 

@@ -48,7 +48,7 @@ def head_and_psi(pin_pa, pin_std, pout_pa, pout_std, n_rpm, n_std):
 
 def demo():
     import matplotlib.pyplot as plt
-    from figstyle import use_style, plot_data
+    from data_analysis.figstyle import use_style, plot_data
     use_style()
 
     # ---- synthetic stand-in for real binned data; replace with epump_io output

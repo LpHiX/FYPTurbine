@@ -29,6 +29,7 @@ Figure register mapping (AI SK-FIGURES.md):
   7.1  psi_phi          -> results_psi_phi.pdf
   7.2  eta_phi          -> results_eta_flow.pdf
   7.2b eta_extrap       -> results_eta_extrap_20k.pdf
+  (—)  churning         -> results_churning_power.pdf  (disk_mult corroboration)
   (—)  hq_extrap        -> results_HQ_extrap_20k.pdf   (objective-3 figure)
   7.3  npshr_vs_q       -> results_npshr_vs_q.pdf
   (—)  coupled_hq       -> results_coupled_HQ.pdf      (coupled-run proof)
@@ -304,6 +305,60 @@ def video_throat_onsets():
     return pts
 
 
+# --------------------------------------------------------------------------- #
+# shutoff churning loss (disk_mult corroboration)
+# --------------------------------------------------------------------------- #
+# At shutoff (Q ~ 0) hydraulic power is zero, so shaft power = disk/blade
+# churning + seal/bearing parasitics. tau*omega at Q~0 from the five H-Q ramps
+# therefore measures the churning loss DIRECTLY at five speeds — the
+# corroboration path for the fitted disk_mult ~ 2.5 (SK-08 discipline box): if
+# measured shutoff churning sits ~2.5x over Barske's disk correlation across
+# speeds, the multiplier graduates from "tuned" to "measured".
+CHURN_Q_SHUTOFF_LPS = 0.02   # "at shutoff" flow threshold [l/s]; BEP ~ 0.22 l/s
+CHURN_T_RAMP_HI = 22.0       # only the H-Q ramp window (healthy suction; the cav
+                             # matrix sweeps NPSH down, which could alter churning)
+CHURN_RPM_MIN = 2000
+
+
+def barske_disk_power(rpm):
+    """Barske empirical disk/churning correlation, pump as-built geometry."""
+    p = pump()
+    return (1956 * RHO * p.visc ** 0.2 * (np.asarray(rpm, float) / 1000) ** 2.8
+            * (p.d_2 ** 4.6 + 4.6 * p.d_1 ** 3.6 * p.b_1))
+
+
+def churning_shutoff():
+    """Per-run shutoff churning power: median tau*omega at Q~0 minus the
+    measured shaft-only parasitic. Returns list of dicts sorted by rpm."""
+    rows = []
+    for tag, path in ep.find_runs(LOGDIR).items():
+        d = ep.load(path)
+        t, q, rpm, tq = d["t"], d["q"], d["rpm"], d["tq"]
+        spun = rpm[rpm > CHURN_RPM_MIN]
+        if not spun.size:
+            continue
+        Nmed = np.nanmedian(spun)
+        m = ((t <= CHURN_T_RAMP_HI) & (rpm > 0.85 * Nmed) & (rpm < 1.15 * Nmed)
+             & (q < CHURN_Q_SHUTOFF_LPS) & np.isfinite(tq))
+        if m.sum() < 30:   # relax once if the ramp barely touches shutoff
+            m = ((t <= CHURN_T_RAMP_HI) & (rpm > 0.85 * Nmed) & (rpm < 1.15 * Nmed)
+                 & (q < 0.03) & np.isfinite(tq))
+        if m.sum() < 15:
+            print(f"  churning: {tag} only {m.sum()} shutoff samples - skipped")
+            continue
+        w = rpm[m] * np.pi / 30
+        P = tq[m] * w
+        P_med = float(np.nanmedian(P))
+        P_sem = 1.253 * float(np.nanstd(P)) / np.sqrt(m.sum())
+        N = float(np.nanmedian(rpm[m]))
+        P_par = float(np.interp(N, MR, MP))   # measured seal+bearing
+        rows.append(dict(tag=tag, rpm=N, n=int(m.sum()),
+                         P_shaft=P_med, P_sem=P_sem, P_par=P_par,
+                         P_churn=P_med - P_par,
+                         P_barske=float(barske_disk_power(N))))
+    return sorted(rows, key=lambda r: r["rpm"])
+
+
 # =========================================================================== #
 # FIGURES
 # =========================================================================== #
@@ -336,10 +391,12 @@ def fig_theory_hq():
     a1.plot([], [], "k-", label="Lock (fitted)")
     a1.set(xlabel="Q [l/s]", ylabel="static head H [m]", ylim=(-2, None))
     a1.axhline(0, color="k", lw=.5)
-    a1.legend(fontsize=6, ncol=2, loc="upper right", framealpha=0.85,
+    _h, _l = a1.get_legend_handles_labels()
+    a2.legend(_h, _l, fontsize=6, ncol=2, loc="upper right", framealpha=0.85,
               columnspacing=0.8, handletextpad=0.4)
-    a2.set(xlabel=r"$\phi_2$", ylabel=r"$\psi$", ylim=(-0.1, None))
+    a2.set(xlabel=r"$\phi_2$", ylabel=r"$\psi$", ylim=(-0.1, 1.6))
     a2.axhline(0, color="k", lw=.5)
+    fig.tight_layout()
     return save(fig, "theory_HQ_tuned")
 
 
@@ -432,6 +489,53 @@ def fig_eta_extrap():
     ax.set(xlabel="shaft speed [rpm]", ylabel="overall efficiency [%]")
     ax.legend()
     return save(fig, "results_eta_extrap_20k")
+
+
+def fig_churning():
+    """(extra) — shutoff churning power vs speed: measured (markers) vs Barske
+    disk model (dashed) vs the disk_mult-scaled Barske fitted from efficiency.
+    Corroborates whether the fitted disk_mult is recovered DIRECTLY from the
+    shutoff shaft power. Also prints the corroboration table."""
+    rows = churning_shutoff()
+    if len(rows) < 3:
+        print("  churning: not enough shutoff points - figure skipped")
+        return None
+
+    N = np.array([r["rpm"] for r in rows])
+    Pc = np.array([r["P_churn"] for r in rows])
+    Pb = np.array([r["P_barske"] for r in rows])
+    sem = np.array([r["P_sem"] for r in rows])
+    a, loga0 = np.polyfit(np.log(N), np.log(Pc), 1)
+    ratio = Pc / Pb
+
+    print(f"\nShutoff churning corroboration (fitted disk_mult was {DISK_MULT}):")
+    print(f"{'tag':>16} {'rpm':>6} {'n':>5} {'P_shaft':>8} {'P_par':>6} "
+          f"{'P_churn':>8} {'P_barske':>8} {'ratio':>6}")
+    for r in rows:
+        print(f"{r['tag']:>16} {r['rpm']:6.0f} {r['n']:5d} {r['P_shaft']:8.1f} "
+              f"{r['P_par']:6.1f} {r['P_churn']:8.1f} {r['P_barske']:8.1f} "
+              f"{r['P_churn']/r['P_barske']:6.2f}")
+    print(f"fit: P_churn = {np.exp(loga0):.3e} * n^{a:.2f}   (Barske exponent 2.8)")
+    print(f"ratio to Barske: mean {ratio.mean():.2f}, "
+          f"range {ratio.min():.2f}-{ratio.max():.2f}")
+    print(f"at 20k rpm: power-law fit -> {np.exp(loga0) * 20000 ** a:.0f} W, "
+          f"mean-ratio x Barske -> {ratio.mean() * barske_disk_power(20000):.0f} W")
+
+    fig, ax = plt.subplots(figsize=(4.8, 3.2))
+    nn = np.linspace(N.min() * 0.9, N.max() * 1.15, 100)
+    plot_data(ax, N, Pc, yerr=_cover(sem), color="C0",
+              label="measured shutoff churning")
+    plot_tuned(ax, nn, np.exp(loga0) * nn ** a, color="C0",
+               label=rf"fit $P \propto n^{{{a:.2f}}}$")
+    plot_theory(ax, nn, barske_disk_power(nn), color="k", label="Barske disk model")
+    ax.plot(nn, DISK_MULT * barske_disk_power(nn), ls=":", color="C3",
+            label=rf"${DISK_MULT}\times$ Barske (fitted from $\eta$)")
+    ax.plot(nn, np.interp(nn, MR, MP), ls="-.", color="gray", lw=1,
+            label="shaft-only parasitic (meas.)")
+    ax.set(xlabel="shaft speed [rpm]", ylabel="power [W]",
+           xscale="log", yscale="log")
+    ax.legend(fontsize=7)
+    return save(fig, "results_churning_power")
 
 
 def fig_hq_extrap():
@@ -643,6 +747,7 @@ FIGURES = {
     "psi_phi": fig_psi_phi,                # 7.1
     "eta_phi": fig_eta_phi,                # 7.2
     "eta_extrap": fig_eta_extrap,          # 7.2b
+    "churning": fig_churning,              # extra (disk_mult corroboration)
     "hq_extrap": fig_hq_extrap,            # extra (objective 3)
     "npshr_vs_q": fig_npshr_vs_q,          # 7.3
     "coupled_hq": fig_coupled_hq,          # extra
