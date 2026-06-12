@@ -53,6 +53,12 @@ val = 1.408
 fmt = ".3f"
 desc = "Goldman supersonic-starting limit (relative inlet Mach)"
 
+[turb_torque_started_test]
+val = 0.87
+unit = '\newton\meter'
+fmt = ".2f"
+desc = "started-flow model torque at coupled-test median conditions (fig_coupled_torque started curve at the settled speed) — the 4x gap vs measured 0.27 is the unstart diagnosis"
+
 # ---------- structural / FEA limits (hand-entered) ----------
 [turb_blade_sf]
 val = 39

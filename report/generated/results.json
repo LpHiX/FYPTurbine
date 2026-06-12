@@ -294,7 +294,7 @@
     "desc": "blade tip speed at design"
   },
   "rig_baseplate_thk": {
-    "val": 18,
+    "val": 20,
     "unit": "\\milli\\meter",
     "unc": null,
     "fmt": "g",
@@ -600,6 +600,13 @@
     "unc": null,
     "fmt": ".0f",
     "desc": "rotor-inlet static temperature at design"
+  },
+  "turb_torque_started_test": {
+    "val": 0.87,
+    "unit": "\\newton\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "started-flow model torque at coupled-test median conditions (fig_coupled_torque started curve at the settled speed) \u2014 the 4x gap vs measured 0.27 is the unstart diagnosis"
   },
   "turb_u_c3_design": {
     "val": 0.21435438441861307,

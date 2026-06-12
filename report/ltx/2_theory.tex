@@ -2,13 +2,36 @@
 
 \todo{"recent studies" section for pumps and turbines, in particular, MOC is incredibly old and sudhof, erikson have modernized, state this.}
 
-\subsection{Pump Literature and Theory}
+\subsection{Pump Theory}
+
+\subsubsection{Losses at Low Specific Speed}
 
 \todo{I just realized I don't have the numbers to back me up that disc friction is better. I will waffle, then fill with literature and numbers later on.}
 
 Centrifugal pumpss have multiple main sources of losses. The one that becomes significant at low specific speeds is the disc friction losses. When a rotor object rotates in a fluid, the shear stresses in the fluid cause a drag torque on the object. In most centrifugal pumps the impeller is disc shaped, and the loss is called disc friction loss. \todo{gulich pdf pg 144 says axial case cleareance only has a very small effect on disc friction. It also says that due to leakage flow, partload recirculation and exchange of momentum, tolerance of calculated disc friction loss can be at least +/-25\%, also, somehow head coefficient is related to disc friction? it says to maximize it for low specific speed}. With low specific speed pumps, disk frction is the main source of loss. At $n_q=10$, $\psi_{\textrm{opt}=1}$ and $\mathrm{Re}=10^7$, the disc friction is approxiomately $30\%$ of the usefulf power of the impeller \cite{gulichpage103}. Gulich suggests that a high head coefficient \todo{high head coeffient not defined yet} reduces the diameter and consequently less disk frciont since $P_{RR}\sim D^5$. This is the reason why low specific speed centrifugal pumps physically cannot achieve the same high efficiencies as higher specific speed pumps. \todo{this paragraph is almost fully copied from gulich, need to rephrase.}
 
 \todo{gulich page 429 says impeller losses are low at low specific speeds, referencing fig 3.33. Oop, fig3.33 shows the disc friction loss i think?}On the other hand, at low specific speeds, impeller losses are low as shown by \cref{fig3.33gulich}. \todo{explain this graph} As a result, surface finish on the impeller blades are largely unimportant, allowing for simpler manufacturing processes. Conversely, collector losses become dominant. \todo{need to explain what a collector is} Gulich explains \cite{gulich7.12} that for $n_q<12$ even higher efficiencies are expected than with volutes. This simplifies the design and manufacturing of the pump, which is a significant advantage at small scales where tolerances are both harder to achieve but contribute to more significant losses. \todo{need to explain what a volute is} This is important as the high fluid velocity at the peripheri makes the surface finish of the annular casing of primary importance for pump efficiency \cite{lockdesignfeatures}.
+
+\subsubsection{The Barske Partial-Emission Pump}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{placeholder.png}
+        \caption{TODO} % conventional shrouded full-emission impeller
+        \label{fig:impeller-conventional}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{placeholder.png}
+        \caption{TODO} % Barske open partial-emission impeller
+        \label{fig:impeller-barske}
+    \end{subfigure}
+    \caption{TODO} % Fig 2.1: Barske (open, partial-emission) vs conventional shrouded impeller (hand/CAD)
+    \label{fig:impeller-comparison}
+\end{figure}
 
 The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications became one of the highest efficiency designs at this specific speed. \todo{i might want a section on explaining basic pump and turbine geometry and terminology before this.} The barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{something}. The barske impeller is instead designed to induced almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barskeunconventionalpaper}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses. 
 
@@ -19,6 +42,15 @@ Barske comments that the number of impeller blades does not seem to be critical,
 The open impeller choice is to further reduce disc friction losses \todo{is this true?} by minimizing surface area. Conventional impellers uses shrouds to guide the flow and reduce secondary flows. However, as in a Barske pump the impeller serves only to generate the forced vortex flow, this was deemed unnecessary by at least Barske and Lock. This also removes axial thrust loads on the impeller, helping with sealing and mechanical design of the shaft. Also, simplify manufacturing.
 
 Conventional pump design with current design tools produce nonsensical geometries and results at low specific speeds because of one number that is used in the design process, which is the slip coefficient. The slip coefficient determines the angular deflection of the fluid leaving the impeller from the blade angle at the impeller exit. This number is usually determined empirically based on regression fits from existing data. However, at $n_q\approx 7$, the equations relating blade exit angle, slip coefficient and head coefficient mathematically does not have a converging root. Physically, there is no blade geometry that can bend the blade enough to keep the flow attached to the blade. This is further motivates the forced vortex Barske architecture, as it does not rely on attached flow, removing slip factor from the design process entirely.
+
+\subsubsection{Euler and Forced-Vortex Head}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{placeholder.png}
+    \caption{TODO} % Fig 2.2: pump velocity triangle / forced-vortex schematic (hand)
+    \label{fig:pump-velocity-triangle}
+\end{figure}
 
 All theories relating to pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation:
 
@@ -71,7 +103,7 @@ Then, the kinetic energy increase assuming negligible inlet prerotation is:
 
 This forms a simple basic model for barske pump performance. 
 
-\subsection{Barske Pump sizing}
+\subsubsection{Barske Sizing Method}
 
 The barske pump is sized by the methods provided by barske \cite{barske1953} with the assitance of Gulich. First the inlet is sized by choosing a reasonable inlet velocity and calculating the inlet area:
 
@@ -108,7 +140,7 @@ For the annular casing sizing, Barske doesn't have very specific numbers, so Gul
 
 To size the diffuser, Barske suggests sizing the diffuser throat to be around 0.8 to 0.9 of $u_2$, with the area of the diffuser outlet to be 3-4 times the area of the diffuser throat.
 
-\subsection{Barske Pump efficiency}
+\subsubsection{Efficiency and Disc Friction}
 
 Barske assumes that the disc friction losses can be approximated as a circular disc in a rotating fluid. Converting the equation into metric units gives:
 
@@ -129,6 +161,8 @@ If total shaft efficiency is desired, the mechanical losses can be included:
 \begin{equation}
     \eta=\frac{p}{p_{th}+\frac{P_F+P_{Mech}}{Q}}
 \end{equation}
+
+\subsubsection{Lock's Refined Model}
 
 Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
 
@@ -179,11 +213,18 @@ Then solving for the $Q$ at which $H_3$ is equal to vapor pressure head $H_{vap}
 \todo{add cavitation of diffuser throat and shutoff flow here?}
 
 
-\subsection{Turbine Literature and Theory}
+\subsection{Turbine Theory}
 
-\subsection{Impulse Turbine}
+\subsubsection{Impulse Turbines}
 
 \todo{i dont know why reaction is bad here, oh and of course, need a diagram to show the velocity triangles.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{placeholder.png}
+    \caption{TODO} % Fig 2.3: impulse-turbine velocity triangles (generic; candidate: matplotlib from turbine.py angles)
+    \label{fig:turbine-velocity-triangles}
+\end{figure}
 
 Turbines work with the same Euler turbine equation. In the supersonic impulse turbine design, the blades are only occupy a small outer portion of the blisk, so the turbine equation can be simplified:
 
@@ -207,11 +248,20 @@ Leading to the ideal efficiency of an impulse turbine to be:
 
 Where $\phi$ is the flow coefficient defined as $\phi=c_3/u$ and $\beta_3$ is the blade angle at the inlet. The maximum ideal efficiency is achieved at $\phi=\cos\beta_3/2$. By taking the derivative of \cref{eq:impulse_ideal_efficiency}, the ideal $U/C_0$ is $0.5\cos\beta_3$. For a small turbine with a diameter of \todo{possibly add an example to show U/C0 for such turbines.}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{turbine_theory.pdf}
+    \caption{TODO} % Fig 2.4: eta vs u/c3 -- ideal (dashed) vs Weiss-real (solid), design point marked
+    \label{fig:turbine-eta-uc}
+\end{figure}
+
 
 % In my notes, this can be found "SP-8110.md" file and "Supersonic Turbine Blade Pitch and Height.md"
 NASA special publication 8110 shows that for low $U/C_0$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency, just not at the low $U/C_0$ regime. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. \todo{need to explain what reaction and impulse turbines are, maybe with a diagram?}
 
 
+
+\subsubsection{Blade Height and Partial Admission}
 
 Another problem with designing small turbines is with the low blade height required. By calculating the mass flux through the turbine, the blade height can be designed:
 
@@ -234,7 +284,7 @@ Another way to increase the blade height is to decrease the meridonal velocity $
 For supersonic flow to develop within a turbine blade passage, a condition called "starting" must be satisfied. On the startup of a supersonic turbine, a normal shock starts at the inlet of the blade passage and as to pass through the whole passage before the flow into and out of the turbine passage can be supersonic. \todo{add derivation for this, later? also, loss models.}
 
 
-\subsection{Loss models}
+\subsubsection{Loss Model}
 \label{subsec:weissloss}
 
 The main loss model used in the design of the turbine is the one provided by Weiß \cite{weiss}. There are more general loss models provided by texts such as NASA SP-290, giving loss models for tip-clearance, disk friction, partial admission and incidence losses. However, those models were built on large full-admission, subsonic to transonic turbines. Weiss specifically derived his loss model for the specialized application of a supersonic impulse turbines at small scales (1-200kW). As the regime of the turbine considered in this thesis matches closer to Weiss's model compared to SP-290's model, Weiss's model is used. Weiss describes different models lead to stage efficiency differences of about 10\% points. Derived from rocket turbopumps literature and adjusted by in-house measurements, Weiss provides three efficiencies.
@@ -277,12 +327,12 @@ Finally, \cref{eq:weiss_ventilation} captures the losses due to partial admissio
 % 39 - Traupel W Thermische, 40 - Craig HRM, 41 - Kacker SC
 
 
-\subsection{Method of Characteristics Blade Profile Design}
+\subsubsection{Method of Characteristics Blade Design}
 \label{subsec:method_of_characteristics}
 
 The design so far is based on 1D mean line theory. The design of the actual blade profile which will turn the supersonic flow in the desired direction is often accomplished using an application of the Method of Characteristics to transition a uniform flow field into vortex flow. \todo{add some history here, iirc sp290 has some stuff on why vortex flow, but here needs some stuff about how vortex flow was proven to be able to turn flows, and method of characteristics is used to turn the flow into such vortex flow, so obviously some explanation of vortex flow is required}. 
 
-\subsubsection{Supersonic Turbine Blade Terminology}
+\paragraph{Blade terminology and vortex flow}
 
 Geometry is separated into the turbine blade, and the passage between the flow. Two surfaces are separately designed, and it is common to refer to the top surface as the convex, and the bottom surface as the concave one. This is in relation to the solid blades themselves as opposed to an alternate designation by the top and bottom of the blade passage.
 
@@ -328,7 +378,7 @@ Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} 
 
 The equations for the outlet are the same as in \cref{eq:inlet_flow_turning_angle}.
 
-\subsubsection{Transition arcs}
+\paragraph{Transition arcs}
 
 To transition from the uniform inlet flow to the vortex flow, method of characteristics is used to generate the blade profile to achieve this in a shockless manner. 
 
@@ -378,11 +428,11 @@ By iterating through the flow angles for both the upper and lower surfaces for t
 
 \todo{add "i" to the variables to define inlet}
 
-\subsection{Choosing mach numbers}
+\subsubsection{Surface Mach Number Selection}
 
 There are two main factors to consider when choosing the inlet, outlet and surface mach numbers. One is to prevent flow separation, and the other is to ensure that supersonic flow within the blade passage can "start".
 
-\subsubsection{Flow separation}
+\paragraph{Flow separation}
 
 Separation occurs in high adverse pressure gradients. In supersonic flow, this happens whenever the flow is decelerating along the surface.  There are two main regions on the blade surfaces which separation can occur. At the upper surface, the inlet transition arc accelerates the flow from the inlet velocity until the vortex flow, then decelerates the flow until the outlet. At the lower surface, the inlet transition arc decelerates the flow from the inlet velocity until the vortex flow, then accelerates the flow until the outlet. 
 
@@ -418,9 +468,45 @@ It is important to note that Goldman provides equations in his NASA TN D-4421 19
 \todo{should I remove these?}
 %  it took me a while to understand, but I think I finally understand it. Sasman and cresci developed a way to transform (stretch) the surface arc coordinates from compressible to incompressible coordinates, somehow deriving their eq 18, 19, 20 which can be solved as an IVP with initial conditions in 
 
-\todo{addd graphs to show validation against goldman, I already have this.}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{goldman_paper_fig4.png}
+        \caption{TODO} % Goldman TM X-2095 Fig. 4 (paper scan)
+        \label{fig:goldman-mach-paper}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{goldman_validation_mach.pdf}
+        \caption{TODO} % this work's reproduction: surface Mach distribution
+        \label{fig:goldman-mach-ours}
+    \end{subfigure}
+    \caption{TODO} % Fig 2.6a: Goldman TM X-2095 "typical case" validation -- Mach distribution (plateaus 2.96/1.84 vs paper ~2.97/1.85)
+    \label{fig:goldman-validation-mach}
+\end{figure}
 
-\subsubsection{Starting}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{goldman_paper_fig5.png}
+        \caption{TODO} % Goldman TM X-2095 Fig. 5 (paper scan)
+        \label{fig:goldman-hi-paper}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{goldman_validation_hi.pdf}
+        \caption{TODO} % this work's reproduction: incompressible form factor H_i
+        \label{fig:goldman-hi-ours}
+    \end{subfigure}
+    \caption{TODO} % Fig 2.6b: Goldman validation -- H_i; caption must own the honest residual (peak location + separation verdict reproduce, peak magnitude differs)
+    \label{fig:goldman-validation-hi}
+\end{figure}
+
+\paragraph{Starting}
 
 On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passsage must be able to "swallow" this shock, allowing the shock to move through the whole passage.
 
@@ -434,7 +520,7 @@ Where $p_{02}/p_{01}$ is the total pressure loss across the normal shock, $M_i$ 
 
 Historically, starting was a major problem for supersonic turbines. Before the theory was established, Colclough had to build a special jig in which every blade could be pivoted to vary the contraction until the blade started.
 
-\subsubsection{Mach number selection}
+\paragraph{The efficiency trade}
 
 The separation criterion limits the acceleration of the flow along the upper surface, and the deceleration of the flow along the lower surface. Then, the starting criterion provides an additional limit on the inlet design mach number based on these surface mach numbers. 
 
@@ -452,9 +538,26 @@ What this efficiency tries to capture is the boundary layer friction losses, sho
 
 This is the challenge of supersonic turbine blade design, maximum efficiency is achieved by riding along the edge of separation and starting.
 
-\todo{two MOC channels with small spread and large spread, eff too?}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{moc_spread_narrow.pdf}
+        \caption{TODO} % narrow Mach spread (1.25/1.35) -- sliver passage
+        \label{fig:moc-spread-narrow}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{moc_spread_wide.pdf}
+        \caption{TODO} % wide Mach spread (1.05/1.5) -- wide passage
+        \label{fig:moc-spread-wide}
+    \end{subfigure}
+    \caption{TODO} % Fig 2.5: MoC passage width vs surface-Mach spread (shared axis limits)
+    \label{fig:moc-spread}
+\end{figure}
 
-\subsubsection{Finite leading edge}
+\subsubsection{Finite Leading Edge}
 
 In \cref{subsec:method_of_characteristics}, the upper and lower surface are mathematically designed to produce no shocks in transitioning the unifrom flow from the nozzle exit into the vortex flow. For no shocks to form, both surfaces must be perfectly parallel to the starting flow. This is problematic because this implies the point where the two surfaces intersect at the leading edge, the angle between the upper and lower surfaces is zero. This creates an impossible to manufacture zero thickness leading edge. Boxer suggests a few methods to solve this issue. He separates design into turbines with a subsonic or supersonic axial velocity component. 
 
@@ -466,7 +569,26 @@ For supersonic axial velocity turbines, a wedge can be designed on the convex su
 
 \todo{figures to explain this}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{placeholder.png}
+    \caption{TODO} % finite leading edge treatments: wedge / incidence angling / in-passage shock cancellation (hand sketch)
+    \label{fig:finite-le}
+\end{figure}
 
 \subsubsection{Nozzle Design}
 
 Historically, the optimal nozzle design for a ideal inviscid gas was designed with the Method of Characteristics as well. Rao provides a method to achieve this \cite{raonozzledesign}. NASA special pubplication 8120 explains that a single canted parabola closely approximates the ideal nozzle contour and should be used for high performance nozzles. In this paper, the nozzle was a simple conical nozzle with a 7 degree half angle. It can be seen from \todo{add figure 7 from nasa sp8120} that the performance of a conical nozzle for low area ratios lead to a efficiency loss below 2\%.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{placeholder.png}
+    \caption{TODO} % NASA SP-8120 Fig. 7: conical vs ideal nozzle efficiency vs area ratio
+    \label{fig:conical-nozzle-loss}
+\end{figure}
+
+\subsubsection{Turbopump Matching}
+
+% STUB (SK-2 gap tracker: not written yet) -- tau_turbine(omega) = tau_pump(omega) + tau_fric(omega);
+% pump torque ~ omega^2, turbine torque falls with u/c3; intersection = match point;
+% negative relative slope => self-regulating. The theory behind the Ch5 coupled-run demo.

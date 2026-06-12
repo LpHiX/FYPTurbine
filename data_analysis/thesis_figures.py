@@ -669,24 +669,41 @@ def moc_design():
 
 
 def _draw_passage(ax, moc, color="k", lw=1.2):
-    """Blade passage in the unrotated frame: inlet transitions + vortex arcs +
-    mirrored outlet transitions + TE closure. Geometry logic mirrors
-    SupersonicTurbineMOC.plot_blade(unrotated=True), restyled for the thesis."""
+    """Blade passage in the ROTATED (physical) frame: rotated transition lines
+    + vortex arcs + TE closure + the adjacent blade's lower surface (pitched
+    down by one passage) so the figure reads as a real cascade. Geometry logic
+    mirrors SupersonicTurbineMOC.plot_blade(unrotated=False, full_passage=True)
+    — the view turbinemoc.ipynb uses — restyled for the thesis."""
     res = moc.results
-    xl, yl = moc.coords["lower"]["x"], moc.coords["lower"]["y"]
-    xu, yu = moc.coords["upper"]["x"], moc.coords["upper"]["y"]
+    xl, yl = moc.coords["lower_rot"]["x"], moc.coords["lower_rot"]["y"]
+    xu, yu = moc.coords["upper_rot"]["x"], moc.coords["upper_rot"]["y"]
     Rl, Ru = res["Rl"], res["Ru"]
     a_l, a_u = res["alpha_lower_inlet"], res["alpha_upper_inlet"]
     for x, y in ((xl, yl), (xu, yu)):
         ax.plot(x, y, color=color, lw=lw)
         ax.plot(-x, y, color=color, lw=lw)
-    th = np.linspace(np.pi / 2 - a_l, np.pi / 2 + a_l, 100)
-    ax.plot(Rl * np.cos(th), Rl * np.sin(th), color=color, lw=lw)
-    th = np.linspace(np.pi / 2 - a_u, np.pi / 2 + a_u, 100)
-    ax.plot(Ru * np.cos(th), Ru * np.sin(th), color=color, lw=lw)
-    y_te = yu[-1] + (xl[-1] - xu[-1]) * np.tan(moc.beta_inlet - a_u)
+    for R, a in ((Rl, a_l), (Ru, a_u)):
+        th = np.linspace(np.pi / 2 - a, np.pi / 2 + a, 100)
+        ax.plot(R * np.cos(th), R * np.sin(th), color=color, lw=lw)
+    y_te = yu[-1] + (xl[-1] - xu[-1]) * np.tan(moc.beta_inlet)
     ax.plot([xu[-1], xl[-1]], [yu[-1], y_te], color=color, lw=lw)
     ax.plot([-xu[-1], -xl[-1]], [yu[-1], y_te], color=color, lw=lw)
+    # adjacent blade: the next passage's lower surface shifted down one pitch,
+    # closing the solid blade silhouette (plot_blade rotated branch)
+    th_l = np.linspace(np.pi / 2 + a_l, np.pi / 2 - a_l, 100)
+    xb = np.concatenate([np.flip(xl), Rl * np.cos(th_l), -xl])
+    yb = np.concatenate([np.flip(yl), Rl * np.sin(th_l), yl]) - yl[-1] + y_te
+    ax.plot(xb, yb, color=color, lw=lw)
+    # FILL the solid blade between the upper surface (+ TE closures) and the
+    # adjacent blade's lower surface, so the figure reads as a cascade
+    th_u = np.linspace(np.pi / 2 + a_u, np.pi / 2 - a_u, 100)
+    x_up = np.concatenate([[xl[-1]], np.flip(xu), Ru * np.cos(th_u),
+                           -xu, [-xl[-1]]])
+    y_up = np.concatenate([[y_te], np.flip(yu), Ru * np.sin(th_u),
+                           yu, [y_te]])
+    ax.fill(np.concatenate([x_up, np.flip(xb)]),
+            np.concatenate([y_up, np.flip(yb)]),
+            color="0.85", zorder=0)
     ax.set_aspect("equal")
     return Rl, Ru
 
@@ -695,13 +712,13 @@ def fig_moc_contour():
     """MoC blade passage, as-designed blade (M_in 1.3, surfaces 1.05/1.5),
     upper/lower surfaces labelled. Pairs with moc_separation_design."""
     moc = moc_design()
-    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    fig, ax = plt.subplots(figsize=(3.4, 3.4))
     Rl, Ru = _draw_passage(ax, moc)
     ax.annotate(rf"lower (concave) surface, $M_l={moc.mach_lower}$",
-                xy=(0, Rl), xytext=(0, Rl * 1.12), ha="center", fontsize=7,
+                xy=(0, Rl), xytext=(0, Rl * 1.14), ha="center", fontsize=7,
                 arrowprops=dict(arrowstyle="->", lw=0.7))
     ax.annotate(rf"upper (convex) surface, $M_u={moc.mach_upper}$",
-                xy=(0, Ru), xytext=(0, Ru * 0.72), ha="center", fontsize=7,
+                xy=(0, Ru), xytext=(0, (Rl + Ru) / 2), ha="center", fontsize=7,
                 arrowprops=dict(arrowstyle="->", lw=0.7))
     ax.set(xlabel=r"$x/r^{*}_{\!s}$", ylabel=r"$y/r^{*}_{\!s}$")
     return save(fig, "moc_contour_design")
@@ -720,25 +737,26 @@ def fig_moc_spread():
                                  beta_inlet_deg=BETA_MOC_DEG, dv=DV_MOC)
         m.generate()
         built.append((name, m))
-    xm, ylo, yhi = 0.0, np.inf, -np.inf
-    for _, m in built:
-        r = m.results
-        for k in ("lower", "upper"):
-            xm = max(xm, float(np.max(np.abs(m.coords[k]["x"]))))
-            ylo = min(ylo, float(np.min(m.coords[k]["y"])))
-        # the vortex arcs extend beyond the transition-line endpoints
-        xm = max(xm, r["Rl"] * np.sin(r["alpha_lower_inlet"]),
-                 r["Ru"] * np.sin(r["alpha_upper_inlet"]))
-        ylo = min(ylo, r["Rl"] * np.cos(r["alpha_lower_inlet"]),
-                  r["Ru"] * np.cos(r["alpha_upper_inlet"]))
-        yhi = max(yhi, r["Rl"])
-    path = None
+    # draw first, then take the union of the drawn-line bounds for shared limits
+    # (the adjacent-blade outline extends well below the transition endpoints)
+    figs = []
     for name, m in built:
         fig, ax = plt.subplots(figsize=(3.1, 3.1))
         _draw_passage(ax, m)
         ax.text(0.03, 0.03, rf"$M_l={m.mach_lower}$,  $M_u={m.mach_upper}$",
                 transform=ax.transAxes, va="bottom", fontsize=8)
-        ax.set(xlim=(-1.1 * xm, 1.1 * xm), ylim=(0.95 * ylo, 1.05 * yhi),
+        figs.append((name, fig, ax))
+    xlo = ylo = np.inf
+    xhi = yhi = -np.inf
+    for _, _, ax in figs:
+        for ln in ax.get_lines():
+            xd, yd = np.asarray(ln.get_xdata()), np.asarray(ln.get_ydata())
+            xlo, xhi = min(xlo, xd.min()), max(xhi, xd.max())
+            ylo, yhi = min(ylo, yd.min()), max(yhi, yd.max())
+    px, py = 0.05 * (xhi - xlo), 0.05 * (yhi - ylo)
+    path = None
+    for name, fig, ax in figs:
+        ax.set(xlim=(xlo - px, xhi + px), ylim=(ylo - py, yhi + py),
                xlabel=r"$x/r^{*}_{\!s}$", ylabel=r"$y/r^{*}_{\!s}$")
         path = save(fig, name)
     return path
@@ -767,6 +785,30 @@ def fig_moc_separation():
     return save(fig, "moc_separation_design")
 
 
+def fig_moc_displaced():
+    """Ideal MoC contour (dashed) vs the boundary-layer-displaced 'metal'
+    contour actually manufactured (solid, delta* offset, Sasman-Cresci at
+    design-point inlet conditions) — DisplacedBladeProfiler, as run in
+    turbinemoc.ipynb. The displacement is what makes the printed passage
+    deliver the inviscid design flow."""
+    from prop_components.blade_profiler import DisplacedBladeProfiler
+    prof = DisplacedBladeProfiler(turbine_design(), moc_design(),
+                                  bl_method="sasman_cresci")
+    prof.evaluate_boundary_layers()
+    prof.displace_contour()
+    fig, ax = plt.subplots(figsize=(4.2, 3.4))
+    for side, c in (("lower", "C0"), ("upper", "C3")):
+        d = prof.displaced_coords[side]
+        plot_theory(ax, d["x_ideal"], d["y_ideal"], color=c,
+                    label=f"{side} surface, ideal MoC")
+        plot_tuned(ax, d["x_disp"], d["y_disp"], color=c,
+                   label=f"{side} surface, $\\delta^*$-displaced (as-built)")
+    ax.set_aspect("equal")
+    ax.set(xlabel=r"$x/r^{*}_{\!s}$", ylabel=r"$y/r^{*}_{\!s}$")
+    ax.legend(fontsize=6, loc="lower center")
+    return save(fig, "moc_displaced_design")
+
+
 def _dim(ax, p0, p1, text, tpos=None, fs=6.5, **kw):
     """Double-headed dimension arrow between p0 and p1 with a label."""
     ax.annotate("", xy=p1, xytext=p0,
@@ -792,47 +834,60 @@ def fig_barske_geometry():
     Rc = r2 + Hc          # casing inner radius
     rsh = 5.0             # shaft radius, illustrative
 
-    # ---- (a) meridional half-section: x axial [mm], y radial [mm] ----
-    # The section is physically very thin (B ~ 4.7 mm vs r2 ~ 29 mm), so the
-    # axial direction is exaggerated for legibility (set_aspect below); state
-    # "axial direction exaggerated" in the caption. Note the casing front is
-    # CONICAL: it follows the tapered blade front (b1 at root > b2 at tip,
-    # B = 2*s_ax + b2 applies at the tip radius only).
-    fig, ax = plt.subplots(figsize=(3.6, 3.2))
+    # ---- (a) meridional FULL section (BarskePump.visualize() geometry,
+    # restyled for the thesis): both halves about the shaft axis, TRUE scale
+    # (no axial exaggeration), dimension arrows carry symbols only — the
+    # values live in tab_pump_design. Inlet flows in from the left.
+    rib = 3.0                     # rib height [mm] — visualize() value
+    Lin = 6.0                     # inlet pipe length drawn [mm]
+    x_back = rib + b1             # blade/rib back face axial position
+    fig, ax = plt.subplots(figsize=(2.9, 4.8))
     wall = dict(color="0.25", lw=1.4)
     imp = dict(color="C0", lw=1.2)
-    xf1 = 2 * sax + b1            # front wall axial position at the root radius
-    ax.axhline(0, color="k", lw=0.6, ls="-.")                     # shaft axis
-    # casing: rear wall, outer wall, conical front wall, eye + inlet pipe
-    ax.plot([0, 0], [rsh, Rc], **wall)
-    ax.plot([0, Bc], [Rc, Rc], **wall)
-    ax.plot([Bc, Bc], [Rc, r2], **wall)
-    ax.plot([Bc, xf1], [r2, r1], **wall)                           # conical front
-    ax.plot([xf1, xf1], [r1, r0], **wall)
-    ax.plot([xf1, xf1 + 3.0], [r0, r0], **wall)                    # inlet pipe wall
-    # impeller: hub + tapered blade (root b1 at r1 -> tip b2 at r2)
-    ax.plot([sax, sax + b1, sax + b1], [0, 0, r1], **imp)          # hub
-    ax.plot([sax, sax], [0, r2], **imp)                            # rear face
-    ax.plot([sax, sax + b2], [r2, r2], **imp)                      # blade tip
-    ax.plot([sax + b2, sax + b1], [r2, r1], **imp)                 # tapered front edge
-    ax.plot([-1.5, sax], [rsh * 0.5, rsh * 0.5], color="0.5", lw=2)  # shaft stub
-    # dimensions (diameters staggered left/right of the section)
-    _dim(ax, (-1.2, 0), (-1.2, r2), r"$d_2/2$", tpos=(-2.1, r2 * 0.45))
-    _dim(ax, (xf1 + 1.2, 0), (xf1 + 1.2, r1), r"$d_1/2$",
-         tpos=(xf1 + 2.4, r1 * 0.45))
-    _dim(ax, (xf1 + 2.4, 0), (xf1 + 2.4, r0), r"$d_0/2$",
-         tpos=(xf1 + 3.6, r0 * 0.75))
-    _dim(ax, (sax, r1 * 1.10), (sax + b1, r1 * 1.10), r"$b_1$",
-         tpos=(sax + b1 / 2, r1 * 1.28))
-    _dim(ax, (sax, r2 + 0.45 * Hc), (sax + b2, r2 + 0.45 * Hc), r"$b_2$",
-         tpos=(sax + b2 / 2, r2 + 1.05 * Hc))
-    _dim(ax, (0, r2 * 0.80), (sax, r2 * 0.80), r"$s_{ax}$",
-         tpos=(-1.4, r2 * 0.80))
-    _dim(ax, (0, Rc + 1.6), (Bc, Rc + 1.6), r"$B$", tpos=(Bc / 2, Rc + 3.2))
-    _dim(ax, (sax + b2 / 2, r2), (sax + b2 / 2, Rc), r"$H$",
-         tpos=(sax + b2 / 2 + 1.3, (r2 + Rc) / 2))
-    ax.set_aspect(0.22)   # axial exaggeration ~4.5x — caption must say so
-    ax.set(xlim=(-3.5, xf1 + 5.0), ylim=(-1.5, Rc + 5.0))
+    ax.plot([-Lin - 2, x_back + 9], [0, 0], color="k", lw=0.6, ls="-.")  # axis
+    for s in (+1, -1):
+        # inlet pipe wall
+        ax.plot([-Lin, -sax], [s * r0, s * r0], **wall)
+        # casing polyline (visualize): eye wall -> conical front (follows the
+        # blade taper at constant axial gap s_ax) -> outer front -> outer
+        # wall -> back wall
+        ax.plot([-sax, -sax], [s * r0, s * r1], **wall)
+        ax.plot([-sax, -sax + rib + b1 - b2], [s * r1, s * r2], **wall)
+        ax.plot([-sax + rib + b1 - b2] * 2, [s * r2, s * (r2 + Hc)], **wall)
+        ax.plot([-sax + rib + b1 - b2, x_back + sax],
+                [s * (r2 + Hc)] * 2, **wall)
+        ax.plot([x_back + sax] * 2, [s * (r2 + Hc), s * r1], **wall)
+        # impeller blade: tapered front edge (root width b1+rib -> tip b2)
+        ax.plot([0, rib + b1 - b2, x_back, x_back, 0],
+                [s * r1, s * r2, s * r2, s * r1, s * r1], **imp)
+    # rib / disc web behind the blades
+    ax.plot([b1, b1 + rib, b1 + rib, b1, b1], [-r1, -r1, r1, r1, -r1],
+            color="C0", lw=0.9, ls=":")
+    # ---- dimensions ----
+    _dim(ax, (-Lin + 1.2, -r0), (-Lin + 1.2, r0), r"$d_0$",
+         tpos=(-Lin + 1.2, r0 * 0.55))
+    for xd, rr, lab in ((x_back + 3.2, r1, r"$d_1$"),
+                        (x_back + 6.4, r2, r"$d_2$")):
+        ax.plot([x_back, xd], [rr, rr], color="0.7", lw=0.4)
+        ax.plot([x_back, xd], [-rr, -rr], color="0.7", lw=0.4)
+        _dim(ax, (xd, -rr), (xd, rr), lab, tpos=(xd + 1.5, rr * 0.35))
+    rmid = (r1 + r2) / 2
+    xb_mid = (rmid - r1) / (r2 - r1) * (rib + b1 - b2)
+    # s_ax gap is sub-mm at true scale -> leader annotation, not a dim arrow
+    ax.annotate(r"$s_{ax}$", xy=(xb_mid - sax / 2, rmid),
+                xytext=(xb_mid - sax - 6.5, rmid + 4.0), fontsize=6.5,
+                arrowprops=dict(arrowstyle="->", lw=0.6))
+    _dim(ax, (rib + b1 - b2, r2 + 0.5 * Hc), (x_back, r2 + 0.5 * Hc),
+         r"$b_2$", tpos=(rib + b1 - b2 / 2 - 2.5, r2 + 0.5 * Hc))
+    _dim(ax, (0, -r1 * 0.55), (b1, -r1 * 0.55), r"$b_1$",
+         tpos=(b1 / 2, -r1 * 0.55 - 2.0))
+    _dim(ax, (-sax + rib + b1 - b2, r2 + Hc + 2.6), (x_back + sax, r2 + Hc + 2.6),
+         r"$b_c$", tpos=((rib + b1 - b2 + x_back) / 2, r2 + Hc + 4.6))
+    _dim(ax, (x_back + 1.0, -r2), (x_back + 1.0, -(r2 + Hc)), r"$h_c$",
+         tpos=(x_back + 3.0, -(r2 + Hc / 2)))
+    ax.set_aspect("equal")
+    ax.set(xlim=(-Lin - 3, x_back + 9.5),
+           ylim=(-(r2 + Hc) - 5.5, (r2 + Hc) + 6.0))
     ax.axis("off")
     save(fig, "barske_meridional")
 
@@ -916,6 +971,117 @@ def fig_goldman_validation():
     return save(fig, "goldman_validation_hi")
 
 
+def fig_turbine_triangles():
+    """Rotor inlet (3) and exit (4) velocity triangles drawn from the
+    design-point turbine object — quantitatively true, not schematic.
+    Convention: u tangential (horizontal, rotor moves right), meridional
+    down the page; angles measured from tangential (Sudhof-style)."""
+    t = turbine_design()
+    u, c3u, c3m = float(t.u), float(t.c3u), float(t.c3m)
+    w3u, w3m = c3u - u, c3m
+    # exit triangle exactly as the model carries it (turbine.py): symmetric
+    # ideal impulse blade — w4 mirrors w3 (c4u = u - w3u), meridional kept
+    w4u, w4m = -w3u, w3m
+    c4u, c4m = float(t.c4u), c3m
+
+    def tri(ax, ox, vecs, labels, colors):
+        for (vx, vy), lab, c in zip(vecs, labels, colors):
+            ax.annotate("", xy=(ox[0] + vx, ox[1] + vy), xytext=ox,
+                        arrowprops=dict(arrowstyle="-|>", lw=1.1, color=c,
+                                        shrinkA=0, shrinkB=0))
+            ax.text(ox[0] + vx * 0.55, ox[1] + vy * 0.55, lab, fontsize=8,
+                    color=c, ha="center", va="bottom",
+                    bbox=dict(fc="white", ec="none", pad=0.3))
+
+    fig, ax = plt.subplots(figsize=(6.2, 2.2))
+    # ---- station 3 (rotor inlet): c3 = u + w3, all from a common origin ----
+    o3 = (0.0, 0.0)
+    tri(ax, o3, [(c3u, -c3m), (u, 0.0)], [r"$c_3$", r"$u$"], ["C0", "0.3"])
+    ax.annotate("", xy=(c3u, -c3m), xytext=(u, 0.0),
+                arrowprops=dict(arrowstyle="-|>", lw=1.1, color="C3",
+                                shrinkA=0, shrinkB=0))
+    ax.text(u + w3u * 0.55, -w3m * 0.5, r"$w_3$", fontsize=8, color="C3",
+            ha="left", va="center")
+    ax.text(c3u * 0.5, 14, "rotor inlet (3)", fontsize=8, ha="center")
+    # ---- station 4 (rotor exit), shifted right clear of station 3 ----
+    # (c4u is strongly negative at this u/c3, so the exit triangle leans left)
+    ox4 = c3u + max(0.0, -c4u) + 0.18 * c3u
+    o4 = (ox4, 0.0)
+    tri(ax, o4, [(c4u, -c4m), (u, 0.0)], [r"$c_4$", r"$u$"], ["C0", "0.3"])
+    ax.annotate("", xy=(ox4 + c4u, -c4m), xytext=(ox4 + u, 0.0),
+                arrowprops=dict(arrowstyle="-|>", lw=1.1, color="C3",
+                                shrinkA=0, shrinkB=0))
+    ax.text(ox4 + u + w4u * 0.55, -w4m * 0.5, r"$w_4$", fontsize=8, color="C3",
+            ha="right", va="center")
+    ax.text(ox4 + u * 0.5, 14, "rotor exit (4)", fontsize=8, ha="center")
+    # angle labels (from tangential)
+    ax.text(c3u * 0.22, -c3m * 0.10, r"$\alpha_3$", fontsize=7)
+    ax.text(u + w3u * 0.22, -w3m * 0.12, r"$\beta_3$", fontsize=7, color="C3")
+    ax.text(ox4 + u + w4u * 0.30, -w4m * 0.18, r"$\beta_4$", fontsize=7,
+            color="C3")
+    # annotate() arrows do not register in autoscale -> set limits explicitly
+    xs = [0, c3u, u, ox4, ox4 + u, ox4 + c4u, ox4 + u + w4u]
+    ax.set(xlim=(min(xs) - 30, max(xs) + 30), ylim=(-c3m - 25, 30))
+    ax.set_aspect("equal")
+    ax.axis("off")
+    # sanity check against the model's own resultant
+    c4_chk = np.hypot(c4u, c4m)
+    print(f"  triangles: c4 reconstructed {c4_chk:.1f} vs model {t.c4:.1f} m/s")
+    return save(fig, "turbine_triangles")
+
+
+def fig_campbell():
+    """Campbell diagram of the turbine shaft (ross) — natural frequencies vs
+    speed, 1x synchronous excitation line, operating range to 20k rpm shaded.
+    Model per rotordynamics.ipynb but CORRECTED to the as-built shaft:
+    10 mm solid ALUMINIUM (the notebook still had the retired 20 mm printed
+    GreyV4 shaft), L = 95 mm, 6 Timoshenko elements, ball bearings at nodes
+    1 and 5, turbine disk overhung at node 6 (measured mass/inertia).
+    The coupler-side disk is omitted (free end) — state in caption."""
+    import ross as rs
+    al = rs.Material(name="Al6061", rho=2700, E=69e9, G_s=26e9)
+    L, n_el = 0.095, 6
+    shaft = [rs.ShaftElement(L=L / n_el, idl=0.0, odl=0.010, material=al,
+                             shear_effects=True, rotary_inertia=True,
+                             gyroscopic=True) for _ in range(n_el)]
+    turb = rs.DiskElement(n=6, m=15.232e-3, Ip=7800e-9, Id=4000e-9)
+    brgs = [rs.BallBearingElement(n=n, n_balls=9, d_balls=0.003, fs=20,
+                                  alpha=0) for n in (1, 5)]
+    rotor = rs.Rotor(shaft_elements=shaft, disk_elements=[turb],
+                     bearing_elements=brgs)
+    speeds = np.linspace(0, 16000, 36)            # rad/s sweep
+    cam = rotor.run_campbell(speed_range=speeds)
+    rpm = speeds * 60 / (2 * np.pi)
+    wd_rpm = np.asarray(cam.wd) * 60 / (2 * np.pi)
+    fig, ax = plt.subplots(figsize=(4.8, 3.2))
+    for j in range(min(6, wd_rpm.shape[1])):
+        plot_tuned(ax, rpm, wd_rpm[:, j], color="C0",
+                   label="natural frequencies" if j == 0 else None)
+    plot_theory(ax, rpm, rpm, color="C3", label="1x synchronous")
+    ax.axvspan(0, 20000, color="C2", alpha=0.08)
+    ax.axvline(20000, color="C2", lw=0.8, ls=":")
+    ax.text(10000, ax.get_ylim()[1] * 0.04, "operating range", fontsize=7,
+            color="C2", ha="center")
+    # first forward critical: lowest crossing of wd with the 1x line
+    crit = None
+    for j in range(wd_rpm.shape[1]):
+        d = wd_rpm[:, j] - rpm
+        sgn = np.where(np.diff(np.sign(d)))[0]
+        if len(sgn):
+            i = sgn[0]
+            x0 = rpm[i] + (rpm[i + 1] - rpm[i]) * d[i] / (d[i] - d[i + 1])
+            crit = x0 if crit is None else min(crit, x0)
+    if crit:
+        ax.plot([crit], [crit], "k*", ms=10,
+                label=f"first critical ~{crit / 1000:.0f}k rpm")
+        print(f"  campbell: first forward critical ~ {crit:.0f} rpm "
+              f"(registry turb_crit_speed = 99000)")
+    ax.set(xlabel="shaft speed [rpm]", ylabel="natural frequency [rpm]",
+           xlim=(0, rpm.max()), ylim=(0, None))
+    ax.legend(loc="upper left", fontsize=7)
+    return save(fig, "turbine_campbell")
+
+
 # =========================================================================== #
 FIGURES = {
     "theory_hq": fig_theory_hq,            # H-Q + psi-phi pair (keep combined)
@@ -930,8 +1096,11 @@ FIGURES = {
     "moc_contour": fig_moc_contour,        # as-designed passage, labelled
     "moc_spread": fig_moc_spread,          # 2 PDFs: narrow vs wide Mach spread
     "moc_separation": fig_moc_separation,  # Hi on as-designed blade vs 1.8-2.4
+    "moc_displaced": fig_moc_displaced,    # ideal vs delta*-displaced contour
     "barske_geometry": fig_barske_geometry,  # 2 PDFs: meridional + end view
     "goldman_validation": fig_goldman_validation,  # 2 PDFs: Mach + Hi replication
+    "turbine_triangles": fig_turbine_triangles,  # design-point velocity triangles
+    "campbell": fig_campbell,              # turbine shaft Campbell diagram (ross)
 }
 
 

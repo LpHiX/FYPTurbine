@@ -39,7 +39,14 @@ At the design 20,000 RPM for the rig, shaft alignment, rigidity and maintainabil
 
 The central component of each configuration in \cref{fig:test-configs} is the Magtrol's TM306 inline torquemeter as it allows the stated <0.1\% torque measurement accuracy. As the torquemeter was designed to be mounted onto a base plate, a base plate design was chosen instead of an integrated assembly like a normal turbopump.
 
-The base plate is a \valRigBaseplateThk plywood with a laminate on both sides to be semi-waterproof, to have a flat surface for mounting, rigid but also cheap. M6 and M8 Countersunk holes were drilled into the base plate with a CNC router to allow for precise mounting of the components. 
+The base plate is a \valRigBaseplateThk plywood with a laminate on both sides to be semi-waterproof, to have a flat surface for mounting, rigid but also cheap. M6 and M8 Countersunk holes were drilled into the base plate with a CNC router to allow for precise mounting of the components.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{placeholder.png}
+    \caption{TODO} % Fig 4.2: labelled rig setup photo/diagram -- which part is which (Knoll 06-09: labelled diagram in body, build photos -> appendix)
+    \label{fig:rig-labelled}
+\end{figure}
 
 \subsubsection{Shaft alignment}
 
@@ -62,6 +69,13 @@ As the TM306 torquemeter's shaft with the base plate was machined to be precisce
 
 
 \subsection{Water Circuit}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{placeholder.png}
+    \caption{TODO} % Fig 4.1: P&ID -- the main rig figure (tank -> supply pump -> inlet throttle -> pump -> outlet throttle -> return; sensor map pt_pump/pt_in/pt_out/fm0)
+    \label{fig:water-pid}
+\end{figure}
 
 The water circuit is as follows: A water tank is pumped by the supply pump into an inlet throttle valve then into the experimental pump inlet. The pump outlet is then throttled by an outlet throttle valve before being returned to the water tank. Pressure sensors are placed at the inlet and outlet of the pump to measure the head rise across the pump. Flow rate is measured by a flow meter placed in the inlet line before the inlet throttle valve instead of the return line due to space constraints placed by the blast shield.
 
@@ -118,6 +132,13 @@ For cost and time reasons, a custom data acquisition and control system was desi
 
 \subsubsection{Main Architecture}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{placeholder.png}
+    \caption{TODO} % Fig 4.3: DAQ block diagram (sensor -> conditioning -> MCP3208 -> ESP32 -> Pi5 -> HDF5/GUI)
+    \label{fig:daq-block}
+\end{figure}
+
 For safety reasons, the electronics were enclosed in a plastic box placed in the test room, controlled by a LAN cable fed under the wall between the test room and the control room into my laptop.
 
 The main main computer inside this box was a Raspberry Pi 5 running a backend written in Python. The Raspberry Pi communicated with 3 ESP32S3 microcontrollers over a UART serial connection at 921600 baud. One ESP32S3 was used as the actuator controller, one was used as a ADC and flowmeter DAQ, and one was used as a thermocouple DAQ. Breadboards would require too many wires to maintain and unstable, while there was not enough time to make custom PCBs. Soldered perfboard was used to connect the components. The Raspberry Pi communicates through the LAN cable through UDP to a laptop in the control room, allowing for live data readout and control of the test rig with a GUI written in Python and Qt.
@@ -134,12 +155,49 @@ To measure the torque and RPM, the TM306 torquemeter was connected to the Magtro
 
 The motor's voltage and current were also measured by the ADC. The 24V supply to the motor ESC was measured with a voltage divider, and the current was measured with a WCS1600 DC hall effect current sensor.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{placeholder.png}
+    \caption{TODO} % Fig 4.4: KiCAD schematic -- MCP3208 + LT3042 + op-amp torque conditioning (export from KiCAD project)
+    \label{fig:adc-schematic}
+\end{figure}
+
 \subsubsection{Other sensors}
 
 K-Type thermocouples although are less accurate for such a small temperature range were chosen for their cost. The thermocouples were read by an Adafruit MAX31855 thermocouple amplifier breakout board with integrated voltage regulator connected to the ESP32S3. 
 
 A E-WFS-GE turbine flowmeter with a range of 2 to 45 L/min with a cited accuracy of $\pm10\%$ was used. To calibrate the flowmeter, a bucket and stopwatch was used to compare the flowmeter to the integrated flow rate over a period of time. The flowmeter was found to be accurate to $\pm3\%$ \cite{flowmtr}. The turbine generates pulses based on its rotation rate. The ESP32 measures the interval between these pulses to calculate the flow rate. % https://www.networktechinc.com/pdf/e-wfs-g.pdf
 
-\subsection{Actuator Control}
+\subsubsection{Actuator Control}
 
-This ESP32 was responsible for controlling the inlet and outlet throttle valve angles, 
+This ESP32 was responsible for controlling the inlet and outlet throttle valve angles,
+
+\subsubsection{Instrument Uncertainty}
+
+% STUB -- the instrument table the Ch5 uncertainty preamble cites.
+% Values MUST stay identical to the UNC dict in data_analysis/thesis_figures.py (six placeholders still to fill from datasheets).
+% Known: TM306 <0.1% of 5 Nm; PT = generic 1.2 MPa 0.5-4.5 V ratiometric [%FS TBC]; fm0 flowmeter [TBC]; d2/b2 as-printed [measure].
+
+\begin{table}[H]
+    \centering
+    \caption{TODO} % every channel: quantity, sensor, range, output type, systematic uncertainty + source
+    \label{tab:instruments}
+    \begin{tabular}{llllll}
+        \toprule
+        Quantity & Sensor & Range & Output & Uncertainty & Source \\
+        \midrule
+        Pressure & TODO & TODO & TODO & TODO & TODO \\
+        Flow rate & TODO & TODO & TODO & TODO & TODO \\
+        Torque & TODO & TODO & TODO & TODO & TODO \\
+        Shaft speed & TODO & TODO & TODO & TODO & TODO \\
+        Temperature & TODO & TODO & TODO & TODO & TODO \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Test Envelope and Limitations}
+
+% STUB -- motor/ESC: no speed loop, throttle-stepped, torque/current cap -> pump testing topped out ~7,500 rpm;
+% shop air: pressure + droop -> coupled run settled ~5,400 rpm;
+% Knoll framing: "these conditions weren't surveyed due to experimental limitations" -- capability statement, not apology;
+% safety: 2-3 sentences ONLY (blast shield, personnel out of room, PILZ interlock); full safety case -> appendix.
