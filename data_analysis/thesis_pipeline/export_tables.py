@@ -52,6 +52,7 @@ TABLES = {
     "tab_pump_design": [
         {"key": "pump_d1", "sym": r"$d_1$", "desc": "impeller inlet (blade leading-edge) diameter"},
         {"key": "pump_d2", "sym": r"$d_2$", "desc": "impeller tip diameter"},
+        {"key": "pump_b1", "sym": r"$b_1$", "desc": "blade height at impeller inlet"},
         {"key": "pump_b2", "sym": r"$b_2$", "desc": "blade height at impeller exit"},
         {"key": "pump_blades", "sym": r"$z$", "desc": "blade count"},
         {"key": "pump_throat", "sym": r"$d_3$", "desc": "diffuser throat diameter"},

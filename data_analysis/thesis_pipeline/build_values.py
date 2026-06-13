@@ -83,11 +83,11 @@ def build_design(reg: Registry) -> Registry:
             desc="suction eye diameter (sized for 1 m/s inlet velocity)")
     reg.add("pump_d1", p.d_1 * mm, unit=r"\milli\meter", fmt=".1f",
             desc="impeller inlet (blade leading-edge) diameter, 1.1 d0")
-    reg.add("pump_b1", p.b_1 * mm, unit=r"\milli\meter", fmt=".2f",
+    reg.add("pump_b1", p.b_1 * mm, unit=r"\milli\meter", fmt=".1f",
             desc="blade height at impeller inlet")
     reg.add("pump_d2", p.d_2 * mm, unit=r"\milli\meter", fmt=".1f",
             desc="impeller tip diameter")
-    reg.add("pump_b2", p.b_2 * mm, unit=r"\milli\meter", fmt=".3f",
+    reg.add("pump_b2", p.b_2 * mm, unit=r"\milli\meter", fmt=".1f",
             desc="blade height at impeller exit")
     reg.add("pump_blades", p.blade_number, fmt=".0f", desc="blade count")
     reg.add("pump_sax", p.s_ax * mm, unit=r"\milli\meter", fmt=".2f",

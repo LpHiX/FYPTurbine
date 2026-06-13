@@ -45,14 +45,14 @@
     "val": 6.449553157118543,
     "unit": "\\milli\\meter",
     "unc": null,
-    "fmt": ".2f",
+    "fmt": ".1f",
     "desc": "blade height at impeller inlet"
   },
   "pump_b2": {
     "val": 3.5539576979391696,
     "unit": "\\milli\\meter",
     "unc": null,
-    "fmt": ".3f",
+    "fmt": ".1f",
     "desc": "blade height at impeller exit"
   },
   "pump_bc": {

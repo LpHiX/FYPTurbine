@@ -1,9 +1,7 @@
 \section{Design}
 \label{sec:design}
 
-The design point for this thesis was chosen from the capabilities of the test rig. The design parameters for the pump and turbine is shown in \cref{tab:design_point} and this section explains how each number was chosen.
-
-The RPM limit was set by the maximum speed of the Magtrol TM306 inline torquemeter and the AHB-3 hysteris brake at 20,000 RPM. The pressure rise and flow rate was chosen to study the low specific regime. The supply pump was decided to be Hozelock's JET 3000 K7 Jet pump as it was available in the department and had a published performance curve. At \valPumpMdotDesign, the supply pump had a head of around \valSupplyPumpHeadDesign. Then, the head rise of the pump was chosen to be \valPumpPressureDesign for a specific speed of \valPumpNqDesign.
+The design point for this thesis was chosen from the capabilities of the test rig. The design parameters for the pump and turbine is shown in \cref{tab:design_point} and this section explains how each number was chosen. The RPM limit was set by the maximum speed of the Magtrol TM306 inline torquemeter and the AHB-3 hysteris brake at 20,000 RPM. The pressure rise and flow rate was chosen to study the low specific regime. The supply pump was decided to be Hozelock's JET 3000 K7 Jet pump as it was available in the department and had a published performance curve. At \valPumpMdotDesign, the supply pump had a head of around \valSupplyPumpHeadDesign. Then, the head rise of the pump was chosen to be \valPumpPressureDesign for a specific speed of \valPumpNqDesign.
 
 \begin{table}[H]
   \centering
@@ -15,15 +13,9 @@ The RPM limit was set by the maximum speed of the Magtrol TM306 inline torquemet
 % ==================================================================
 \subsection{Pump Design}
 
-\subsubsection{Design Point and Requirements}
-
-The pump design point is \valPumpQDesign{} of water at a head rise of \valPumpHeadDesign{} at \valPumpRpmDesign. Substituting these into \cref{eq:specific_speed} gives $n_q = \valPumpNqDesign$, which confirms the pump sits in the partial emission regime established in \cref{fig:pump_type_by_specific_speed}. On top of the hydraulic requirements, the design had to respect the hardware limits of the rig. The AHB-3 hysteresis brake is rated to 1800 W, which caps the allowable shaft power, and the available NPSH is set by the supply pump and tank rather than being a free choice.
-
 \subsubsection{Sizing}
 
-The pump was sized with the Barske procedure of \cref{eq:barske_inlet_diameter,eq:barske_tip_diameter} and the accompanying guidelines, executed in order with this design point. A reasonable inlet velocity gives an eye diameter of $d_0 = \valPumpDZero$, enlarged to $d_1 = \valPumpDOne$ for the blade leading edge to allow the deliberate prerotation Barske recommends. The blade heights follow as $b_1 = \valPumpBOne$ and $b_2 = \valPumpBTwo$. The tip diameter comes from the recovery equation \cref{eq:barske_tip_diameter} with a deliberately conservative recovery coefficient of $c_k = 0.2$, giving $d_2 = \valPumpDTwo$. A conservative $c_k$ oversizes the impeller slightly, and the plan was to trim $d_2$ later if the discharge pressure came out too high. The resulting geometry was checked against the constraints: the inlet blade speed stays below 45 m/s, $d_2/d_1 > 1.5$, the NPSH margin against the supply system is positive, and the predicted shaft power of \valPumpPowerDesign{} sits under the 1800 W brake limit.
-
-It should be stated clearly that the sizing used the Barske model, not Lock's. Lock's refined model was adopted later as the analysis model because it predicts the drooping head curve and the cavitation cutoff that the Barske model cannot, and its comparison against the measured data is in \cref{sec:results}. Rearranging Lock's model into a direct sizing tool is left as future work.
+Following the global design point parameteres, the pump was sized using the Barske as described in \cref{sec:theory_barske_sizing} to give the dimensions shown in \cref{tab:pump_design} and labelled by \cref{fig:barske-geometry}.
 
 \begin{figure}[H]
     \centering
@@ -43,6 +35,10 @@ It should be stated clearly that the sizing used the Barske model, not Lock's. L
     \caption{The sized pump geometry, drawn to scale from the sizing code output. The meridional section shows the open tapered blades, the conical front casing maintaining the axial clearance $s_{ax}$, and the annular casing of width $b_c$ and depth $h_c$. The end view shows the six radial blades and the single tangential conical diffuser with throat $d_3$ and exit $d_4$. Values are listed in \cref{tab:pump_design}.}
     \label{fig:barske-geometry}
 \end{figure}
+
+ The chain starts from a reasonable inlet velocity, which fixes the eye diameter $d_0$. The eye is then enlarged to the blade leading edge diameter $d_1$ to allow the deliberate prerotation Barske recommends. The inlet and exit blade heights follow from continuity, and the tip diameter $d_2$ comes from the recovery equation \cref{eq:barske_tip_diameter} with a deliberately conservative recovery coefficient of $c_k = 0.2$. A conservative $c_k$ oversizes the impeller slightly, and the plan was to trim $d_2$ later if the discharge pressure came out too high. The sized values are listed in \cref{tab:pump_design}. The geometry was checked against the constraints: the inlet blade speed stays below 45 m/s, $d_2/d_1 > 1.5$, the NPSH margin against the supply system is positive, and the predicted shaft power of \valPumpPowerDesign{} sits under the 1800 W brake limit.
+
+It should be stated clearly that the sizing used the Barske model, not Lock's. Lock's refined model was adopted later as the analysis model because it predicts the drooping head curve and the cavitation cutoff that the Barske model cannot, and its comparison against the measured data is in \cref{sec:results}. Rearranging Lock's model into a direct sizing tool is left as future work.
 
 \begin{table}[H]
   \centering
@@ -87,9 +83,6 @@ The friction torque and heat follow as
 \end{equation}
 
 with $A_f$ the face contact area, $r_m$ the mean face radius and $f$ the face friction coefficient. The fitted single spring seal used here has a balance ratio of $b = 1.20$, an unbalanced seal, so the closing pressure grows faster than the sealed pressure. With the dry running textbook coefficient $f = 0.07$, the model predicts about 0.4 Nm and 860 W of face heating at the 20 bar, 20,000 RPM design point, and about 0.08 Nm and 60 W at the achieved test conditions. The design point heat flux would flash the water film at the faces to steam without an active flush, so the seal is flushed by the pumped water itself. Two parts of this model are tested against data later: the static starting torque, quoted by Karassik at 3 to 5 times the running torque, is compared against the measured stiction band in \cref{sec:results}, and the friction coefficient itself is fitted from the measured loss budget, which returns $f$ well below the dry value because the faces run on a water film.
-
-Everywhere the casing bolts together a static seal is needed, and these are all O-rings sitting in machined glands. The sizing follows standard gland practice rather than anything clever. The groove is cut so the O-ring is squeezed by around 20 to 25\% of its cord diameter, enough to seal without crushing the rubber, and the groove is made wide enough that the gland is filled to no more than about 90\% once the O-ring is squeezed, so it has room to roll into the corner under pressure. % [VERIFY] as-built groove width and depth per O-ring; standard used (BS 1806 / AS568)
-The cord diameters were picked from the standard sizes that were in stock rather than designed from nothing, and the material is nitrile because the working fluid is just water at room temperature. The one O-ring that actually matters for the results is the face seal on the clear front casing. It has to hold the discharge pressure without weeping, because any leak there would fog the observation window the cavitation imaging of \cref{sec:results} depends on. The full schedule of O-ring sizes and groove dimensions is in the appendix.
 
 Rolling bearing friction was estimated with the SKF four component model, which sums a load dependent rolling term, a sliding term and, for a submerged bearing, a drag term:
 
