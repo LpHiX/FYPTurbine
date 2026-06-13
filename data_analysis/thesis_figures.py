@@ -1336,14 +1336,12 @@ def fig_cav_suction():
 
 # =========================================================================== #
 # radial-inflow cantilever turbine terminology figure (promoted 2026-06-13 from
-# proto_cantilever_fig.py). Two panels: (L) MoC blade contour with the rotor
-# inlet/exit velocity triangles overlaid and aligned to the blade feet (true
-# scale), beta_3/beta_4 against u; (R) the annular cascade (d_i/d_m/d_o, the
-# same silhouette swept into the ring). MoC frame: local x = meridional, local
-# y = tangential; LE/TE are the two feet of the symmetric impulse bucket.
+# proto_cantilever_fig.py). MoC blade contour with the rotor inlet/exit velocity
+# triangles overlaid and aligned to the blade feet (true scale), beta_3/beta_4
+# against u. MoC frame: local x = meridional, local y = tangential; LE/TE are
+# the two feet of the symmetric impulse bucket.
+# (The annular-cascade ring panel is kept below but commented out, 2026-06-13.)
 # =========================================================================== #
-CANT_N_BLADES = 50
-CANT_D_IN_MM, CANT_D_MEAN_MM, CANT_D_OUT_MM = 85.0, 95.0, 105.0
 CANT_BLADE_FILL = "0.85"
 
 
@@ -1475,57 +1473,65 @@ def _cant_panel_triangles(ax, t, X, Y):
     ax.axis("off")
 
 
-def _cant_panel_ring(ax, Xo, Yo):
-    """Annular cascade. Xo,Yo = oriented blade (LE at +Y, TE at -Y, meridional
-    vertical), the same silhouette the left panel shows. Each blade is placed
-    with its OWN radial axis: LE (+Y) -> outer diameter, TE (-Y) -> inner
-    diameter. Uniform scale (shape preserved); per-blade rotation is the
-    radial heading."""
-    r_in, r_mean, r_out = CANT_D_IN_MM / 2, CANT_D_MEAN_MM / 2, CANT_D_OUT_MM / 2
-    band = r_out - r_in
-    s = 0.98 * band / (Yo.max() - Yo.min())       # meridional span -> radial band
-    bx_r, by_r = Xo * s, Yo * s                    # by_r -> radial, bx_r -> tangential
-
-    for k in range(CANT_N_BLADES):
-        th = 2 * np.pi * k / CANT_N_BLADES
-        radial = r_mean + by_r                     # LE outer, TE inner
-        tang = bx_r
-        gx = radial * np.cos(th) - tang * np.sin(th)
-        gy = radial * np.sin(th) + tang * np.cos(th)
-        ax.fill(gx, gy, color=CANT_BLADE_FILL, ec="k", lw=0.5, zorder=2)
-
-    th = np.linspace(0, 2 * np.pi, 400)
-    for r, ls in ((r_in, "-"), (r_mean, (0, (5, 4))), (r_out, "-")):
-        ax.plot(r * np.cos(th), r * np.sin(th), color="0.25", ls=ls, lw=0.9,
-                zorder=1)
-    for r, lab, ang in ((r_in, r"$d_i$", -90), (r_mean, r"$d_m$", -66),
-                        (r_out, r"$d_o$", -50)):
-        a = np.deg2rad(ang)
-        ax.annotate(lab, xy=(r * np.cos(a), r * np.sin(a)),
-                    xytext=(1.34 * r_out * np.cos(a), 1.34 * r_out * np.sin(a)),
-                    fontsize=11, ha="center", va="center", color="0.2",
-                    arrowprops=dict(arrowstyle="->", lw=0.7, color="0.45"))
-    ax.text(0, 1.18 * r_out, f"{CANT_N_BLADES} blades", fontsize=8, ha="center")
-    ax.set_aspect("equal")
-    ax.axis("off")
+# --- annular cascade ring panel: commented out 2026-06-13 (Martin), kept for
+# possible later use. Re-enable the constants, this function, and the second
+# axis in fig_cantilever() to bring it back.
+# CANT_N_BLADES = 50
+# CANT_D_IN_MM, CANT_D_MEAN_MM, CANT_D_OUT_MM = 85.0, 95.0, 105.0
+#
+# def _cant_panel_ring(ax, Xo, Yo):
+#     """Annular cascade. Xo,Yo = oriented blade (LE at +Y, TE at -Y, meridional
+#     vertical), the same silhouette the left panel shows. Each blade is placed
+#     with its OWN radial axis: LE (+Y) -> outer diameter, TE (-Y) -> inner
+#     diameter. Uniform scale (shape preserved); per-blade rotation is the
+#     radial heading."""
+#     r_in, r_mean, r_out = CANT_D_IN_MM / 2, CANT_D_MEAN_MM / 2, CANT_D_OUT_MM / 2
+#     band = r_out - r_in
+#     s = 0.98 * band / (Yo.max() - Yo.min())       # meridional span -> radial band
+#     bx_r, by_r = Xo * s, Yo * s                    # by_r -> radial, bx_r -> tangential
+#
+#     for k in range(CANT_N_BLADES):
+#         th = 2 * np.pi * k / CANT_N_BLADES
+#         radial = r_mean + by_r                     # LE outer, TE inner
+#         tang = bx_r
+#         gx = radial * np.cos(th) - tang * np.sin(th)
+#         gy = radial * np.sin(th) + tang * np.cos(th)
+#         ax.fill(gx, gy, color=CANT_BLADE_FILL, ec="k", lw=0.5, zorder=2)
+#
+#     th = np.linspace(0, 2 * np.pi, 400)
+#     for r, ls in ((r_in, "-"), (r_mean, (0, (5, 4))), (r_out, "-")):
+#         ax.plot(r * np.cos(th), r * np.sin(th), color="0.25", ls=ls, lw=0.9,
+#                 zorder=1)
+#     for r, lab, ang in ((r_in, r"$d_i$", -90), (r_mean, r"$d_m$", -66),
+#                         (r_out, r"$d_o$", -50)):
+#         a = np.deg2rad(ang)
+#         ax.annotate(lab, xy=(r * np.cos(a), r * np.sin(a)),
+#                     xytext=(1.34 * r_out * np.cos(a), 1.34 * r_out * np.sin(a)),
+#                     fontsize=11, ha="center", va="center", color="0.2",
+#                     arrowprops=dict(arrowstyle="->", lw=0.7, color="0.45"))
+#     ax.text(0, 1.18 * r_out, f"{CANT_N_BLADES} blades", fontsize=8, ha="center")
+#     ax.set_aspect("equal")
+#     ax.axis("off")
 
 
 def fig_cantilever():
-    """Radial-inflow cantilever turbine terminology: velocity triangles on the
-    MoC blade contour + the annular cascade (promoted from proto_cantilever_fig)."""
+    """Cantilever turbine terminology: rotor inlet/exit velocity triangles on
+    the MoC blade contour (promoted from proto_cantilever_fig)."""
     t = turbine_design()
     moc = moc_design()
     bx, by = _cant_blade_polygon(moc)
     X_tri, Y_tri = _cant_oriented_blade(bx, by, chord_units=100)    # contour + triangles
-    X_ring, Y_ring = _cant_oriented_blade(bx, by, chord_units=1.0)  # ring (rescaled inside)
     print(f"  cantilever: u={t.u:.1f}  c3={t.c3:.1f}  c3u={t.c3u:.1f}  "
           f"c3m={t.c3m:.1f}  c4u={t.c4u:.1f}  c4={t.c4:.1f}")
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5.0),
-                             gridspec_kw=dict(width_ratios=[1.5, 1.4]))
-    _cant_panel_triangles(axes[0], t, X_tri, Y_tri)
-    _cant_panel_ring(axes[1], -X_ring, Y_ring)
-    fig.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0.03)
+    fig, ax = plt.subplots(figsize=(3.4, 4.0))
+    _cant_panel_triangles(ax, t, X_tri, Y_tri)
+    fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     return save(fig, "turbine_cantilever")
+    # ring panel (commented out 2026-06-13): to restore the two-panel version,
+    # use plt.subplots(1, 2, figsize=(12, 5.0),
+    #                  gridspec_kw=dict(width_ratios=[1.5, 1.4]))
+    # and call _cant_panel_ring(axes[1], -X_ring, Y_ring) with
+    # X_ring, Y_ring = _cant_oriented_blade(bx, by, chord_units=1.0)
 
 
 # =========================================================================== #
