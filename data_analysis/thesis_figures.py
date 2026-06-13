@@ -1102,6 +1102,72 @@ def fig_turbine_triangles():
     return save(fig, "turbine_triangles")
 
 
+def fig_forced_vortex_triangles():
+    """Velocity-triangle nomenclature on the forced-vortex line (pump Euler head).
+    Schematic, not to scale: Barske radial blades -> w purely meridional (radial),
+    u purely tangential, c the hypotenuse; u = omega r is read straight off the
+    u-axis, so each blade-speed arrow is the height of the line at that radius.
+    Two arcs centred on the rotation axis pass through the r1, r2 ticks."""
+    from matplotlib.patches import Arc
+    cU, cC, cW, cK = "0.2", "C0", "C3", "0.55"
+    r1, r2, Lw = 1.0, 2.0, 0.5            # u = omega r with omega = 1 (schematic)
+
+    fig, ax = plt.subplots(figsize=(4.6, 4.0))
+
+    # impeller rim arcs, centred on the rotation axis, through each radius tick
+    for r in (r1, r2):
+        ax.add_patch(Arc((0.0, 0.0), 2 * r, 2 * r, theta1=-20, theta2=120,
+                         color=cK, lw=1.1))
+    # rotation sense
+    ax.annotate("", xy=(-0.34, -0.10), xytext=(-0.12, -0.34),
+                arrowprops=dict(arrowstyle="-|>", lw=1.0, color=cK,
+                                connectionstyle="arc3,rad=0.4",
+                                shrinkA=0, shrinkB=0))
+    ax.text(-0.52, -0.30, r"$\omega$", color=cK, fontsize=11,
+            ha="center", va="center")
+
+    # drawn axes (mpl spines are off)
+    ax.annotate("", xy=(2.78, 0.0), xytext=(0.0, 0.0),
+                arrowprops=dict(arrowstyle="-|>", lw=1.2, color="0.1",
+                                shrinkA=0, shrinkB=0))
+    ax.annotate("", xy=(0.0, 2.58), xytext=(0.0, 0.0),
+                arrowprops=dict(arrowstyle="-|>", lw=1.2, color="0.1",
+                                shrinkA=0, shrinkB=0))
+    ax.text(2.80, -0.04, r"$r$", fontsize=11, ha="left", va="top")
+    ax.text(-0.07, 2.58, r"$u$", fontsize=11, ha="right", va="top")
+
+    # forced-vortex line u = omega r (each u-vector reaches it)
+    ax.plot([0.0, 2.3], [0.0, 2.3], color=cU, lw=1.4)
+    ax.text(1.5, 1.72, r"$u = \omega r$", color=cU, fontsize=10,
+            ha="left", va="bottom", rotation=45, rotation_mode="anchor")
+
+    def triangle(r, suf):
+        O = np.array([r, 0.0]); A = np.array([r, r]); C = np.array([r + Lw, r])
+        _cant_arrow(ax, O, A, cU)         # u : tangential, up to the line
+        _cant_arrow(ax, A, C, cW)         # w : radial (meridional)
+        _cant_arrow(ax, O, C, cC)         # c : absolute (hypotenuse)
+        s = 0.08                          # right-angle mark at the u-tip
+        ax.plot([A[0] + s, A[0] + s, A[0]], [A[1], A[1] - s, A[1] - s],
+                color=cK, lw=0.8)
+        ax.text(r - 0.06, r / 2, r"$u_%s$" % suf, color=cU, fontsize=11,
+                ha="right", va="center")
+        ax.text(r + Lw / 2, r + 0.05, r"$w_%s$" % suf, color=cW, fontsize=11,
+                ha="center", va="bottom")
+        ax.text(r + Lw / 2 + 0.07, r / 2, r"$c_%s$" % suf, color=cC,
+                fontsize=11, ha="left", va="center")
+        ax.plot([r, r], [-0.04, 0.04], color="0.1", lw=1.0)   # r tick
+        ax.plot([r], [0.0], marker="o", ms=3, color="0.1")
+        ax.text(r, -0.13, r"$r_%s$" % suf, fontsize=10, ha="center", va="top")
+
+    triangle(r1, "1")
+    triangle(r2, "2")
+
+    ax.set(xlim=(-1.25, 2.98), ylim=(-0.95, 2.72))
+    ax.set_aspect("equal")
+    ax.axis("off")
+    return save(fig, "forced_vortex_triangles")
+
+
 def fig_campbell():
     """Campbell diagram of the turbine shaft (ross) — natural frequencies vs
     speed, 1x synchronous excitation line, operating range to 20k rpm shaded.
@@ -1385,33 +1451,72 @@ def _cant_arrow(ax, p0, p1, color, lw=1.6):
                                 shrinkA=0, shrinkB=0))
 
 
-def _cant_triangle_at(ax, A, U, W, suf, cu_lab, wu_lab):
+def _cant_comp(ax, p0, p1, color):
+    """A component leg: dotted shaft ending in a triangle head (shows the
+    direction of the tangential / meridional component)."""
+    ax.annotate("", xy=p1, xytext=p0,
+                arrowprops=dict(arrowstyle="-|>", lw=0.8, color=color,
+                                linestyle=":", shrinkA=0, shrinkB=0))
+
+
+def _cant_triangle_at(ax, A, U, W, suf, cu_lab, wu_lab, c_below):
     """One velocity triangle anchored at the u-tip A (the w_u/w corner).
-    u : O->A (O = A - U),  w : A->C (C = A + W),  c : O->C. Component guides."""
-    cU, cC, cW, cK = "0.2", "C0", "C3", "0.55"
+    u : O->A (O = A - U),  w : A->C (C = A + W),  c : O->C. Each of c and w is
+    decomposed into its own dotted right-triangle (tangential + meridional),
+    drawn with directed legs (dotted shaft, triangle head). c_below puts the
+    c-triangle below its arrow and the w-triangle above; not-c_below mirrors
+    it. No gray: c and its parts blue (C0), w and its parts orange (C3), u
+    black."""
+    cU, cC, cW = "k", "C0", "C3"
     O = A - U
     C = A + W
-    K = np.array([C[0], O[1]])                    # right-angle corner (w_u end)
     right = C[0] >= A[0]
-    _cant_arrow(ax, O, A, cU)                      # u
-    _cant_arrow(ax, A, C, cW)                      # w
-    _cant_arrow(ax, O, C, cC)                      # c
-    ax.text((O[0] + A[0]) / 2, O[1] + 6, r"$u$", color=cU, fontsize=10,
+    side = 1 if right else -1
+    _cant_arrow(ax, O, A, cU)                     # u
+    _cant_arrow(ax, A, C, cW)                     # w
+    _cant_arrow(ax, O, C, cC)                     # c
+    # main vector labels: c on the lower-left of its arrow, w on the upper-right
+    cm, wm = (O + C) / 2, (A + C) / 2
+    ax.text(cm[0] - 7 * side, cm[1] - 7, r"$c_%s$" % suf, color=cC, fontsize=11,
+            ha="right" if right else "left", va="top")
+    ax.text(wm[0] + 7 * side, wm[1] + 5, r"$w_%s$" % suf, color=cW, fontsize=11,
+            ha="left" if right else "right", va="bottom")
+    ax.text((O[0] + A[0]) / 2, O[1] + 5, r"$u$", color=cU, fontsize=10,
             ha="center", va="bottom")
-    ax.text((A[0] + C[0]) / 2 + (5 if right else -5), (A[1] + C[1]) / 2,
-            r"$w_%s$" % suf, color=cW, fontsize=11,
-            ha="left" if right else "right", va="center")
-    ax.text((O[0] + C[0]) / 2 + (5 if right else -5), (O[1] + C[1]) / 2 - 6,
-            r"$c_%s$" % suf, color=cC, fontsize=11,
-            ha="left" if right else "right", va="center")
-    ax.plot([O[0], K[0]], [O[1], K[1]], color=cK, lw=0.7, ls=":")
-    ax.plot([K[0], K[0]], [O[1], C[1]], color=cK, lw=0.7, ls=":")
-    ax.text((O[0] + K[0]) / 2, O[1] + 6, cu_lab, color=cK, fontsize=9,
-            ha="center", va="bottom")
-    ax.text(K[0] + (4 if right else -4), (O[1] + C[1]) / 2, r"$c_{%s m}$" % suf,
-            color=cK, fontsize=9, ha="left" if right else "right", va="center")
-    ax.text((A[0] + K[0]) / 2, A[1] - 6, wu_lab, color=cK, fontsize=9,
-            ha="center", va="top")
+
+    # ---- c decomposition right-triangle (blue, directed dotted legs) ----
+    if c_below:                                   # legs below the c arrow
+        Kc = np.array([O[0], C[1]])               # c_m (down the left), then c_u
+        _cant_comp(ax, O, Kc, cC)
+        _cant_comp(ax, Kc, C, cC)
+        ax.text((Kc[0] + C[0]) / 2, C[1] - 6, cu_lab, color=cC, fontsize=9,
+                ha="center", va="top")
+        ax.text(O[0] - 4 * side, (O[1] + C[1]) / 2, r"$c_{%s m}$" % suf,
+                color=cC, fontsize=9, ha="right" if right else "left",
+                va="center")
+    else:                                         # legs along the top / C side
+        Kc = np.array([C[0], O[1]])               # c_u (along the top), then c_m
+        _cant_comp(ax, O, Kc, cC)
+        _cant_comp(ax, Kc, C, cC)
+        ax.text((O[0] + Kc[0]) / 2, O[1] + 19, cu_lab, color=cC, fontsize=9,
+                ha="center", va="bottom")
+        ax.text(Kc[0] + 4 * side, (O[1] + C[1]) / 2, r"$c_{%s m}$" % suf,
+                color=cC, fontsize=9, ha="left" if right else "right",
+                va="center")
+
+    # ---- w decomposition right-triangle (orange, directed dotted legs) ----
+    if c_below:                                   # w-triangle above its arrow
+        Kw = np.array([C[0], A[1]])               # w_u (along the top), then w_m
+        _cant_comp(ax, A, Kw, cW)
+        _cant_comp(ax, Kw, C, cW)
+        ax.text((A[0] + Kw[0]) / 2, A[1] + 6, wu_lab, color=cW, fontsize=9,
+                ha="center", va="bottom")
+    else:                                         # w-triangle below its arrow
+        Kw = np.array([A[0], C[1]])               # w_m (down), then w_u (bottom)
+        _cant_comp(ax, A, Kw, cW)
+        _cant_comp(ax, Kw, C, cW)
+        ax.text((Kw[0] + C[0]) / 2, C[1] - 6, wu_lab, color=cW, fontsize=9,
+                ha="center", va="top")
 
 
 def _cant_beta(ax, foot, tangent_deg, lab, ext=62, r=30):
@@ -1422,9 +1527,9 @@ def _cant_beta(ax, foot, tangent_deg, lab, ext=62, r=30):
     if dx > 0:                                  # force the line to point LEFT
         dx, dy = -dx, -dy
     p1 = foot + ext * np.array([dx, dy])
-    ax.plot([foot[0], p1[0]], [foot[1], p1[1]], color="0.2", lw=1.2)
+    ax.plot([foot[0], p1[0]], [foot[1], p1[1]], color="k", lw=1.2)
     ax.plot([foot[0], foot[0] - ext * 0.95], [foot[1], foot[1]],
-            color="0.55", lw=0.8, ls="--")
+            color="k", lw=0.8, ls="--")
     da = np.arctan2(dy, dx) - np.pi
     da = (da + np.pi) % (2 * np.pi) - np.pi      # wrap to (-pi, pi]
     th = np.linspace(np.pi, np.pi + da, 40)
@@ -1450,13 +1555,13 @@ def _cant_panel_triangles(ax, t, X, Y):
     U = np.array([u, 0.0]) * vs
     W3 = np.array([c3u - u, -c3m]) * vs           # along LE tangent
     W4 = np.array([c4u - u, -c3m]) * vs           # along TE tangent
-    dx = 70.0
-    A3 = le - np.array([dx, 0.0])
-    A4 = te - np.array([dx, 0.0])
-    ax.plot([le[0], A3[0]], [le[1], A3[1]], color="0.4", ls="--", lw=0.8, zorder=0)
-    ax.plot([te[0], A4[0]], [te[1], A4[1]], color="0.4", ls="--", lw=0.8, zorder=0)
-    _cant_triangle_at(ax, A3, U, W3, "3", r"$c_{3u}$", r"$w_{3u}$")
-    _cant_triangle_at(ax, A4, U, W4, "4", r"$-c_{4u}$", r"$-w_{4u}$")
+    dx = 155.0                                    # shift triangles well left of
+    A3 = le - np.array([dx, 0.0])                 # the blade so they clear the
+    A4 = te - np.array([dx, 0.0])                 # beta_3 / beta_4 arcs
+    ax.plot([le[0], A3[0]], [le[1], A3[1]], color="k", ls="--", lw=0.6, zorder=0)
+    ax.plot([te[0], A4[0]], [te[1], A4[1]], color="k", ls="--", lw=0.6, zorder=0)
+    _cant_triangle_at(ax, A3, U, W3, "3", r"$c_{3u}$", r"$w_{3u}$", c_below=True)
+    _cant_triangle_at(ax, A4, U, W4, "4", r"$-c_{4u}$", r"$-w_{4u}$", c_below=False)
     n = len(X)
     i_le, i_te = int(np.argmax(Y)), int(np.argmin(Y))
 
@@ -1467,8 +1572,20 @@ def _cant_panel_triangles(ax, t, X, Y):
 
     _cant_beta(ax, le, tang(i_le), r"$\beta_3$")
     _cant_beta(ax, te, tang(i_te), r"$\beta_4$")
-    ax.text(A3[0], A3[1] + 22, "rotor inlet (3)", fontsize=8, ha="center")
-    ax.text(A4[0], A4[1] - 26, "rotor exit (4)", fontsize=8, ha="center")
+    ax.text(A3[0], A3[1] + 38, "rotor inlet (3)", fontsize=8, ha="center")
+    ax.text(A4[0] + 30, A4[1] - 48, "rotor exit (4)", fontsize=8, ha="center")
+    # the triangle arrows are FancyArrowPatch annotations, which do NOT drive
+    # autoscale and get clipped to the view, so set the limits from all the
+    # arrow/blade extents (else the exit triangle, sitting furthest left, is cut).
+    pts = [[X.min(), Y.min()], [X.max(), Y.max()],
+           [le[0] - 62, le[1]], [te[0] - 62, te[1]]]
+    for A, W in ((A3, W3), (A4, W4)):
+        O, C = A - U, A + W
+        pts += [list(O), list(A), list(C),
+                [C[0], O[1]], [O[0], C[1]], [A[0], C[1]]]
+    pts = np.array(pts, float)
+    ax.set_xlim(pts[:, 0].min() - 8, pts[:, 0].max() + 8)
+    ax.set_ylim(pts[:, 1].min() - 10, pts[:, 1].max() + 10)
     ax.set_aspect("equal")
     ax.axis("off")
 
@@ -1523,7 +1640,7 @@ def fig_cantilever():
     X_tri, Y_tri = _cant_oriented_blade(bx, by, chord_units=100)    # contour + triangles
     print(f"  cantilever: u={t.u:.1f}  c3={t.c3:.1f}  c3u={t.c3u:.1f}  "
           f"c3m={t.c3m:.1f}  c4u={t.c4u:.1f}  c4={t.c4:.1f}")
-    fig, ax = plt.subplots(figsize=(3.4, 4.0))
+    fig, ax = plt.subplots(figsize=(4.2, 4.0))
     _cant_panel_triangles(ax, t, X_tri, Y_tri)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     return save(fig, "turbine_cantilever")
@@ -1553,6 +1670,7 @@ FIGURES = {
     "barske_geometry": fig_barske_geometry,  # 1 PDF: meridional + end view, shared y
     "goldman_validation": fig_goldman_validation,  # 2 PDFs: Mach + Hi replication
     "turbine_triangles": fig_turbine_triangles,  # design-point velocity triangles
+    "forced_vortex_triangles": fig_forced_vortex_triangles,  # pump Euler-head nomenclature
     "cantilever": fig_cantilever,          # cantilever turbine terminology (triangles + ring)
     "campbell": fig_campbell,              # turbine shaft Campbell diagram (ross)
     "valve_kv": fig_valve_kv,              # valve Kv: online data vs measured
