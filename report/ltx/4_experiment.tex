@@ -42,6 +42,8 @@ The central component of each configuration in \cref{fig:test-configs} is the Ma
 
 The base plate is a \valRigBaseplateThk plywood with a laminate on both sides to be semi-waterproof, to have a flat surface for mounting, rigid but also cheap. M6 and M8 Countersunk holes were drilled into the base plate with a CNC router to allow for precise mounting of the components.
 
+Each rotating component sits on its own mount bolted down to this baseplate. The mounts were 3D printed with a flat rectangular base and the same 80.00 mm shaft height as the torquemeter, so that bolting a mount flat to the baseplate already puts its shaft on the torquemeter centreline in the vertical direction without any shimming. The mounts also carry the alignment reference faces described below. The whole turbomachinery stand is then surrounded by a blast shield, a frame of aluminium extrusion carrying a 20 mm Dyneema panel on the faces looking at the rotating parts and a 15 mm polycarbonate window where the test has to be watched. The frame is bolted to the bench rather than to the baseplate, so that a failure of the rig does not feed straight into the shield through the same structure. The sizing of these panels is the subject of the protection system design later in this chapter.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{placeholder.png}
@@ -164,6 +166,12 @@ The main main computer inside this box was a Raspberry Pi 5 running a backend wr
     \label{fig:gui-readout}
 \end{figure}
 
+\subsubsection{Power Architecture and Custom Boards}
+
+The whole test cell runs from a single 24 V supply. This was a deliberate choice so there is only one thing to switch off and so the highest voltage anywhere in the cell stays low. Everything else is derived from the 24 V on the boards. A set of buck converters steps it down to the 5 V logic rail for the microcontrollers and to the minus 9 V and plus 9 V rails the torque op-amp needs. A separate LT3042 linear regulator then generates the quiet 5.11 V rail that acts as both the ADC reference and the pressure transducer excitation, kept off the switching converters so it stays clean. The reason that one rail feeds both the reference and the excitation is the ratiometric cancellation explained in the next section.
+
+The electronics were not bought as modules, they were designed from scratch in KiCAD as a set of small boards that each do one job. There is the reference and ADC board carrying the LT3042 and the MCP3208, the torque conditioning board carrying the OPA2134 and its level shift, the current and voltage sensing for the motor with the WCS1600 hall sensor and a divider on the 24 V ESC supply, and the thermocouple front end built around the MAX31855 breakouts. Level shifting between the 3.3 V logic of the ESP32 and the 5 V SPI bus is done with a TXS0108E translator, with its weak internal pull ups disabled so the SPI edges stay clean. Because there was no time to have proper PCBs made, the boards were built on soldered perfboard, which is reliable enough as long as the layout keeps the noisy switching sections away from the quiet analog ones. The one real interference problem was the buck converters coupling magnetically into the signal lines, which was fixed by physically separating them from the analog boards and twisting the supply pairs.
+
 \subsubsection{ADC Measurements}
 
 Pressure, torque, RPM, voltage and current were measured with a MCP3208 8 channel 12-bit ADC connected to the ESP32S3. The MCP3208 was powered by a LT3042 LDO at 5.11V to reduce noise. This 5.11V was also used to power the pressure sensors. As the pressure transducers were ratiometric, both the ADC and the pressure transducers track bacck to the same voltage reference, reducing drift and noise.
@@ -207,7 +215,7 @@ A E-WFS-GE turbine flowmeter with a range of 2 to 45 L/min with a cited accuracy
 
 \subsubsection{Actuator Control}
 
-This ESP32 was responsible for controlling the inlet and outlet throttle valve angles,
+One ESP32 is dedicated to actuation so the sensing loop is never held up by driving the actuators. It commands the two servos on the inlet and outlet throttle valves, holding each valve angle to the resolution the servo allows, and it drives the two solenoid valves that pilot the Swagelok pneumatic ball valves on the air side. All of this actuation power runs through the PILZ safety relay, so a trip or any loss of power drops every actuator to its safe state, the throttle servos going limp and the spring return air valves closing the supply and venting the manifold.
 
 \subsubsection{Cavitation Imaging}
 
