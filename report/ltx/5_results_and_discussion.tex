@@ -1,4 +1,5 @@
 \section{Results and Discussion}
+\label{sec:results}
 
 \todo{the lower head might be due to leading edge rouding as said by lock, maybe not due to prerotation as the equations suggest.}
 
@@ -6,7 +7,11 @@
 
 \subsection{Experimental Campaign}
 
-The experimental campaign was conducted in three phases: commissioning, electric motor driven pump testing, then integrated turbine and pump testing. The standalone turbine testing was not conducted due to time constraints.
+The experimental campaign was conducted in three phases: commissioning, electric motor driven pump testing, then integrated turbine and pump testing. The standalone turbine testing was not conducted due to time constraints. This means the turbine is assessed through its models and through the coupled test, and a standalone brake characterisation is the first item of future work.
+
+Within each run the shaft speed was not perfectly constant, so the data points were adjusted to the run median speed using the affinity laws before binning. The adjustment is small, validated to around 0.2\% on the head coefficient, and it is what allows each run to be treated as a single speed curve.
+
+All error bars in this chapter follow the same simple scheme. The systematic uncertainty of each instrument comes from \cref{tab:instruments}, the random uncertainty is the standard error of the median within each bin, and the two are combined in quadrature at roughly 95\% confidence, $U_Y = \sqrt{B_Y^2 + (2P_Y)^2}$. Propagation into derived quantities like efficiency and the non dimensional coefficients is done by linear propagation. One design decision from \cref{sec:experiment} matters here: because the pressure transducers and the ADC share the same reference voltage, excitation and gain drift cancel to first order and do not appear as a systematic term. Where error bars are not visible they are smaller than the markers.
 
 \subsection{Pump: Head--Flow Characteristics}
 
@@ -60,7 +65,7 @@ There are two main curves that are used to evaluate pump performance: the head-f
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{theory_HQ_tuned.pdf}
-    \caption{TODO}
+    \caption{Measured head against flow rate across five speeds (left) and the same data collapsed to head and flow coefficients (right). Dashed lines are Lock's model with literature constants, solid lines are the bounded re-fit with the as-built throat. Vertical dashed lines mark where the synchronised video shows the diffuser throat cavitation clearing. Error bars are systematic and random combined in quadrature at 95\% confidence, smaller than markers where not visible.}
     \label{fig:dim-hq} % label moved after caption -- before, \cref bound to the section, not the figure
 \end{figure}
 
@@ -69,9 +74,26 @@ There are two main curves that are used to evaluate pump performance: the head-f
 
 % \cref{fig:dim-hq,fig:non-dim-hq}
 
-\cref{fig:dim-hq} Shows the actual achieved head rise across flow rates at the different RPMs that were tested. Overlayed are solid and dashed lines. Both are theoretical head-flow curves generated from \cref{eq:lock_static_head_flow}. The dashed line is with exactly the parameters from Lock's paper, and the solid line is with the pre-rotation $K$ increased from \valLockKOneOriginal to \valLockKOneModified. The dashed vertical dashed line shows the point at a synchronized video camera detected cavitation within the diffuser through the transparent diffuser wall. It can be seen that the original parameters overpredict the head rise, and there are many mechanisms that could be causing this. 
+\cref{fig:dim-hq} Shows the actual achieved head rise across flow rates at the different RPMs that were tested. Overlayed are solid and dashed lines. Both are theoretical head-flow curves generated from \cref{eq:lock_static_head_flow}. The dashed line is with exactly the parameters from Lock's paper, and the solid line is with the pre-rotation $K$ increased from \valLockKOneOriginal to \valLockKOneModified. The dashed vertical dashed line shows the point at a synchronized video camera detected cavitation within the diffuser through the transparent diffuser wall. It can be seen that the original parameters overpredict the head rise, and there are many mechanisms that could be causing this.
+
+The non dimensional view in the right panel carries the headline numbers. The five speeds collapse onto a single curve at a head coefficient of $\psi = \valPumpPsiMeas$ in the operating region, against a design value of \valPumpPsiDesign, so the pump delivers its design head with around 3\% to spare. The collapse itself is the experimental proof of dynamic similarity, and it is what licenses the affinity adjustment within runs and the extrapolation to higher speeds later in this chapter. The diverging tails at high flow coefficient are a rig artifact rather than a breakdown of similarity, because the fixed feed pressure means the maximum achievable flow coefficient falls as speed rises.
+
+The fitted constants need to be defended rather than just stated, because a fitted model proves nothing if the constants are unphysical. The bounded re-fit with the as-built throat diameter fixed at \valPumpThroat{} gives $K_1 = \valLockKOneModified$ and a diffuser loss coefficient of 0.42, both interior to their physical bounds. The excess of $K_1$ over Lock's own 0.15 to 0.20 study has named candidates that are all in Lock's paper: the deliberate prerotation designed in through $d_1 = 1.1 d_0$, the rounding of the printed blade leading edges which Lock notes reduces effective head, and the optimism of his effective radius assumption. The diffuser loss of 0.42 against the clean pipe entry value of 0.194 is consistent with the entry separation mechanism Lock describes at the diffuser mouth. Alternative explanations can be ruled out: an error in the torque or pressure scales would shift the dimensional curves but not change the shape of the droop, and a slip type explanation would move the intercept of the non dimensional curve rather than its slope.
+
+The most important feature of \cref{fig:dim-hq} is the high flow cutoff, and here the transparent casing converts a fit into a validation. On every head flow ramp the video shows cavitation in the diffuser throat clearing as the flow falls, frame matched to the data at three flow rates across three runs. With the true throat diameter of \valPumpThroat{} in the model, Lock's vapour pressure cutoff lands on all three video clearing points to within roughly 10\%, and on the measured runout. It is worth being honest about the history here: with the nominal cutwater diameter of \valPumpThroatCutwater{} the model overpredicted the cutoff badly, and it was the systematic disagreement with the video that prompted the CAD section check which found the true minimum area. The model diagnosed a wrong geometry input, which is a stronger validation than agreement on the first try. The remaining discrepancies are also informative. The measured cutoffs sit 5 to 10\% later than predicted, consistent with a small residual flow contraction, and the head begins rolling off slightly before the cavitation clears, which cavitation cannot explain and which points to the same diffuser entry separation responsible for the elevated loss coefficient. Collector losses growing with flow at low specific speed is independently reported, as Khan's volute head loss curves blow up at overload in exactly this way \cite{khanDesignOptimizationLowSpecific}.
+
+The conclusion of this section is then a mechanism, not a fit: the maximum flow of this pump is limited by cavitation in the diffuser throat, established independently by the model and the video.
 
 \subsection{Pump: Efficiency and Churning}
+
+The overall efficiency is computed from directly measured quantities only,
+
+\begin{equation}
+    \eta = \frac{P_{hyd}}{P_{shaft}} = \frac{\rho g Q H}{\tau \omega}
+    \label{eq:eta_definition}
+\end{equation}
+
+with the torque measured at the shaft between the drive and the pump, so the drive losses never enter.
 
 The efficiency curve generated by measuring shaft power, subtracting mechanical losses can be shown in the following graph:
 
@@ -82,28 +104,45 @@ The right graph shows the predicted efficiency curve from pure theory, and the r
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
         \includegraphics[width=1\textwidth]{results_eta_flow.pdf}
-        \caption{TODO}
+        \caption{Overall efficiency against flow rate}
         \label{fig:eff} % label moved after caption
     \end{subfigure}
     % \hfill % Adds flexible space between figures
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{results_churning_power.pdf}
-        \caption{TODO}
+        \caption{Shutoff churning power against speed}
         \label{fig:churning}
     \end{subfigure}
-    \caption{TODO}
-    % \label{fig:TODO}
+    \caption{Pump efficiency and the churning measurement. In (a) the dashed curves use Barske's textbook disc friction and overpredict the efficiency, while the solid curves apply the measured churning multiplier. In (b) the churning power is measured directly at shutoff, where shaft power minus the measured shaft-only parasitic is all churning; the full campaign of 15 shutoff points is used, not just the five canonical runs. Error bars as in \cref{fig:dim-hq}.}
+    \label{fig:eff-churning}
 \end{figure}
 
 \cref{fig:churning} shows that the measured disc friction losses are about \valPumpChurnMult times higher than barske's formula for disc friction. Adjusting the disc friction by this factor leads to a much better fit of the efficiency curve, as can be seen in \cref{fig:eff}.
 
+The way this multiplier was measured matters, because it changes its status from a tuning factor to a measurement. At shutoff the pump moves no flow, so after subtracting the measured shaft-only parasitic power, everything the shaft delivers goes into churning the flooded casing. Across 15 shutoff points from 2,800 to 8,500 RPM the measured churning sits at 2.5 to 2.9 times the Barske disc correlation, with a mean of 2.54, and follows a power law of $n^{3.1}$, between Barske's exponent of 2.8 and the cubic forms in Gülich. The factor of \valPumpChurnMult{} used in the efficiency model was originally fitted to the efficiency curves, so its agreement with the shutoff measurement is corroboration by data that did not produce it. The points below about 4,800 RPM scatter heavily and were excluded, as the torque there sits at the noise floor of the measurement chain.
+
+The peak measured efficiency is \valPumpEtaPeak{} against a design estimate of \valPumpEtaDesign. Where the power actually goes at the best efficiency point is summarised in \cref{fig:power-sankey}. Churning dominates everything: at the 7,500 RPM best efficiency point roughly two thirds of the shaft power goes into churning the flooded casing, mechanical losses take a few percent, the internal flow losses take around a tenth, and only about a fifth of the shaft power leaves as useful hydraulic power. The attribution to the open impeller architecture is the point, as the whole casing is flooded and churned while only one sector does useful pumping. This is the price of the Barske architecture at low Reynolds number, not a defect of this particular build.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{placeholder.png} % swap to eta_re_fit.pdf once promoted from plots_round2.py into thesis_figures.py
-    \caption{TODO} % eta-Re fit: (1-eta) ~ Re^-a, a = 0.098 +/- 0.010 -> eta(20k) = 26.4% (25.7-27.1%)
+    \includegraphics[width=0.75\textwidth]{results_power_sankey.pdf}
+    \caption{Shaft power budget at the measured best efficiency point of the 7,500 RPM run. Useful hydraulic power is measured, churning uses the shutoff-measured multiplier at this speed, mechanical losses are the measured shaft-only parasitic, and the remainder is internal hydraulic loss.}
+    \label{fig:power-sankey}
+\end{figure}
+
+The natural question is what this efficiency becomes at the design speed, and the honest answer comes from the data rather than an assumption. Each run sits at a different Reynolds number, so the five runs themselves measure how the losses scale. \cref{fig:eta-re} plots the peak efficiency of each run against speed and fits the loss ratio model $(1-\eta) \propto Re^{-a}$, which is the standard form for friction dominated loss scaling. The fitted exponent is $a = 0.098 \pm 0.010$, essentially the textbook Moody value of 0.1, and extrapolating along the fit gives an efficiency of 26.4\% at \valPumpRpmDesign{} with a band of 25.7 to 27.1\%. The exponent is measured from this machine, not assumed, which is the difference between an extrapolation and a guess. There is also precedent for efficiency recovering with Reynolds number in exactly this class of machine, as a NASA ten times scale test of a low specific speed rocket pump took the efficiency from 58.7\% to 68.9\% on Reynolds number alone \cite{macgregorRotatingPositivedisplacementPumps1974}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{results_eta_re_fit.pdf}
+    \caption{Peak overall efficiency per run against shaft speed, with the fitted loss ratio $(1-\eta) \propto Re^{-a}$ and its uncertainty band extrapolated to the design speed. The fitted exponent $a = 0.098 \pm 0.010$ matches the textbook friction scaling.}
     \label{fig:eta-re}
 \end{figure}
+
+For context on whether around 19\% measured and around 26\% extrapolated is good or bad, the conventional counterfactual exists at literally this specific speed. Kim's closed impeller design at the same $n_q$ reaches 67\% in CFD, but it is unvalidated and requires 0.31 mm closed channels, the geometry this project's own conventional design attempt showed to be unmanufacturable \cite{kimDevelopmentUltraLowSpecific2022}. The CFD studies of Barske type machines report higher efficiencies than measured here at higher Reynolds numbers \cite{knyazevaDesignFluidDynamics2021, danieliConceptualDesignElectric2023}, while the historic measured partial emission pumps sit at 35 to 60\% at much larger scale. The gap between this machine and those numbers is accounted for by the measured churning and the sub design Reynolds number, not by an unexplained deficiency.
+
+One tension should be stated openly because it bounds the extrapolation. Carrying the churning multiplier of 2.5 unchanged to \valPumpRpmDesign{} would predict around 3 kW of churning alone, more than the entire turbine power budget. The design efficiency therefore requires the multiplier to fall with Reynolds number, which is the same physics the fitted exponent already encodes. The multiplier is measured at test Reynolds numbers, and its Reynolds dependence is the explicit assumption of the extrapolation.
 
 \subsection{Pump: Cavitation}
 
@@ -113,12 +152,27 @@ Specifically for rocket engine applications, the cavitation behaviour is of high
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{results_npshr_vs_q.pdf}
-    \caption{TODO}
+    \caption{NPSH at 3\% head breakdown against flow rate, with the visually observed throat cavitation onsets and the Lock throat cutoff curve. Error bars as in \cref{fig:dim-hq}.}
     \label{fig:npshr}
 \end{figure}
 
-   
+
 \cref{fig:npshr} shows the NPSH required to avoid cavitation at different flow rates. The dashed line is the theoretical curve generated by solving \cref{eq:lock_diffuser_throat} for the flow rate at which the head at the diffuser throat is equal to the vapor pressure head. Two interesting observations here.
+
+The full suction test behaviour is shown in \cref{fig:cav-suction} in the standard form, head normalised by the fully wetted reference against NPSH available, one curve per held flow rate, the same presentation Gülich uses for suction tests at constant speed. The curves hold their reference head over most of the suction range and then drop over a cliff. The 3\% criterion line picks the breakdown point off each curve, and the cliff is steep enough that the choice of criterion barely moves the answer, as the head loses around 60\% over a range comparable to the binning noise.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{results_cav_suction.pdf}
+    \caption{Suction test curves at constant speed: normalised head against NPSH available, one curve per held flow rate, by successive reduction of the inlet pressure. The horizontal line is the 3\% head-drop criterion used for \cref{fig:npshr}.}
+    \label{fig:cav-suction}
+\end{figure}
+
+The result that makes this section more than a standard suction test is where the breakdown happens. Two independent methods agree: the 3\% breakdown from the pressure data coincides with the visually observed throat cavitation to around 0.1 m of NPSH, while cavitation at the impeller eye appears far earlier and does nothing measurable to the head. The naive reading of pump cavitation, bubbles at the inlet eye killing the head, is simply wrong for this machine. The eye cavitates benignly, and it is the diffuser throat that drives breakdown. This is Lock's diffuser limited claim, confirmed and this time directly visualised. One caveat applies to the measurement method: the inlet throttle drops the flow as well as the suction pressure, so the rigorous breakdown metric is the cliff knee rather than a fixed reference percentage, and the difference is small here because the cliff is steep.
+
+Packaged as a single literature comparable number, the suction specific speed at breakdown is around 75 in metric form. That is close to the cavitation onset value of around 64 reported for a Barske type impeller in the same regime \cite{knyazevaDesignFluidDynamics2021}, and far below the industrial figure of around 200, because in this architecture the throat sets breakdown rather than the eye.
+
+The throat sizing itself also lands in an interesting place against the literature. The throat to tip diameter ratio of this pump, about 0.051, follows the classical Barske and Balje guidance, the same starting point Danieli used for his partial emission rocket pump, whose initial throat ratio of 0.064 failed his head requirement. His CFD optimisation recovered head and efficiency by opening the throat ratio to 0.18 to 0.28 \cite{danieliConceptualDesignElectric2023}. That independently corroborates the finding here that the classical throat under delivers and limits the runout, and it hands the design a cited future work item: enlarge the throat, traded against the suction margin that partial emission buys. His flow rate is 2.7 times larger and his study is CFD only, so it is the trend that is being cited, not the numbers.
 
 
 \todo{add picture of no cavitation, cavitation of throat only, cavitation of inlet, and both}
@@ -129,81 +183,96 @@ Specifically for rocket engine applications, the cavitation behaviour is of high
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO} % no cavitation
+        \caption{Fully wetted} % PLACEHOLDER IMAGE
         \label{fig:cav-none}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO} % throat cavitation only
-        \label{fig:cav-throat}
+        \caption{Eye cavitation only} % PLACEHOLDER IMAGE
+        \label{fig:cav-eye}
     \end{subfigure}
 
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO} % eye/inlet cavitation only
-        \label{fig:cav-eye}
+        \caption{Throat cavitation} % PLACEHOLDER IMAGE
+        \label{fig:cav-throat}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO} % both sites, descending NPSH
+        \caption{Both sites, near breakdown} % PLACEHOLDER IMAGE
         \label{fig:cav-both}
     \end{subfigure}
-    \caption{TODO} % Fig 5.6: annotated cavitation stills -- eye vs throat, descending NPSH (the money shot; from cav_video.py + cav_annotations/)
+    \caption{Stills through the transparent front casing at descending NPSH. The eye cavitates first with no measurable head effect, while the appearance of throat cavitation coincides with the head breakdown. Frame timestamps are synchronised to the logged data.} % stills from cav_video.py + cav_annotations/
     \label{fig:cav-stills}
 \end{figure}
 
 \subsection{Coupled Turbopump}
 
-% STUB -- ~5,400 rpm settled, measurable pressure rise, deep off-design (p01 ~2.9 bar ~ 38% design);
-% NO single forward turbine number (no air mdot meter -> under-determined);
-% degeneracy broken by the starting analysis: Mw3 = 1.58 > 1.408 at test speed -> rotor UNSTARTED
-% (threshold ~15,300 rpm) -> ~0.25 Nm measured vs ~0.87 Nm started, the 4x gap explained;
-% Stark nozzle-attachment check rules out the nozzle; experimental peers block (Donnelly/Peng/Moffitt/Ohlsson).
+The integrated test is the proof of concept of the whole project. With the turbine driving the pump on shop air, the shaft settled at around \valCoupledRpm{} RPM, the pump produced a measurable head rise, and the assembly survived repeated runs. The settling itself is a result: the speed approached the match point monotonically and held it without any active control, which is the self regulating behaviour predicted by the torque matching argument of \cref{sec:theory}. The operating point is deep off design, with the stator pressure at roughly 38\% of the design supply and a blade to jet speed ratio of around 0.06 against the design 0.2. \cref{fig:coupled-hq} shows the coupled pump data landing on the motor driven curves, which is the cross validation between the two test configurations.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{results_coupled_HQ.pdf}
-    \caption{TODO} % Fig 5.7: coupled H-Q scatter vs motor-driven curves
+    \caption{Coupled turbine driven pump operation against the motor driven characteristic curves. The coupled data, coloured by shaft speed, lands on the same head flow behaviour measured under motor drive.}
     \label{fig:coupled-hq}
 \end{figure}
+
+The turbine side needs more care, because the rig has no air mass flow meter. Without a measured mass flow, a single forward efficiency number for the turbine would be under determined: a choked mass flow with a weak jet and a reduced mass flow with a near design jet both fit the same measured torque. Quoting one number would be dishonest, so this thesis does not.
+
+The torque models compared against the data in \cref{fig:coupled-torque} are built from the Euler equation with the choked mass flow of \cref{eq:choked_massflow}, which remains valid regardless of the rotor state. For a rotor receiving an effective tangential jet velocity $c_{3u}^{\,e}$, the shaft torque is
+
+\begin{equation}
+    \tau = \dot{m} \left(1 + \varphi_r\right) r_m \left(c_{3u}^{\,e} - u\right)
+    \label{eq:coupled_torque_model}
+\end{equation}
+
+where the factor $(1+\varphi_r)$ carries the contribution of the turned relative flow at exit. The started model sets $c_{3u}^{\,e}$ from the full design expansion at the measured supply pressure, while the unstarted model treats the effective jet as a fraction of it, fitted to the data.
+
+What breaks the degeneracy is the starting analysis from \cref{sec:design}. At the test shaft speed the blade speed is so low that the rotor inlet relative Mach number rises to \valTurbMwTest, above the Goldman starting limit of \valTurbStartLimit, so the rotor passages cannot swallow the startup shock system and the rotor runs unstarted. The design stage prediction was that the rotor cannot start below approximately \valTurbStartRpm{} RPM, and the coupled test never exceeded half of that. An unstarted rotor sits behind a detached bow shock, the passage flow is subsonic, and the jet momentum reaching the blades collapses. \cref{fig:coupled-torque} shows the consequence: the measured torque of around \valCoupledTorque{} sits a factor of four below the started flow model at around \valTurbTorqueStartedTest, and an unstarted model with an effective jet of around a third of the design velocity passes through the data. The near design jet branch of the degeneracy is ruled out precisely because it would require a started rotor, which the starting criterion forbids at this speed. The torque deficit is therefore not an anomaly, it is a diagnosed off design state that the design stage analysis predicted before the test was run.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{results_coupled_torque.pdf}
-    \caption{TODO} % Fig 5.8: coupled torque vs speed -- data vs started model (dashed) vs unstarted (solid + band)
+    \caption{Coupled shaft torque against speed: measured data, the started flow model (dashed) and the unstarted model with a reduced effective jet (solid with band). The factor of four deficit against the started model is explained by the rotor running unstarted below the starting threshold.}
     \label{fig:coupled-torque}
 \end{figure}
 
+Two rigour checks defend this diagnosis. First, the nozzle can be ruled out as the location of the loss. At the test supply pressure the over expanded conical nozzle sits at a pressure ratio of about 0.61 to ambient, above the separation threshold of roughly 0.4 from the rocket nozzle separation criteria \cite{starkFlowSeparationRocket2005}, so the nozzle remains attached and supersonic and the velocity collapse must happen at the rotor. % [VERIFY V1] exact test p01 before the viva; near 2.0 bar this verdict weakens
+Second, the threshold itself should not be over read. With three discrete nozzles the rotor relative Mach number varies around the admitted arc, so the \valTurbStartRpm{} RPM figure is a mean flow estimate and operation near it may start and unstart intermittently \cite{sudhofDevelopmentTechniquesSupersonic2020}.
+
+Because the stage was never measured in its started state, the design point efficiency prediction has to lean on external evidence, and the literature provides a tight bracket. The closest comparison is a machine of the same architecture, a radial inflow supersonic partial admission impulse stage at Mach 1.65, where the measured debit from ideal efficiency was 28 percentage points \cite{donnellyDesignExperimentalVerification}. The Weiss chain here predicts 65\% falling to \valTurbEtaTsDesign, a debit of just under 28 points, so the loss model magnitude is corroborated experimentally to about one percentage point on the same machine class, with the honest boundary that his rotor ran started. Peng's 1.5 kW partial admission supersonic stage gives a CFD efficiency of around 42.5\% \cite{pengDesignAnalysis152023}, bracketing the prediction from below. NASA tested a Mach 2 stage from full admission down to 12.5\% admission and found the full admission efficiency at 42.5\% with the drop to 12.5\% admission costing only around 5 points \cite{moffittExperimentalInvestigationPartialadmission1959}, which matters here because it acquits partial admission: at $\varepsilon = \valTurbDoa$ the admission penalty is modest, and the measured deficit belongs to the unstart, not the admission. Ohlsson's closed form partial admission theory, inside whose validation range this turbine's arc to chord ratio sits, composes with his low aspect ratio correlations to a literature only stage efficiency estimate of around 0.60 at his design speed ratio \cite{ohlssonPartialAdmissionTurbines1962, ohlssonLowAspectRatio1964}, a second independent bracket. Finally, a precedent exists for exactly this failure mode: the SLA resin turbine Weiss cites also maxed out below its design speed with the cause left unexplained \cite{weissCustomizedORCMicro2020}. This work supplies the diagnosis that precedent lacked, the combination of supply droop and rotor unstart.
+
 \subsection{Extrapolation to the Design Point}
 
-% STUB -- affinity on the pooled psi-phi master curve + Lock at 20k + design star;
-% the psi-phi collapse IS the licence for affinity extrapolation -- say so;
-% state plainly: coupled test ran ~5,400 rpm, rotor unstarted -> stage similitude NOT matched at design;
-% what IS validated: choked nozzle, MoC profile, Goldman starting, affinity/Re-collapsed pump curves;
-% two named gaps to 20k: started-stage eta unverified; gamma = 1.4 air vs ~1.2 hot gas.
+The design point of \valPumpRpmDesign{} was not reached in testing, so every claim about it is an extrapolation, and the value of this section is being precise about which extrapolations are licensed and which are not. On the pump side the licence is the non dimensional collapse of \cref{fig:dim-hq}. Because five speeds collapse onto one head coefficient curve, the affinity laws demonstrably hold for this machine, and \cref{fig:hq-extrap} carries the pooled curve to the design speed, where it passes through the design point. The efficiency extrapolation rides on the fitted Reynolds exponent of \cref{fig:eta-re} and arrives at 26.4\% with a stated band.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{results_HQ_extrap_20k.pdf}
-    \caption{TODO} % Fig 5.9: H-Q affinity extrapolation to 20k + design point
+    \caption{The pooled non dimensional characteristic carried to \valPumpRpmDesign{} by the affinity laws, with the Lock model at design speed and the design point marked.}
     \label{fig:hq-extrap}
 \end{figure}
 
+On the turbine side the honest statement is narrower. The coupled test ran at around \valCoupledRpm{} RPM with the rotor unstarted, so the stage similitude parameters at design, the rotor relative Mach number and the blade to jet speed ratio, were never matched. What is validated are the speed independent pieces: the choked nozzle, the MoC profile generation against Goldman's published case, and the starting criterion itself, whose off design prediction the coupled test confirmed. Two named gaps remain on the road to 20,000 RPM. First, the started stage efficiency of \valTurbEtaTsDesign{} is a corroborated prediction, not a measurement, and stays that way until a test above the starting threshold. Second, the working fluid: cold air at $\gamma = 1.4$ stands in for hot gas at around 1.2, which shifts the expansion and the starting margin.
+
 \subsection{Synthesis}
+
+\cref{tab:model_vs_meas} collects the quantitative comparisons of this chapter in one place.
 
 \begin{table}[H]
   \centering
-  \caption{TODO} % predicted vs measured summary -- the quantitative anchor; percentage differences computed by the pipeline from the registry (export_tables.py COMPARE_TABLES, add rows there)
+  \caption{Predicted against measured summary. Percentage differences are computed by the analysis pipeline from the same registry that supplies every number in this thesis.}
   \label{tab:model_vs_meas}
   \input{generated/tables/tab_model_vs_meas}
 \end{table}
 
-% STUB (the chapter must build to this) -- toolchain adequacy verdict (Lock within X%/Y pp -> design-stage screening;
-% turbine codes validated where speed-independent; stage eta awaits a started test);
-% Barske suitability verdict (the central question) -- viable/promising/needs-development, and WHY;
-% mechanical redesign learning point (plastic creep -> metal redesign) -- design content, no incident narrative.
+On the adequacy of the toolchain, the verdict is positive within stated limits. Lock's model reproduces the head curve including its droop, and places the cavitation limited runout at the right flow once the as-built throat is used, so it is adequate for design stage screening of this machine class. The Barske sizing model delivered a pump that meets its design head coefficient within 3\%. On the turbine, the speed independent codes validated cleanly, and the loss chain prediction is corroborated externally to about a point, but the started stage remains unverified by this rig. The 1D and analytical toolchain was sufficient to design, predict and diagnose everything this project measured, and nothing in the data demanded CFD.
+
+On the Barske architecture itself, the central question of the thesis, the data supports a measured verdict. The architecture does what it promises at this specific speed: it is manufacturable where the conventional impeller is not, it delivers its design head, and its suction behaviour is dominated by a single identifiable mechanism that a transparent casing can watch. The price is efficiency, with churning measured at two and a half times the textbook estimate eating two thirds of the shaft power at test speed. Whether around a quarter efficiency at design speed is acceptable depends entirely on the application, and for expendable small rocket stages where feed pressure mass dominates, it plausibly is.
+
+One mechanical learning point belongs in the record. The first rig iteration used printed plastic load bearing shafts, which crept and failed under high speed loads, and the redesign moved every rotating load path to metal, a stainless pump shaft and an aluminium turbine shaft. Printed structural parts are acceptable for casings and blading at these loads, but not for shafts.

@@ -1,4 +1,5 @@
 \section{Experimental Setup}
+\label{sec:experiment}
 
 The experimental setup was designed for three specific configurations: Electric motor driven pump testing, Isolated turbine coupled to a hysteris brake, and integrated turbine and pump testing.
 
@@ -9,24 +10,24 @@ The experimental setup was designed for three specific configurations: Electric 
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO}
+        \caption{Motor driven pump} % PLACEHOLDER IMAGE
         \label{fig:electric-pump-config}
     \end{subfigure}
     \hfill % Adds flexible space between figures
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO}
+        \caption{Turbine against brake} % PLACEHOLDER IMAGE
         \label{fig:turbine-brake-config}
     \end{subfigure}
     \hfill % Adds flexible space between figures
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO}
+        \caption{Coupled turbopump} % PLACEHOLDER IMAGE
         \label{fig:turbopump-config}
     \end{subfigure}
-    \caption{TODO}
+    \caption{The three test configurations. In each case the TM306 torquemeter sits between the driving component and the load, so torque is measured at the shaft.}
     \label{fig:test-configs}
 \end{figure}
 
@@ -44,7 +45,7 @@ The base plate is a \valRigBaseplateThk plywood with a laminate on both sides to
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{TODO} % Fig 4.2: labelled rig setup photo/diagram -- which part is which (Knoll 06-09: labelled diagram in body, build photos -> appendix)
+    \caption{The assembled test rig with the major components labelled: motor, couplers, torquemeter, pump, turbine and the throttle valves on the CNC drilled baseplate.} % PLACEHOLDER IMAGE: labelled photo
     \label{fig:rig-labelled}
 \end{figure}
 
@@ -61,7 +62,7 @@ It was decided to use the flat faces of the torquemeter base as the reference fo
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{placeholder.png}
-    \caption{TODO}
+    \caption{Shaft alignment procedure using the flat faces of the component mounts and precision square blocks as references.} % PLACEHOLDER IMAGE: photo or diagram
     \label{fig:shaft-alignment}
 \end{figure}
 
@@ -73,7 +74,7 @@ As the TM306 torquemeter's shaft with the base plate was machined to be precisce
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{TODO} % Fig 4.1: P&ID -- the main rig figure (tank -> supply pump -> inlet throttle -> pump -> outlet throttle -> return; sensor map pt_pump/pt_in/pt_out/fm0)
+    \caption{P\&ID of the water circuit. The tank feeds the supply pump, then the inlet throttle valve, the experimental pump, the outlet throttle valve and the return line. Pressure is measured at the supply (pt\textsubscript{pump}), the pump inlet (pt\textsubscript{in}) and the pump outlet (pt\textsubscript{out}), and flow in the inlet line (fm0).} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
     \label{fig:water-pid}
 \end{figure}
 
@@ -84,6 +85,15 @@ The water circuit is as follows: A water tank is pumped by the supply pump into 
 The inlet throttle valve allows a reduction in pump inlet pressure to characterise the cavitation behaviour of the pump. The outlet throttle valve allows for a reduction in flow rate to characterise the head and cavitation behaviour of the pump at different flow rates.
 
 The selection of the size of the inlet and outlet valves are crucial to the quality of the data. Ball valves were chosen as there were spares available, and they could be throttled in a controllable and repeatable manner by the angle of the valve handle. Custom 3D printed housings were designed to attach a servo motor to the valve handle in direct drive to allow for precise, remote and repeatable control of each valves. 
+
+Valve capacity is expressed throughout with the flow coefficient $K_v$, defined by
+
+\begin{equation}
+    Q\,[\textrm{m}^3/\textrm{h}] = K_v \sqrt{\frac{\Delta p\,[\textrm{bar}]}{SG}}
+    \label{eq:kv_definition}
+\end{equation}
+
+where $SG$ is the specific gravity of the fluid, 1 for water. Measuring the flow rate and the pressure drop across a valve at a known opening angle therefore measures its $K_v$ directly, which is how the characterisation below was done.
 
 The main requirement for both valves were so that the range of required flow rates and pressure drop through each valve corresponded to a large range in valve opening angles. For the inlet valve, fully open must have a large margin to the cavitation limit of the pump, ideally, cavitation would start at around 50\% valve opening and could be further reduced until the valve is closed. For the outlet valve, fully open must be at least 1.5 times the cut-off flow rate of the pump.
 
@@ -97,21 +107,21 @@ This requirement is further driven by the $1-3^\circ$ resolution of the servo mo
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.4\textwidth}
+    \begin{subfigure}[b]{0.42\textwidth}
         \centering
         \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO}
+        \caption{Servo driven throttle valve assembly} % PLACEHOLDER IMAGE: photo/CAD of the 3D printed servo housings
         \label{fig:servo-valves}
     \end{subfigure}
     \hfill % Adds flexible space between figures
-    \begin{subfigure}[b]{0.4\textwidth}
+    \begin{subfigure}[b]{0.54\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{TODO}
+        \includegraphics[width=\textwidth]{setup_valve_kv.pdf}
+        \caption{Extrapolated against measured valve capacity}
         \label{fig:valve-kv-test}
     \end{subfigure}
-    \caption{TODO}
-    % \label{fig:TODO}
+    \caption{Throttle valve characterisation. The extrapolated online ball valve data (dashed) overpredicts the measured flow capacity (solid) for both valves at their respective design pressure drops. The horizontal line is the throat limited maximum flow of the pump.}
+    \label{fig:valve-characterisation}
 \end{figure}
 
 \cref{fig:valve-kv-test} shows the experimentally measured Kv against opening angle values were lower than expected. However, this worked in my favour as it actually increased the range of useful valve opening angles.
@@ -126,6 +136,10 @@ Both valves were Swagelok pneumatically actuated spring return ball valves. The 
 
 Due to droop in the shop air regulator, maximum turbine inlet pressure at max flow was measured to be 3.1 bara. There was no budget for an air flowmeter.
 
+The supply droop deserves a proper explanation because it directly sets the coupled test conditions in \cref{sec:results}. The shop air behaves as a regulated blowdown with a finite supply. When the turbine valve opens, the regulator cannot hold its set pressure at the demanded flow, so the stator pressure sags well below the static setting, and the achievable turbine inlet pressure under flow is roughly 38\% of the design supply. This is a property of the rig, not of the turbine, but it has to be characterised because the turbine match point depends on it.
+
+To verify the original 100 bar feed system before it was descoped, a transient flow network simulation was written from scratch. The model solves the tank blowdown as a system of differential equations, with each component represented by its flow coefficient, tube friction from roughness and bends, a regulator model holding its set pressure within a control band, and the choked stator as the terminating element. This was admittedly an overkill way to answer the question of whether two 3.8 litre tanks held enough gas for a full test, but it gave the test durations and the pressure transients at every node of the feed system, and the same component models were reused to size the valve Kv requirements. The simulation code is part of the project's analysis repository.
+
 \subsection{Instrumentation and Data Acquisition}
 
 For cost and time reasons, a custom data acquisition and control system was designed to allow for remote operation of the test rig. 
@@ -135,7 +149,7 @@ For cost and time reasons, a custom data acquisition and control system was desi
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{TODO} % Fig 4.3: DAQ block diagram (sensor -> conditioning -> MCP3208 -> ESP32 -> Pi5 -> HDF5/GUI)
+    \caption{Data acquisition architecture. Sensors and the DSP6001 analog outputs feed the MCP3208 ADC, read by an ESP32-S3 over SPI, streamed to the Raspberry Pi 5 over UART, logged to HDF5 and forwarded to the control room GUI over the network.} % PLACEHOLDER IMAGE: block diagram
     \label{fig:daq-block}
 \end{figure}
 
@@ -143,11 +157,34 @@ For safety reasons, the electronics were enclosed in a plastic box placed in the
 
 The main main computer inside this box was a Raspberry Pi 5 running a backend written in Python. The Raspberry Pi communicated with 3 ESP32S3 microcontrollers over a UART serial connection at 921600 baud. One ESP32S3 was used as the actuator controller, one was used as a ADC and flowmeter DAQ, and one was used as a thermocouple DAQ. Breadboards would require too many wires to maintain and unstable, while there was not enough time to make custom PCBs. Soldered perfboard was used to connect the components. The Raspberry Pi communicates through the LAN cable through UDP to a laptop in the control room, allowing for live data readout and control of the test rig with a GUI written in Python and Qt.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{placeholder.png}
+    \caption{The control room GUI during a test: live channel readouts, strip charts of pressure, torque and speed, valve angle controls, and the test sequencing and logging controls. Every quantity shown is logged to HDF5 at the full 50 Hz loop rate, so the analysis of \cref{sec:results} works from exactly what the operator saw.} % PLACEHOLDER IMAGE: GUI screenshot during a run (pick a frame with the pump near BEP)
+    \label{fig:gui-readout}
+\end{figure}
+
 \subsubsection{ADC Measurements}
 
 Pressure, torque, RPM, voltage and current were measured with a MCP3208 8 channel 12-bit ADC connected to the ESP32S3. The MCP3208 was powered by a LT3042 LDO at 5.11V to reduce noise. This 5.11V was also used to power the pressure sensors. As the pressure transducers were ratiometric, both the ADC and the pressure transducers track bacck to the same voltage reference, reducing drift and noise.
 
-The custom backend could only send UART signals back and forth to the ESPs at a 50 Hz loop. The MCP3208 was capable of sampling up to 100 ksps, so the ESP32 was programmed to collect 32 samples and average them per channel before sending the averaged data back to the Raspberry Pi. High frequency data couldn't be collected due to the UART connection being the bottleneck, but this averaging allowed for measurement of voltage at a resolution higher than 12-bits.
+The custom backend could only send UART signals back and forth to the ESPs at a 50 Hz loop. The MCP3208 was capable of sampling up to 100 ksps, so the ESP32 was programmed to collect 32 samples and average them per channel before sending the averaged data back to the Raspberry Pi. High frequency data couldn't be collected due to the UART connection being the bottleneck, but this averaging allowed for measurement of voltage at a resolution higher than 12-bits. For uncorrelated noise the averaging reduces the standard deviation of each logged point by
+
+\begin{equation}
+    \sigma_{avg} = \frac{\sigma}{\sqrt{N}} = \frac{\sigma}{\sqrt{32}}
+    \label{eq:oversampling}
+\end{equation}
+
+which is a factor of about 5.7, and is why the per bin scatter in the results is small.
+
+The ratiometric arrangement deserves one line of algebra, because it deletes a systematic error term by design. The transducer output is proportional to its excitation voltage, $V_s = k\, p\, V_{exc}$, and the ADC reports the ratio of its input to its reference, $D = V_s / V_{ref}$. With both supplied from the same LT3042 rail, $V_{exc} = V_{ref}$, so
+
+\begin{equation}
+    D = \frac{k\, p\, V_{exc}}{V_{ref}} = k\, p
+    \label{eq:ratiometric}
+\end{equation}
+
+and any drift of the shared rail cancels to first order, leaving only the transducer's own nonlinearity and the reference noise.
 
 Originally, a separate computer running Magtrol's M-Test software was planned to be used to read the torque and RPM from the DSP6001. However, by connecting the DSP6001's analog output for torque and RPM to the MCP3208, the torque and RPM data could be integrated into the same DAQ system as the pressure sensors, allowing for time-exact data synchronisation and simpler data collection.
 
@@ -158,7 +195,7 @@ The motor's voltage and current were also measured by the ADC. The 24V supply to
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{TODO} % Fig 4.4: KiCAD schematic -- MCP3208 + LT3042 + op-amp torque conditioning (export from KiCAD project)
+    \caption{ADC and signal conditioning schematic: the LT3042 reference powering both the MCP3208 and the ratiometric pressure transducers, and the op-amp level shift for the torque signal.} % PLACEHOLDER IMAGE: KiCAD export
     \label{fig:adc-schematic}
 \end{figure}
 
@@ -172,15 +209,30 @@ A E-WFS-GE turbine flowmeter with a range of 2 to 45 L/min with a cited accuracy
 
 This ESP32 was responsible for controlling the inlet and outlet throttle valve angles,
 
+\subsubsection{Cavitation Imaging}
+
+The transparent front casing and diffuser turn the pump into its own instrument, but only if the bubbles can actually be seen on camera. Cavitation bubbles are transparent; what a camera records is light scattered at the bubble interfaces, so the imaging arrangement matters as much as the casing. The casing was lit obliquely with a high intensity lamp placed off the camera axis, so that bubble interfaces scatter light toward the camera while the bulk water stays dark, and the polished resin surface was angled to keep the specular reflection of the lamp out of frame. % [VERIFY] exact lamp type and placement; add a photo of the arrangement
+Video was recorded through the polycarbonate shield with a consumer camera. % [VERIFY] camera model and frame rate
+
+Two limitations of this arrangement should be stated. The frame rate is orders of magnitude below the blade passing frequency, so each frame is a time averaged record of the cavity envelope, not a snapshot of individual bubble dynamics, and the consumer camera's rolling shutter means different image rows sample different instants, geometrically distorting fast moving structures. Individual bubbles are still resolved in some frames where the motion is slow enough. These limits are acceptable for what the video is used for in \cref{sec:results}, identifying where cavitation occurs, when it onsets, and when the throat clears, all of which are envelope level questions. Bubble tracking or cavity dynamics would need a global shutter camera with a synchronised strobe, which is noted as future work.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{placeholder.png}
+    \caption{The cavitation imaging arrangement: oblique illumination of the transparent casing with the camera viewing through the blast shield.} % PLACEHOLDER IMAGE: photo of lamp + camera + pump
+    \label{fig:cav-imaging-setup}
+\end{figure}
+
 \subsubsection{Instrument Uncertainty}
 
-% STUB -- the instrument table the Ch5 uncertainty preamble cites.
+\cref{tab:instruments} lists every measurement channel with its range and systematic uncertainty. These values feed directly into the uncertainty analysis of \cref{sec:results}, where they are combined with the per point random scatter. The torque chain is the best characterised: the TM306 itself is rated to better than 0.1\% of its 5 Nm range, the DSP6001 analog output adds 0.05\%, and the conditioning chain was designed so the dominant systematic terms cancel, as described in the previous section. Where calibration certificates were not available, cheap cross checks bound the errors instead. The measured efficiency landing close to the design estimate validates the torque scale, the shutoff head scaling with speed squared through the origin bounds the pressure transducer gain error, and the repeatability of the non dimensional head coefficient across five speeds bounds the random error.
+
 % Values MUST stay identical to the UNC dict in data_analysis/thesis_figures.py (six placeholders still to fill from datasheets).
-% Known: TM306 <0.1% of 5 Nm; PT = generic 1.2 MPa 0.5-4.5 V ratiometric [%FS TBC]; fm0 flowmeter [TBC]; d2/b2 as-printed [measure].
 
 \begin{table}[H]
     \centering
-    \caption{TODO} % every channel: quantity, sensor, range, output type, systematic uncertainty + source
+    \caption{Measurement channels, ranges and systematic uncertainties. % TODO fill from datasheets; must match the UNC dict
+    }
     \label{tab:instruments}
     \begin{tabular}{llllll}
         \toprule
@@ -197,7 +249,96 @@ This ESP32 was responsible for controlling the inlet and outlet throttle valve a
 
 \subsection{Test Envelope and Limitations}
 
-% STUB -- motor/ESC: no speed loop, throttle-stepped, torque/current cap -> pump testing topped out ~7,500 rpm;
-% shop air: pressure + droop -> coupled run settled ~5,400 rpm;
-% Knoll framing: "these conditions weren't surveyed due to experimental limitations" -- capability statement, not apology;
-% safety: 2-3 sentences ONLY (blast shield, personnel out of room, PILZ interlock); full safety case -> appendix.
+The achievable test envelope was set by the drive hardware on the pump side and by the air supply on the turbine side. The electric motor had no speed control loop, only stepped throttle commands to the ESC, and the combination of the ESC current limit and motor torque cap meant pump testing topped out at around 7,500 RPM. On the turbine side, the shop air pressure and its droop under flow settled the coupled shaft at around \valCoupledRpm{} RPM. Conditions above these speeds were not surveyed due to these experimental limitations, and the extrapolation of the measured behaviour towards the design point is handled analytically in \cref{sec:results}.
+
+Safety drove three features of the test arrangement that are visible in the data taking: all testing was operated from a separate control room with nobody in the test cell, the rotating assembly was fully enclosed by a blast shield, and a hardware safety relay cuts all actuation power on an overspeed or emergency stop. The shield and the protection system were not bought off a shelf, they were sized by the calculations of the next section.
+
+\subsection{Containment and Protection System Design}
+
+Experimental turbomachinery has to be designed on the assumption that any rotating component or any non commercial pressure part can fail. The containment hardware was therefore sized from first principles. A note on the operating pressure: these calculations were performed for the original 100 bar stored air system that was later descoped to the 7 bar shop air supply, and the hardware they sized was retained, so the as-tested system carries safety factors far beyond what the 7 bar regime requires.
+
+\subsubsection{Fragment Energy and Blast Shield Sizing}
+
+For the failure of a pressure holding component, the fragment velocity is estimated with the method of Baker \cite{bakerExplosionHazards1983}, developed from simulations of a vessel breaking into sectional fragments and matched to experiment within 10\%. The non-dimensional burst pressure is
+
+\begin{equation}
+    \bar{P} = \frac{\left(P_0 - P_e\right)V_0}{m_c\, \gamma R T_0}
+    \label{eq:baker_pressure}
+\end{equation}
+
+where $P_0$ is the vessel pressure at failure (the full 100 bar, assuming both the regulator and the burst disc have failed), $P_e$ is atmospheric pressure, $V_0$ the vessel volume and $m_c$ the casing mass. The worst case line of Baker's velocity chart is
+
+\begin{equation}
+    \log_{10}{\bar{u}} = 0.6 \log_{10}{\bar{P}} + 0.15, \qquad
+    \bar{u} = \frac{u}{\sqrt{K \gamma R T_0}}
+    \label{eq:baker_velocity}
+\end{equation}
+
+with $K = 1$ for evenly distributed fragment mass. The only non commercial pressure holding component is the stator, and this procedure gives a fragment velocity of 72 m/s. Assuming the stator splits into two 0.1 kg fragments,
+
+\begin{equation}
+    E = \tfrac{1}{2} m u^2 = \tfrac{1}{2} \times 0.1 \times 72^2 = 261 \textrm{ J}
+    \label{eq:fragment_ke}
+\end{equation}
+
+For the rotating assembly, the bounding energy is the full rotational kinetic energy of the blisk at design speed,
+
+\begin{equation}
+    E = \tfrac{1}{2} I \omega^2 = \tfrac{1}{2} \times 6\times10^{-5} \times 2094^2 = 131 \textrm{ J}
+    \label{eq:blisk_ke}
+\end{equation}
+
+The main line of defence is a 20 mm Dyneema (UHMWPE composite) ballistic panel on an aluminium extrusion frame. Its capacity is expressed as a specific energy absorption,
+
+\begin{equation}
+    SEA = \frac{E}{m}, \qquad E_{max} = SEA \cdot A\, t\, \rho
+    \label{eq:sea}
+\end{equation}
+
+where $A$ is the projected area of the impacting fragment, $t$ the panel thickness and $\rho$ the panel density. The $SEA$ is derived from published $v_{50}$ ballistic limits for fragment simulating projectiles against 20 mm panels \cite{hazellArmour2015}: a 12.7 mm FSP gives 1.84 MJ/kg and a 20 mm FSP gives 1.68 MJ/kg, the latter agreeing with independent flat projectile data. Using the conservative value, the panel can absorb 163 kJ over the stator's projected area and 32.6 kJ over the blisk's, against the fragment energies of \cref{eq:fragment_ke,eq:blisk_ke}. The containment margins are roughly 600 and 250.
+
+A 15 mm polycarbonate shield additionally separates the turbomachinery from the dynamometer. Its capacity is estimated with the shear plug model \cite{hazellArmour2015}, where the projectile shears a plug of perimeter $P_{im}$ out of the sheet:
+
+\begin{equation}
+    E = \int_0^t P_{im}\, \tau \left(t-x\right) dx = \tfrac{1}{2} P_{im}\, \tau\, t^2
+    \label{eq:shear_plug}
+\end{equation}
+
+with $\tau = 60$ MPa for polycarbonate, conservative because the material strain hardens at impact rates. This gives 2.7 kJ for the stator perimeter and 4.1 kJ for the blisk perimeter, safety factors of 10 and 30 on their own.
+
+\subsubsection{Bounding Shaft Torque}
+
+The rig torque rating was checked against an upper bound from the Euler equation, taking the maximum mass flow, full tangential jet velocity at entry and perfect counter rotation at exit:
+
+\begin{equation}
+    \tau_{max} = \dot{m}\, r \left(c_{u,in} - c_{u,out}\right)
+    = 0.034 \times 0.05 \times \left(469 + 469\right) = 1.6 \textrm{ Nm}
+    \label{eq:torque_bound}
+\end{equation}
+
+This is an unachievable worst case and still sits well below the 3 Nm rating of the shaft train.
+
+\subsubsection{Protection System Electronics}
+
+The protection logic that the next section's transient analysis relies on is implemented in hardware, not software. The core is a PILZ PNOZ X3 safety relay wired as a dual channel emergency stop chain: the control room E-stop button and the overspeed trip both open the chain, and the relay then cuts the supply to every actuator solenoid through its force guided contacts. The safety relay is a certified device whose failure modes are themselves controlled, which is the reason for using one instead of a software interlock through the Raspberry Pi: the software stack is involved in detecting the overspeed, but once the trip fires, no software is in the loop between the relay and the valves. % [VERIFY] overspeed detection path (backend threshold -> relay input) and reset procedure
+The pneumatic actuators are spring return, chosen so that the de-energised state is the safe state: on any loss of actuation power, including a tripped relay, a cut LAN cable or a power failure, the main air valve drives closed and the vent valve opens the manifold to atmosphere. The 20 ms figure used in the runaway analysis below is the relay contact response; the valve travel times dominate the rest of the shutdown timeline.
+
+The electrical system itself is low risk by construction: everything in the test cell runs at 24 V DC or below from a single supply, the electronics live in an enclosed plastic box protecting them from spray, and the only conductor crossing the test cell boundary is the LAN cable to the control room, which carries no power. The motor ESC and its 24 V supply are the highest energy electrical components, and they are inside the same enclosure boundary with the rotating hardware, behind the shield. % [VERIFY] supply details (single 24V rail assumption) against the as-built electronics
+
+\subsubsection{Overspeed Runaway Transient}
+
+The protection system has to act faster than the worst credible overspeed. With a broken shaft leaving only the turbine, blisk and bearings, the angular acceleration under the maximum torque at the 17,000 RPM redline is
+
+\begin{equation}
+    \alpha = \frac{\tau}{I} = \frac{0.9}{2.74\times10^{-4}} = 3285 \textrm{ rad/s}^2 \approx 31{,}300 \textrm{ RPM/s}
+    \label{eq:runaway_accel}
+\end{equation}
+
+After the trip, the manifold between the closed valve and the stator continues to blow down through the turbine. In choked flow the mass flow is proportional to the remaining manifold mass, an exponential decay with time constant
+
+\begin{equation}
+    \frac{dm}{dt} = -\dot{m}_0 \frac{m}{m_0} \quad\Rightarrow\quad \tau_{bd} = \frac{m_0}{\dot{m}_0} = 42 \textrm{ ms}
+    \label{eq:blowdown_tau}
+\end{equation}
+
+for the measured manifold volume. The protection sequence is: overspeed detected at $t=0$, all actuation power cut by the hardware relay at 20 ms, main valve fully closed at 170 ms, manifold vented by around 200 ms. Holding the maximum torque over the full 200 ms overestimates the excursion and still bounds it at 6,260 RPM, so an overspeed tripped at 17,000 RPM peaks below 23,300 RPM, briefly exceeding the 20,000 RPM dynamometer rating within the manufacturer's stated tolerance for transient overuse. Cavitation testing was further speed limited so that the same worst case stays below 19,000 RPM. The venting noise and reaction force calculations that complete the safety case are in \cref{sec:appendix_safety}.

@@ -1,21 +1,99 @@
 \section*{Nomenclature}
 \addcontentsline{toc}{section}{Nomenclature}
-\begin{tabular}{ll}
-  $A$ & Area (\si{\square\meter}) \\
-  $H$ & Pump Head (\si{\meter}) \\
-  $N$ & Rotational Speed (RPM) \\
-  $P$ & Power (\si{\watt}) \\
-  $Q$ & Volumetric Flow Rate (\si{\cubic\meter\per\second}) \\
-  $\eta$ & Efficiency ($-$) \\
-  $\rho$ & Density (\si{\kilogram\per\cubic\meter}) \\
-  $\omega$ & Angular Velocity (\si{\radian\per\second}) \\
-\end{tabular}
-\vspace{1cm}
 
-\textbf{Abbreviations} \\
+% Generated from the nomenclature register (AI SK-NOMENCLATURE.md, 2026-06-13).
+% Conventions: velocities lowercase u/c/w; total states carry a leading 0 (p01);
+% flow angles measured from the circumferential direction; stations are
+% machine-scoped (pump 0-4, turbine 1-4); one symbol = one meaning, except the
+% two declared scoped sets (MoC starred set, Sasman-Cresci BL set).
+
+\noindent\textbf{Latin symbols}\\[2pt]
 \begin{tabular}{ll}
+  $a$ & Speed of sound (\si{\meter\per\second}) \\
+  $A$, $A_{th}$ & Area; geometric nozzle throat area (\si{\square\meter}) \\
+  $b$ & Turbine rotor blade height (\si{\milli\meter}) \\
+  $b_1$, $b_2$ & Pump blade axial width at stations 1, 2 (\si{\milli\meter}) \\
+  $b_c$, $h_c$ & Annular casing width, radial depth (\si{\milli\meter}) \\
+  $c$ & Absolute velocity (\si{\meter\per\second}) \\
+  $c_p$ & Specific heat at constant pressure (\si{\joule\per\kilogram\per\kelvin}) \\
+  $c_s$ & Spouting velocity (\si{\meter\per\second}) \\
+  $C_H$, $K_1$ & Lock/Busemann head-correction constants ($-$) \\
+  $d_0 \ldots d_4$ & Pump station diameters (\si{\milli\meter}) \\
+  $d_m$ & Turbine mean (pitch) diameter (\si{\milli\meter}) \\
+  $f$ & Friction coefficient ($-$) \\
+  $F_R$ & Radial thrust (\si{\newton}) \\
+  $g$ & Gravitational acceleration (\si{\meter\per\square\second}) \\
+  $H$ & Pump head (\si{\meter}); $H_{th}$ theoretical (Euler) head; $H_3$ head at diffuser throat \\
+  $h$ & Specific enthalpy (\si{\joule\per\kilogram}); $\Delta h_s$ isentropic drop \\
+  $k_d$ & Barske diffuser kinetic-recovery coefficient ($-$) \\
+  $k_N$, $k_R$ & Nozzle, rotor velocity coefficients (Weiss) ($-$) \\
+  $k_0$ & Lock shutoff head constant ($-$) \\
+  $K_R$ & Radial thrust coefficient ($-$) \\
+  $M$ & Mach number; $M_{w3}$ rotor-inlet relative Mach ($-$) \\
+  $\dot{m}$ & Mass flow rate (\si{\kilogram\per\second}) \\
+  $n$ & Shaft speed (\si{\rpm}) \\
+  $n_q$ & Specific speed $n\sqrt{Q}/H^{0.75}$ (rpm, \si{\cubic\meter\per\second}, m) \\
+  $\textrm{NPSH}_a$, $\textrm{NPSH}_3$ & Available NPSH; NPSH at 3\,\% head drop (\si{\meter}) \\
+  $p$ & Static pressure (\si{\pascal}); $p_{01}$, $T_{01}$ total state at station 1; $p_v$ vapour pressure \\
+  $P$ & Power (\si{\watt}); $P_{RR}$ disc friction/churning; $P_w$ ventilation (windage) power \\
+  $q$ & Dynamic pressure $\tfrac{1}{2}\rho c^2$ (\si{\pascal}) \\
+  $Q$ & Volumetric flow rate (\si{\cubic\meter\per\second}); $Q_L$ leakage flow \\
+  $r$ & Radius (\si{\meter}); recovery factor in \cref{eq:recovery_temperature} only \\
+  $R$ & Specific gas constant (\si{\joule\per\kilogram\per\kelvin}) \\
+  $Re_u$ & Peripheral Reynolds number $u_2 r_2/\nu_l$ ($-$) \\
+  $s_{ax}$ & Impeller--casing axial clearance (\si{\milli\meter}) \\
+  $T$ & Temperature (\si{\kelvin}) \\
+  $u$ & Blade (peripheral) speed (\si{\meter\per\second}) \\
+  $w$ & Relative velocity (\si{\meter\per\second}) \\
+  $Y$ & Specific work (\si{\joule\per\kilogram}) \\
+  $z$ & Blade count ($-$) \\
+\end{tabular}
+\\[8pt]
+
+\noindent\textbf{Greek symbols}\\[2pt]
+\begin{tabular}{ll}
+  $\alpha$ & Absolute flow angle from circumferential (\si{\degree}) \\
+  $\beta$ & Relative flow / blade angle from circumferential (\si{\degree}) \\
+  $\gamma$ & Heat capacity ratio ($-$) \\
+  $\varepsilon$ & Degree of (partial) admission ($-$) \\
+  $\zeta_D$ & Diffuser-nozzle loss coefficient ($-$) \\
+  $\eta$ & Efficiency: pump overall $\rho g Q H/(\tau\omega)$; $\eta_h$ hydraulic; $\eta_{ts}$ turbine total-to-static \\
+  $\mu$ & Dynamic viscosity (always with a state subscript); Mach angle within the MoC set only \\
+  $\nu$ & Prandtl--Meyer angle (\si{\degree}); kinematic viscosity is written $\mu/\rho$ or $\nu_l$ \\
+  $\rho$ & Density (\si{\kilogram\per\cubic\meter}); $\rho_b$ blade material density \\
+  $\sigma$ & Slip factor (Wiesner), \S\ref{sec:theory} only ($-$) \\
+  $\tau$ & Shaft torque (\si{\newton\meter}) \\
+  $\phi$ & Pump flow coefficient $Q/(\pi d_2 b_2 u_2)$ ($-$) \\
+  $\psi$ & Pump head coefficient $2gH/u_2^2$ ($-$) \\
+  $\omega$ & Shaft angular velocity (\si{\radian\per\second}); $\omega_s$ nondimensional specific speed \\
+\end{tabular}
+\\[8pt]
+
+\noindent\textbf{Stations} (machine-scoped)\\[2pt]
+\begin{tabular}{ll}
+  Pump & 0 suction/eye inlet · 1 blade leading edge · 2 blade tip · 3 diffuser throat · 4 discharge \\
+  Turbine & 1 stator inlet plenum · 2 nozzle throat · 3 nozzle exit/rotor inlet · 4 rotor exit \\
+\end{tabular}
+\\[8pt]
+
+\noindent\textbf{Scoped symbol sets} (declared here, used only in their subsections)\\[2pt]
+\begin{tabular}{ll}
+  MoC set (\cref{subsec:method_of_characteristics}) & $M^* = c/a^*$, $a^* = \sqrt{\gamma R T^*}$, $r^*$, $R^*$, $x^*$, $y^*$, $\mu_k$ (Mach angle), $m_k$, $\Delta\nu$ \\
+  Starting set (\cref{subsec:method_of_characteristics}) & $M^*_l$, $M^*_u$ surface critical Machs; $K^*_{max}$ weight-flow constant; $Q$ vortex parameter; $C$ 2D reduction factor \\
+  Boundary layer set (Sasman--Cresci) & $H_i$ shape factor, $\theta$ momentum thickness, $f$, $C_f$, $g_w$, $T_e$, $\bar{T}$, $s/c$ \\
+\end{tabular}
+\\[8pt]
+
+\noindent\textbf{Abbreviations}\\[2pt]
+\begin{tabular}{ll}
+  ADC & Analogue to Digital Converter \\
+  BEP & Best Efficiency Point \\
   CFD & Computational Fluid Dynamics \\
-  FYP & Final Year Project \\
-  \NPSHa{} & Net Positive Suction Head Available \\
-  \NPSHr{} & Net Positive Suction Head Required \\
+  DAQ & Data Acquisition \\
+  ESC & Electronic Speed Controller \\
+  FEA & Finite Element Analysis \\
+  GUI & Graphical User Interface \\
+  MoC & Method of Characteristics \\
+  P\&ID & Piping and Instrumentation Diagram \\
+  SLA & Stereolithography (resin printing) \\
 \end{tabular}

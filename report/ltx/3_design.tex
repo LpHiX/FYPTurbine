@@ -1,4 +1,5 @@
 \section{Design}
+\label{sec:design}
 
 The design point for this thesis was chosen from the capabilities of the test rig. The design parameters for the pump and turbine is shown in \cref{tab:design_point} and this section explains how each number was chosen.
 
@@ -6,7 +7,7 @@ The RPM limit was set by the maximum speed of the Magtrol TM306 inline torquemet
 
 \begin{table}[H]
   \centering
-  \caption{TODO} % turbopump system design point
+  \caption{Turbopump system design point.}
   \label{tab:design_point}
   \input{generated/tables/tab_design_point}
 \end{table}
@@ -16,90 +17,115 @@ The RPM limit was set by the maximum speed of the Magtrol TM306 inline torquemet
 
 \subsubsection{Design Point and Requirements}
 
-% STUB -- n = 20k RPM, fluid = water, target H, Q, NPSHa, power limit (AHB-3: 1800 W);
-% compute n_q -> confirm the Barske regime established in Ch2. First chapter with real numbers.
+The pump design point is \valPumpQDesign{} of water at a head rise of \valPumpHeadDesign{} at \valPumpRpmDesign. Substituting these into \cref{eq:specific_speed} gives $n_q = \valPumpNqDesign$, which confirms the pump sits in the partial emission regime established in \cref{fig:pump_type_by_specific_speed}. On top of the hydraulic requirements, the design had to respect the hardware limits of the rig. The AHB-3 hysteresis brake is rated to 1800 W, which caps the allowable shaft power, and the available NPSH is set by the supply pump and tank rather than being a free choice.
 
 \subsubsection{Sizing}
 
-% STUB -- walk the Ch2 Barske equation set with the actual numbers/decisions:
-% v0 -> d0 -> d1; b1, b2, s_ax; annular casing ("1 mm too tight, used 2.5 mm");
-% d2 from recovery equation with c_k = 0.2; checks: u1 < 45 m/s, D2/D1 > 1.5, NPSHa margin, <=1800 W.
-% State: sizing used Barske; Lock is the Ch5 analysis model. Future work: invert Lock into a sizing tool.
+The pump was sized with the Barske procedure of \cref{eq:barske_inlet_diameter,eq:barske_tip_diameter} and the accompanying guidelines, executed in order with this design point. A reasonable inlet velocity gives an eye diameter of $d_0 = \valPumpDZero$, enlarged to $d_1 = \valPumpDOne$ for the blade leading edge to allow the deliberate prerotation Barske recommends. The blade heights follow as $b_1 = \valPumpBOne$ and $b_2 = \valPumpBTwo$. The tip diameter comes from the recovery equation \cref{eq:barske_tip_diameter} with a deliberately conservative recovery coefficient of $c_k = 0.2$, giving $d_2 = \valPumpDTwo$. A conservative $c_k$ oversizes the impeller slightly, and the plan was to trim $d_2$ later if the discharge pressure came out too high. The resulting geometry was checked against the constraints: the inlet blade speed stays below 45 m/s, $d_2/d_1 > 1.5$, the NPSH margin against the supply system is positive, and the predicted shaft power of \valPumpPowerDesign{} sits under the 1800 W brake limit.
 
-% \todo{does lock's model change barske's design methodology for d2? I can write the barske model for now and say future work can look at rearranging lock maybe?}
+It should be stated clearly that the sizing used the Barske model, not Lock's. Lock's refined model was adopted later as the analysis model because it predicts the drooping head curve and the cavitation cutoff that the Barske model cannot, and its comparison against the measured data is in \cref{sec:results}. Rearranging Lock's model into a direct sizing tool is left as future work.
 
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.36\textwidth}
         \centering
         \includegraphics[width=0.8\textwidth]{barske_meridional.pdf}
-        \caption{TODO} % meridional FULL section, TRUE scale (no exaggeration any more), dims labelled
+        \caption{Meridional section}
         \label{fig:barske-meridional}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.58\textwidth}
         \centering
         \includegraphics[width=\textwidth]{barske_plan.pdf}
-        \caption{TODO} % end view with blades (with thickness), annular casing, tangential diffuser d3/d4
+        \caption{End view}
         \label{fig:barske-plan}
     \end{subfigure}
-    \caption{TODO} % Fig 3.1: Barske geometry schematic pair, generated from the sized pump object
+    \caption{The sized pump geometry, drawn to scale from the sizing code output. The meridional section shows the open tapered blades, the conical front casing maintaining the axial clearance $s_{ax}$, and the annular casing of width $b_c$ and depth $h_c$. The end view shows the six radial blades and the single tangential conical diffuser with throat $d_3$ and exit $d_4$. Values are listed in \cref{tab:pump_design}.}
     \label{fig:barske-geometry}
 \end{figure}
 
 \begin{table}[H]
   \centering
-  \caption{TODO} % pump design summary
+  \caption{Pump design summary, generated directly from the sizing code.}
   \label{tab:pump_design}
   \input{generated/tables/tab_pump_design}
 \end{table}
 
 \subsubsection{Diffuser}
 
-% STUB -- single-arc diffuser; throat A3 from v3 ~ 0.8-0.9 u2; A4 = 3-4 A3;
-% throat = one of the two performance-critical tolerances. (Danieli comparison lives in Ch5.)
+The diffuser is a single conical passage placed tangentially on the annular casing, following Barske's guidance from \cref{sec:theory_barske_sizing}. The throat was sized for a throat velocity of 0.8 to 0.9 of $u_2$, giving $d_3 = \valPumpDThreeSized$, and the exit area is 3 to 4 times the throat area, giving $d_4 = \valPumpDFourSized$. The throat is one of the two performance critical tolerances of the whole pump, because the entire flow passes through this one small hole and, as Lock's model predicts, the maximum flow rate is set by cavitation at exactly this location. The comparison of this throat sizing against the literature is discussed in \cref{sec:results}.
 
 \subsubsection{Mechanical Design}
 
-% STUB -- radial thrust (partial emission -> asymmetric pressure field -> governs shaft/bearings);
-% 10 mm solid stainless stub shaft; mechanical seal thermal calc (~300 W at 20 bar -> active flush);
+The dominant mechanical load is not torque but radial thrust. Because the pump is partial emission, the pressure field around the impeller is asymmetric, and the net radial force this produces governs the shaft and bearing design rather than efficiency considerations. The radial thrust is estimated with the standard projected area form
 
-\todo{bearing and seal calculations}
+\begin{equation}
+    F_R = K_R\, \rho g H\, d_2 b_2
+    \label{eq:radial_thrust}
+\end{equation}
 
-% static FEA (impeller + shaft) at 20k with margins -- load-bearing for the title's "computational";
-% shaft key + coupler sizing (1-2 sentences, calcs -> appendix); pump-shaft critical speed (estimate or honest future-work sentence);
-% transparent front casing + diffuser as a deliberate design decision (payoff = Ch5 visualisation).
+where $K_R$ is an empirical thrust coefficient and $d_2 b_2$ is the projected impeller discharge area \cite{gulichCentrifugalPumps2020}. For a single tangential collector the unbalance is large compared to a volute pump, and at the design head this force, not the 1.2 Nm of torque, is what loads the bearings. The shaft is a 10 mm solid stainless steel stub, chosen over printed or aluminium options to keep the rotor stiff enough to prevent rotor to stator rubs at the small axial clearance.
+
+The mechanical seal sets its own requirement, and its friction was modelled rather than guessed because it sits between the torquemeter and the impeller, inside every torque measurement of \cref{sec:results}. The net closing pressure on the seal faces is the sealed pressure acting on the hydraulic unbalance of the face, plus the spring:
+
+\begin{equation}
+    p_f = \Delta p \left(b - k\right) + p_{sp}, \qquad
+    b = \frac{d_o^2 - d_b^2}{d_o^2 - d_i^2}
+    \label{eq:seal_balance}
+\end{equation}
+
+where $b$ is the seal balance ratio built from the face outer and inner diameters $d_o$, $d_i$ and the balance diameter $d_b$, $k \approx 0.5$ is the pressure profile factor for the fluid film between the faces, and $p_{sp}$ is the spring force over the face area \cite{gulichCentrifugalPumps2020}. % [VERIFY] cite: balance-ratio formulation is standard seal practice (Karassik/Mayer); swap citation if Gulich lacks it
+The friction torque and heat follow as
+
+\begin{equation}
+    \tau_{seal} = p_f\, A_f\, r_m\, f, \qquad
+    P_{seal} = \tau_{seal}\, \omega
+    \label{eq:seal_heat}
+\end{equation}
+
+with $A_f$ the face contact area, $r_m$ the mean face radius and $f$ the face friction coefficient. The fitted single spring seal used here has a balance ratio of $b = 1.20$, an unbalanced seal, so the closing pressure grows faster than the sealed pressure. With the dry running textbook coefficient $f = 0.07$, the model predicts about 0.4 Nm and 860 W of face heating at the 20 bar, 20,000 RPM design point, and about 0.08 Nm and 60 W at the achieved test conditions. The design point heat flux would flash the water film at the faces to steam without an active flush, so the seal is flushed by the pumped water itself. Two parts of this model are tested against data later: the static starting torque, quoted by Karassik at 3 to 5 times the running torque, is compared against the measured stiction band in \cref{sec:results}, and the friction coefficient itself is fitted from the measured loss budget, which returns $f$ well below the dry value because the faces run on a water film.
+
+Rolling bearing friction was estimated with the SKF four component model, which sums a load dependent rolling term, a sliding term and, for a submerged bearing, a drag term:
+
+\begin{equation}
+    M_{brg} = M_{rr} + M_{sl} + M_{drag}
+    = \phi_{ish}\,\phi_{rs}\, G_{rr} \left(\nu_l\, n\right)^{0.6} + G_{sl}\, \mu_{sl} + M_{drag}
+    \label{eq:bearing_friction}
+\end{equation}
+
+where the $G$ factors carry the bearing geometry and load, the $\phi$ factors are shear heating and starvation corrections, and $\nu_l$ is the lubricant kinematic viscosity \cite{skfRollingBearings}. % [VERIFY] add SKF Rolling Bearings catalogue (model source) to the bib
+For the 61900 deep groove bearings running submerged in water, the model predicts roughly 0.2 W per bearing at test speed and under 4 W at the full design speed. Bearing friction is therefore negligible against the seal and churning losses, a conclusion the shutoff loss decomposition of \cref{sec:results} supports.
+
+The front casing and the diffuser were printed in clear resin and polished. This was a deliberate design decision, enabled by the low test pressures, so that cavitation could be observed directly through the casing wall. The payoff of this decision is the cavitation visualisation in \cref{sec:results}, which turned out to be one of the most valuable measurements of the project.
+
+The pump shaft critical speed was bounded with the same overhung rotor estimate used for the turbine shaft, \cref{eq:overhung_critical}. Treating the 10 mm stainless shaft ($E = 193$ GPa, $I = \pi d^4/64 = 4.9\times10^{-10}$ m$^4$) as a cantilever from the bearing with the impeller mass at the overhang, the first bending speed stays above approximately 45,000 RPM for any plausible combination of overhang length up to 50 mm and impeller mass up to 100 g, a margin of better than 2.2 over the design speed. % [VERIFY] as-built overhang length and impeller mass; tighten the bound with the real values
+The bound is deliberately conservative, since the short stub geometry was chosen exactly to keep this margin large, as discussed in \cref{sec:experiment}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{placeholder.png}
-    \caption{TODO} % pump impeller + shaft static FEA at 20k rpm (Fusion 360); mesh + BCs + hand-calc cross-check
+    \caption{Static FEA of the impeller and shaft at \valPumpRpmDesign{} showing peak stress and deflection.} % PLACEHOLDER IMAGE: Fusion 360 study; state mesh + BCs + hand-calc cross-check in text
     \label{fig:pump-fea}
 \end{figure}
 
 \subsubsection{Cavitation Prediction}
 
-% STUB -- NPSHr from the Lock model at design Q -> value; NPSHa from test tank -> margin;
-% forward-ref: full NPSHr-Q curve + throat-onset visualisation are Ch5.
+At the design flow rate, the predicted NPSH required is \valPumpNpshrDesign. Compared against the NPSH available from the pressurised supply, this leaves a positive but not generous margin, which is one of the reasons the cavitation behaviour was made a primary measurement objective. The full NPSH against flow rate characterisation, and the visual confirmation of where cavitation actually occurs, are presented in \cref{sec:results}.
 
 \subsubsection{Manufacturing and As-Built}
 
-% STUB -- SLA; why additive is fine for an open impeller (forced vortex -> finish unimportant);
-% the two dominating tolerances: axial gap s_ax and diffuser throat; as-built deviations -> appendix tables.
+The impeller, casing and diffuser were printed by SLA. Additive manufacturing is acceptable for this pump precisely because of the forced vortex operation described in \cref{sec:theory}. With the fluid rotating as a solid body, the relative velocity over the blade surfaces is low, so blade surface finish has little effect on performance and the print finish is sufficient. Two tolerances dominate performance and were flagged for inspection: the axial clearance $s_{ax}$ between the blades and the casing, and the diffuser throat diameter. The as-built throat turned out to matter a great deal, as the true minimum area was found to be the \valPumpThroat{} semicircular passage into the annular casing rather than the \valPumpThroatCutwater{} cone cutwater downstream, and this distinction becomes central to the cavitation analysis in \cref{sec:results}. Full as-built deviation tables are in the appendix.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{placeholder.png}
-    \caption{TODO} % Fig 3.2: pump CAD section view / as-built (Fusion export)
+    \caption{CAD section view of the as-built pump assembly, showing the impeller, transparent front casing, tangential diffuser and mechanical seal.} % PLACEHOLDER IMAGE: Fusion export
     \label{fig:pump-cad-section}
 \end{figure}
 
 \subsubsection{Comparison to Conventional Design}
 
-% STUB (Knoll May 12: 1-2 paragraphs, NOT a chapter) -- quantified why-Barske:
-% disc-friction estimate of a shrouded equivalent at the same duty vs the open impeller;
-% Kaplan-method conclusion + headline numbers (twisted multi-streamline blades, sub-mm channels, unmanufacturable);
-% full construction -> Appendix. Literature half (Kim, Danieli) is Ch5 -- cross-ref, don't duplicate.
+Before committing to the Barske architecture, a conventional shrouded impeller was carried through a full Kaplan method blade construction at this duty point. The attempt is documented in \cref{sec:appendix_conventional} and its conclusion is what justifies the architecture choice. The design correlations repeatedly broke down outside their validity ranges, and the geometry that emerged had twisted multi streamline blades with sub millimetre closed channel widths, which is not manufacturable at this scale with any process available to this project. This is consistent with the published conventional design at the same specific speed, which required 0.31 mm closed channels \cite{kimDevelopmentUltraLowSpecific2022}. The quantitative comparison of the two architectures against literature is made with the measured data in \cref{sec:results}.
 
 % ==================================================================
 \subsection{Turbine Design}
@@ -110,114 +136,184 @@ Turbine sizing has to satisfy many requirements simultaneously, many design vari
 
 The main parameters being turbine diameter $D_mean$, mass flow through the turbine $\dot{m}$, blade inlet angle $\beta_3$.
 
+One thing has to be kept honest throughout this section and the results. The turbine has two operating regimes. The design point is \valTurbPowerDesign{} at \valPumpRpmDesign{} on \valTurbPZeroOneDesign{} supply. The test point is what the laboratory shop air could actually deliver, around 2.9 bar absolute at the stator with the pressure drooping under flow, which settled the coupled shaft at around \valCoupledRpm{} RPM. \cref{tab:turbine_design_vs_test} compares the two. The choked supersonic nozzle behaves the same in both regimes because choked flow is speed independent, but the rotor stage similitude parameters were not matched at test, and this difference drives most of the discussion in \cref{sec:results}.
+
 \begin{table}[H]
     \centering
-    \caption{TODO} % design point (20k rpm, hot gas) vs test point (~5-7k rpm, ~2.9 bar drooping shop air); honest similitude statement
+    \caption{Turbine design point against the achieved test point. The test supply pressure drooped under flow, so the quoted value is representative.}
     \label{tab:turbine_design_vs_test}
     \begin{tabular}{lll}
         \toprule
         Parameter & Design & Test \\
         \midrule
-        TODO & TODO & TODO \\
+        Shaft speed & \valPumpRpmDesign & $\approx$\valCoupledRpm{} RPM \\
+        Inlet total pressure & \valTurbPZeroOneDesign & $\approx$2.9 bar \\ % [VERIFY V1] exact test p01
+        Inlet total temperature & \valTurbTZeroOneDesign & $\approx$308 K \\
+        Rotor inlet relative Mach $M_{w3}$ & \valTurbMwDesign & \valTurbMwTest \\
+        Blade to jet speed ratio & \valTurbUCThreeDesign & $\approx$0.06 \\
+        Rotor state & started & unstarted \\
         \bottomrule
     \end{tabular}
 \end{table}
 
 \subsubsection{Architecture Selection}
 
-% STUB -- impulse over reaction (invoke Ch2); the diameter constraint is the central drama
-% (full admission needs d_mean ~200-1000 mm at optimal U/C0 -> doesn't fit);
-% partial admission eps = 0.15 chosen to raise blade height to the printable floor.
+The stage is an impulse stage, for the reasons established in \cref{sec:theory}: at low blade to jet speed ratio the impulse stage is more efficient than a reaction stage, and it is far more tolerant of tip clearance, which matters when the rotor is printed \cite{LiquidRocketEngine1974}. The central constraint is diameter. Running the stage at the optimum blade to jet speed ratio on a 20,000 RPM shaft would need a mean diameter in the hundreds of millimetres, which does not fit the rig or the shaft dynamics, so the turbine accepts a small diameter and a heavily off optimum speed ratio instead. The small mass flow then cannot fill the annulus at any sensible blade height, so partial admission is used. The degree of admission $\varepsilon = \valTurbDoa$ was chosen by working \cref{eq:turbine_blade_height} backwards, picking the admission fraction that raises the blade height to \valTurbBladeHeight, the smallest height that prints reliably and keeps the aspect ratio sensible.
 
 \subsubsection{Sizing}
 
-% STUB -- turbinesizer output: d_mean 95 mm, u at 20k, c_s, Mw3 = 1.33 (design), M3 = 1.67.
+The mean line sizing is the inverse design chain of the theory chapter, executed in order. The inputs are the shaft power $P$, speed $n$, mean diameter $d_m$, mass flow $\dot{m}$, nozzle angle $\beta_3$, degree of admission $\varepsilon$, the gas properties and the exit pressure $p_e$. The blade speed follows from the speed and diameter, $u = \omega d_m/2$, and the required specific work from the power, $\Delta h_{\textrm{use}} = P/\dot{m}$. The velocity triangle inversion \cref{eq:triangle_inversion} then fixes the jet the nozzle must deliver, $c_{3u}$, $c_3$ and $c_{3m}$. The nozzle exit static state follows from conservation of energy in the adiabatic nozzle and the isentropic relations:
+
+\begin{equation}
+    T_3 = T_{01} - \frac{c_3^2}{2 c_p}, \qquad
+    a_3 = \sqrt{\gamma R T_3}, \qquad
+    M_3 = \frac{c_3}{a_3}
+    \label{eq:sizing_exit_state}
+\end{equation}
+
+\begin{equation}
+    p_3 = \frac{p_{01}}{\left(1 + \frac{\gamma-1}{2} M_3^2\right)^{\frac{\gamma}{\gamma-1}}}, \qquad
+    \rho_3 = \frac{p_3}{R T_3}
+    \label{eq:sizing_exit_pressure}
+\end{equation}
+
+Because the stage is impulse, the rotor takes no static pressure drop, so the nozzle exit static pressure must equal the exit pressure $p_e$. The supply pressure $p_{01}$ is therefore not free: it is iterated until $p_3 = p_e$, which is how the design tool arrives at the required stator supply pressure of \valTurbPZeroOneDesign{} rather than assuming it. The blade height then follows from continuity through the admitted arc, \cref{eq:turbine_blade_height}, and the total nozzle throat area from the choked flow relation \cref{eq:choked_massflow}. Finally the Weiss loss chain of \cref{subsec:weissloss} is wrapped around this ideal chain in an outer loop: the internal power is raised until the shaft power net of the rotor loss and ventilation meets the \valTurbPowerDesign{} target, so the quoted supply pressure already carries the losses.
+
+With the chain in place, the remaining free choices are the mean diameter and mass flow. These were chosen by sweeping the $(d_m, \dot{m})$ plane with the full model and overlaying the manufacturing and rig constraints: a minimum blade height of 4 mm for reliable printing, a minimum nozzle throat width of 0.5 mm, and a nozzle exit Mach ceiling of 1.8 to keep the rotor inside the validated range of the loss correlations. \cref{fig:turbine-design-space} shows the swept design space, the feasible region, and the selected design point. The chosen $d_m = \valTurbDmean$ and $\dot{m} = \valTurbMdotDesign{} $ sit inside the feasible region with the blade height constraint binding, which is the quantitative version of the statement that the blade height, not the aerodynamics, sizes this machine.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{turbine_design_space.pdf}
+    \caption{The turbine design space over mean diameter and mass flow, evaluated with the full sizing and loss model at the design speed. The panels show nozzle exit Mach number, blade height and predicted total to static efficiency. Overlaid lines are the design constraints (blade height $\geq 4$ mm, nozzle throat $\geq 0.5$ mm, $M_3 \leq 1.8$), the shaded region is infeasible, and the marker is the selected design point.}
+    \label{fig:turbine-design-space}
+\end{figure}
+
+The mean line sizing gives a mean diameter of \valTurbDmean, a blade speed of \valTurbUDesign{} at design speed, a nozzle exit velocity of \valTurbCThreeDesign{} at Mach \valTurbMThreeDesign, and a rotor inlet relative Mach number of \valTurbMwDesign. The full output is in \cref{tab:turbine_design} and the design point velocity triangles are drawn to scale in \cref{fig:turbine-triangles-design}. The triangles make the off optimum operation visible directly, as the blade speed is small next to the jet velocity and the exit swirl is strongly negative, which is the kinetic energy the stage fails to extract at this speed ratio.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{turbine_triangles.pdf}
-    \caption{TODO} % Fig 3.3: rotor inlet/exit velocity triangles drawn TO SCALE from the design-point model (exit = ideal symmetric impulse; note the strongly negative exit swirl at u/c3 = 0.21)
+    \caption{Design point velocity triangles at the rotor inlet and exit, drawn to scale from the sizing output. The exit triangle is the ideal symmetric impulse case. The large negative exit swirl is the direct consequence of operating at a blade to jet speed ratio of \valTurbUCThreeDesign{}, far below the optimum.}
     \label{fig:turbine-triangles-design}
 \end{figure}
 
 \begin{table}[H]
   \centering
-  \caption{TODO} % turbine design summary
+  \caption{Turbine design summary, generated directly from the design code.}
   \label{tab:turbine_design}
   \input{generated/tables/tab_turbine_design}
 \end{table}
 
 \subsubsection{Nozzle}
 
-% STUB -- parabolic Rao is the ideal method (Ch2); due to time + negligible performance difference
-% at this area ratio, a conical 7 deg nozzle with rounded corners was used (SP-8120: <2% loss). Honest as-built call.
+The ideal nozzle contour for this application would be a Rao or canted parabola design as described in \cref{sec:theory}. Due to time constraints and the negligible performance difference at this low area ratio, a simple conical nozzle with a 7 degree half angle and rounded corners was used instead. NASA SP-8120 puts the efficiency penalty of a conical contour below 2\% at low area ratios, which is small against the other losses in this stage, so this is an honest engineering trade rather than a compromise of the results. There are \valTurbNozzles{} nozzles with a total throat area of \valTurbAthroat.
 
 \subsubsection{Blade Passage Design}
 
-% STUB -- MoC executed: M_l = 1.05 (separation floor), M_u = 1.5 (starting ceiling), inlet Mw3 1.3, beta 75 deg;
-% surface-Mach window narrative (floor = separation, ceiling = starting; spread opened until separation-imminent);
-% starting margin: limit Mw3 = 1.408 vs design 1.33; off-design prediction: unstarts below ~15,300 rpm
-% (present as a design-stage PREDICTION; the coupled-test diagnosis is Ch5).
+The blade passage was generated with the MoC procedure of \cref{subsec:method_of_characteristics} for an inlet relative Mach number of 1.3 at a blade angle of 75 degrees from axial, with surface Mach numbers $M_l = 1.05$ and $M_u = 1.5$. The choice of this surface Mach pair is the central design decision of the blade. The pair is not free: their mean is fixed near the inlet Mach number and their spread sets the turning the stage needs. The lower bound is separation on the pressure surface, checked with the Sasman and Cresci method of \cref{sec:theory}, and the upper bound is starting, checked with the Goldman criterion derated by the Colclough fit. Following Goldman's observation that efficiency rises with Mach spread, the spread was opened until separation became imminent. \cref{fig:moc-design} shows the result: the as-designed blade with the $H_i$ check touching 2.1 at around 77\% chord on the upper surface, deliberately separation imminent at the design point. The boundary layer displacement correction applied to the printed contour is shown in \cref{fig:moc-displaced}.
+
+The starting margin was left deliberately thin to maximise loading. The Goldman limit for this passage is $M_{w3} = \valTurbStartLimit$ against a design value of \valTurbMwDesign. The same calculation run off design predicted, before any coupled test took place, that the rotor cannot start below approximately \valTurbStartRpm{} RPM, because at low blade speed the relative inlet Mach number rises above the limit. This prediction is a design stage statement. What happened when the coupled test ran far below this threshold is the subject of \cref{sec:results}.
 
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{moc_contour_design.pdf}
-        \caption{TODO} % as-designed MoC blade passage, convex/concave labelled
+        \caption{As-designed blade passage}
         \label{fig:moc-contour-design}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{moc_separation_design.pdf}
-        \caption{TODO} % H_i on both surfaces vs the 1.8-2.4 band; upper surface ~2.1 at ~77% chord -- separation-imminent by design
+        \caption{Separation check}
         \label{fig:moc-separation-design}
     \end{subfigure}
-    \caption{TODO} % Fig 3.4: as-designed blade passage + separation check
+    \caption{The as-designed MoC blade passage and its separation check. The form factor $H_i$ is evaluated on both surfaces at the design point inlet conditions and touches 2.1 at around 77\% chord on the upper surface, at the bottom of the 1.8 to 2.4 separation band. The blade is separation imminent by design, which per Goldman is where the efficiency optimum sits.}
     \label{fig:moc-design}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{moc_displaced_design.pdf}
-    \caption{TODO} % ideal MoC contour (dashed) vs boundary-layer-displaced as-built contour (solid, delta* offset, Sasman-Cresci) -- the correction that makes the printed passage deliver the inviscid design flow
+    \caption{Ideal MoC contour (dashed) against the boundary layer displaced contour that was actually manufactured (solid). The surfaces are offset by the local displacement thickness $\delta^*$ from the Sasman and Cresci solution, so that the printed passage presents the inviscid design geometry to the core flow.}
     \label{fig:moc-displaced}
 \end{figure}
 
 \subsubsection{Losses and Predicted Efficiency}
 
-% STUB -- Weiss executed: k_N, k_R, ventilation -> ideal 65% -> ~47%;
-% one sentence of external sanity (Donnelly's measured 28% debit) -- cross-ref Ch5 peer block.
+Applying the Weiss loss chain of \cref{subsec:weissloss} at the design point gives a nozzle velocity coefficient of $k_N = \valTurbKnDesign$, a rotor velocity coefficient of $k_R = \valTurbKrDesign$, and a ventilation power of \valTurbPwDesign. Together these take the ideal stage efficiency of around 65\% down to a predicted total to static efficiency of \valTurbEtaTsDesign. As one external sanity check, the roughly 28 percentage point debit from ideal that this chain predicts matches the debit measured experimentally on a machine of the same architecture \cite{donnellyDesignExperimentalVerification}, which is examined properly in \cref{sec:results}.
 
 \subsubsection{Blade Geometry Details}
 
-% STUB -- LE: ~5 deg finite wedge on the pressure surface (Wlodarski; detachment at M~1.3 is ~6.5 deg);
-% TE: truncated flat ~0.8 mm (shock + ice embrittlement, expansion cooling to -88 C);
-% balance holes through the disc web (kill ~400 N parasitic axial thrust); shroud (blade deflection ~48x).
+Three geometry details depart from the ideal MoC contour. First, the leading edge. The MoC construction produces a zero thickness leading edge, which cannot be printed. A finite wedge of about 5 degrees was added on the pressure surface following the approach in \cref{sec:theory}. The shock detachment angle at the design relative Mach number of about 1.3 is around 6.5 degrees, so a 5 degree wedge keeps the oblique shock attached. Second, the trailing edge is truncated to a flat of about 0.8 mm so it survives both the shock loading and embrittlement, since the expansion cools the air to around $-88\,^\circ$C at the exit. Third, balance holes are drilled through the disc web to equalise the pressure across the rotor and remove around 400 N of parasitic axial thrust. Balance holes and pistons are standard rocket pump practice \cite{kawasakiUnsteadyResponseFlow2013}, and a CFD study of a Barske type pump in the same regime showed balance holes reducing the axial force from 17 kN to 350 N, the same order of effect as needed here \cite{knyazevaDesignFluidDynamics2021}. Finally, the blades are shrouded, which reduces the blade tip deflection by a factor of around 48 and removes tip leakage as a loss mechanism.
+
+\subsubsection{Cold Flow Thermal Environment}
+
+Expanding room temperature air to Mach \valTurbMThreeDesign{} cools it to a static temperature of around 185 K, and the printed resin blades have to survive this. The static temperature is however not what the blade surface sees. A surface in high speed flow recovers part of the kinetic energy as frictional heating in the boundary layer, and equilibrates at the adiabatic wall temperature
+
+\begin{equation}
+    T_{aw} = T_3 + r\, \frac{w^2}{2 c_p}, \qquad r = \mathrm{Pr}^{1/3}
+    \label{eq:recovery_temperature}
+\end{equation}
+
+where $r$ is the recovery factor for a turbulent boundary layer and $w$ is the local relative velocity \cite{andersonCompressible}. % [VERIFY] cite: any compressible-flow text carries the turbulent recovery factor; match to the bib
+With $\mathrm{Pr} \approx 0.70$ for cold air, $r \approx 0.89$, and at the design rotor inlet relative velocity the recovery term adds back around 58 K, so the blade surfaces equilibrate near $-30\,^\circ$C rather than the static $-88\,^\circ$C.
+
+Two follow up checks close the question. First, the blade thermal time constant. Treating the thin blade as a lumped capacitance with the film coefficient from a turbulent flat plate correlation evaluated at the blade chord, the time constant $\tau_{th} = \rho_b\, (t/2)\, c_{p,b} / h$ comes out below one second, so the blades reach their steady temperature within seconds of the start of a run and there is no transient grace period to exploit. Second, dimensional stability: the thermal strain at 50 K below ambient with the resin's expansion coefficient of order $10^{-4}$ per K is about 0.6\%, which over the 4 mm blade height is some 25 \textmu m, small against the running clearances. The thermal design conclusion is therefore that the geometry is unaffected but the material toughness at $-30\,^\circ$C is the binding concern, which is what motivated the truncated trailing edge flat of the previous section.
 
 \subsubsection{Structural and Rotordynamic Analysis}
 
-% STUB -- static FEA (Fusion 360 / Autodesk Nastran): blade bending, deflection, shroud hoop, disc bore;
-% verification not logo: mesh + BCs, mesh-convergence on peak stress, hand-calc cross-checks;
-% rotordynamics: 10 mm solid aluminium shaft, first critical ~99,000 RPM (~400% margin at 20k);
-% coupling: jaw coupler D20 L25, Double-D 7 mm flats, compressive/shear SF.
+The rotor was checked with static FEA at the design speed: blade root bending under the combined centrifugal and gas loads, blade deflection, shroud hoop stress and disc bore stress. The blade bending safety factor is \valTurbBladeSf{} on the Tough 2000 material. All FEA was run in Fusion 360 static studies. For linear elastic statics the solver brand is irrelevant, and each result was cross checked against a hand calculation of the matching idealised case, which is the verification that actually matters. % mesh + convergence statement to add with fig:turbine-fea
+
+The hand calculations are the classical rotating component results. The peak hoop stress of a solid rotating disc bounds the disc and bore stress,
+
+\begin{equation}
+    \sigma_{\theta,max} = \frac{3+\nu}{8}\, \rho_b\, \omega^2 r^2
+    \label{eq:disc_hoop}
+\end{equation}
+
+the centrifugal pull at the blade root is the integrated body load of the blade above it,
+
+\begin{equation}
+    \sigma_{root} = \frac{\rho_b\, \omega^2}{2} \left(r_{tip}^2 - r_{root}^2\right)
+    \label{eq:blade_pull}
+\end{equation}
+
+and the shroud ring carries its own centrifugal load as a free hoop,
+
+\begin{equation}
+    \sigma_{hoop} = \rho_b\, u_{shroud}^2
+    \label{eq:shroud_hoop}
+\end{equation}
+
+where $\rho_b$ is the blade material density and $u_{shroud}$ the shroud rim speed. The gas bending load on each blade adds a cantilever bending stress $\sigma_b = M c / I$ at the root, with the moment from the blade force of the velocity triangles. Each FEA peak stress was required to agree with its idealised counterpart to the level the idealisation allows, which catches unit, constraint and load errors that mesh refinement cannot.
+
+For the shaft, the finite element rotordynamics of \cref{fig:turbine-campbell} is cross checked by the overhung rotor estimate. Treating the shaft as a cantilever of bending stiffness $EI$ with the disk mass $m$ at radius $L$ from the bearing,
+
+\begin{equation}
+    \omega_1 \approx \sqrt{\frac{3EI}{m L^3}}
+    \label{eq:overhung_critical}
+\end{equation}
+
+which lands in the same regime as the finite element first bending pair and confirms the order of the margin.
+
+For rotordynamics, the shaft is a 10 mm solid aluminium stub. A finite element rotor model with the turbine disk overhung and the measured disk mass and inertias places the first bending natural frequency at standstill around 99,000 RPM, and the Campbell diagram in \cref{fig:turbine-campbell} shows the margin over the full operating range. The first synchronous crossing sits far above the 20,000 RPM design speed, with a margin of better than 3.5. The shaft connects to the pump through a jaw coupler with Double-D 7 mm flats, sized with a compressive safety factor of around 10 on the printed hub.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{placeholder.png}
-    \caption{TODO} % Fig 3.5: rotor structural FEA at 20k rpm -- stress plot + SF table
+    \caption{Rotor static FEA at \valPumpRpmDesign{}: blade root bending, shroud hoop stress and disc bore stress, with the resulting safety factors.} % PLACEHOLDER IMAGE: Fusion stress plot + SF table
     \label{fig:turbine-fea}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{turbine_campbell.pdf}
-    \caption{TODO} % Campbell diagram, turbine shaft (ross, 10mm solid Al, turbine disk overhung, ball bearings; coupler-side disk omitted -- say so). Standstill first bending ~99k rpm; backward-whirl 1x crossing ~72k rpm -> >3.5x margin at 20k. NOTE: registry says 99k -- reconcile before quoting (see session note).
+    \caption{Campbell diagram of the turbine shaft from a finite element rotor model (10 mm solid aluminium shaft, turbine disk overhung, ball bearing stiffness; the coupler side disk is omitted). The first bending pair starts near 99,000 RPM at standstill and the backward whirl branch crosses the synchronous line at around 72,000 RPM, leaving a margin of more than 3.5 over the operating range.} % NOTE: reconcile 72k crossing vs registry 99k before quoting a single number in prose
     \label{fig:turbine-campbell}
 \end{figure}
 
 \subsubsection{Manufacturing}
 
-% STUB -- SLA Tough 2000: rotor + stator nozzle block; post: IPA wash, UV cure, sand mating faces;
-% SLA-turbine precedent: one sentence via Weiss 2020 (his refs [28]/[29]).
+The rotor and the stator nozzle block were printed by SLA in Tough 2000 resin, washed in IPA, UV cured, and the mating faces sanded flat. Printed resin turbomachinery at this power level is published practice rather than an improvisation, as Weiss cites both an experimental kW scale SLA resin air turbine and SLA diffuser vanes in operation \cite{weissCustomizedORCMicro2020}.

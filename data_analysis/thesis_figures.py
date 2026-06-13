@@ -649,6 +649,72 @@ def fig_turbine_eta_uc0():
     return save(fig, "turbine_theory")
 
 
+# design-space sweep bounds (turbinesizer.ipynb driver cell)
+DS_D_RANGE = (80, 120)       # mm
+DS_MD_RANGE = (0.035, 0.06)  # kg/s
+DS_N = 60                    # grid points per axis
+DS_H_MIN = 4e-3              # m   minimum printable blade height
+DS_THROAT_MIN = 0.5e-3       # m   minimum printable nozzle throat width
+DS_M3_MAX = 1.8              # nozzle exit Mach ceiling (loss-correlation range)
+DS_P0_MAX = 10e5             # Pa  guard (matches turbinesizer GUARD)
+
+
+def fig_turbine_design_space():
+    """(d_m, mdot) design-space contours: M3, blade height, real efficiency,
+    with manufacturing/rig constraint lines and the selected design point."""
+    ds = np.linspace(*DS_D_RANGE, DS_N)
+    ms = np.linspace(*DS_MD_RANGE, DS_N)
+    M3 = np.full((DS_N, DS_N), np.nan)
+    H = np.full_like(M3, np.nan)
+    TH = np.full_like(M3, np.nan)
+    ETA = np.full_like(M3, np.nan)
+    for i, d in enumerate(ds):
+        for j, md in enumerate(ms):
+            try:
+                s = Turbine(P=TRB["P_W"], RPM=TRB["RPM_DES"], d_mean_mm=d,
+                            mdot=md, beta_deg=TRB["BETA_DEG"], doa=TRB["DOA"],
+                            p_e=TRB["P_E"])
+                s.from_inert_gas_real(R=TRB["R_GAS"], gam=TRB["GAM"],
+                                      T01=TRB["T01_DES"], nozzles=TRB["N_NOZ"])
+                if not (s.p01 <= DS_P0_MAX and s.T3 > 0):
+                    continue
+                M3[i, j], H[i, j] = s.M3, s.Height
+                TH[i, j], ETA[i, j] = s.nozzle_throat_length, s.eff_real
+            except Exception:
+                pass
+    feas = ((H >= DS_H_MIN) & (TH >= DS_THROAT_MIN) & (M3 <= DS_M3_MAX)
+            & ~np.isnan(M3))
+    panels = [(M3, 1.0, r"nozzle exit Mach $M_3$"),
+              (H, 1e3, r"blade height $b$ (mm)"),
+              (ETA, 1.0, r"predicted $\eta_{ts}$")]
+    fig, axs = plt.subplots(1, 3, figsize=(9.8, 3.1), sharey=True)
+    from matplotlib.lines import Line2D
+    for ax, (Z, sc, ttl) in zip(axs, panels):
+        cs = ax.contourf(ms, ds, np.ma.masked_invalid(Z * sc), levels=30,
+                         cmap="viridis")
+        fig.colorbar(cs, ax=ax, fraction=0.046, pad=0.03)
+        ax.contour(ms, ds, np.ma.masked_invalid(H * 1e3),
+                   levels=[DS_H_MIN * 1e3], colors="r", linewidths=1.4)
+        ax.contour(ms, ds, np.ma.masked_invalid(TH * 1e3),
+                   levels=[DS_THROAT_MIN * 1e3], colors="orange", linewidths=1.4)
+        ax.contour(ms, ds, np.ma.masked_invalid(M3),
+                   levels=[DS_M3_MAX], colors="w", linewidths=1.4)
+        ax.contourf(ms, ds, feas.astype(float), levels=[-0.5, 0.5],
+                    colors=["k"], alpha=0.30)
+        ax.plot(TRB["MDOT_DES"], TRB["D_MEAN_MM"], "r*", ms=11)
+        ax.set(title=ttl, xlabel=r"$\dot{m}$ (kg/s)")
+    axs[0].set_ylabel(r"$d_m$ (mm)")
+    axs[0].legend(handles=[
+        Line2D([0], [0], color="r", lw=1.4, label=rf"$b \geq$ {DS_H_MIN*1e3:.0f} mm"),
+        Line2D([0], [0], color="orange", lw=1.4,
+               label=rf"throat $\geq$ {DS_THROAT_MIN*1e3:.1f} mm"),
+        Line2D([0], [0], color="grey", lw=1.4, label=rf"$M_3 \leq$ {DS_M3_MAX} (white)"),
+        Line2D([0], [0], marker="*", color="r", ls="", ms=10, label="design point"),
+    ], loc="upper left", fontsize=6)
+    fig.tight_layout()
+    return save(fig, "turbine_design_space")
+
+
 # =========================================================================== #
 # diagram / design / validation figures (MoC blade, Barske geometry, Goldman)
 # =========================================================================== #
@@ -834,92 +900,88 @@ def fig_barske_geometry():
     Rc = r2 + Hc          # casing inner radius
     rsh = 5.0             # shaft radius, illustrative
 
-    # ---- (a) meridional FULL section (BarskePump.visualize() geometry,
-    # restyled for the thesis): both halves about the shaft axis, TRUE scale
-    # (no axial exaggeration), dimension arrows carry symbols only — the
-    # values live in tab_pump_design. Inlet flows in from the left.
+    # ---- (a) meridional view: LITERALLY BarskePump.visualize()'s ax1
+    # construction (Martin 06-13: keep the plain matplotlib look, label onto
+    # it) — same polygons, same colours, axes in mm, dims drawn on top.
+    from matplotlib.patches import Polygon, Rectangle
     rib = 3.0                     # rib height [mm] — visualize() value
-    Lin = 6.0                     # inlet pipe length drawn [mm]
     x_back = rib + b1             # blade/rib back face axial position
-    fig, ax = plt.subplots(figsize=(2.9, 4.8))
-    wall = dict(color="0.25", lw=1.4)
-    imp = dict(color="C0", lw=1.2)
-    ax.plot([-Lin - 2, x_back + 9], [0, 0], color="k", lw=0.6, ls="-.")  # axis
+    fig, ax = plt.subplots(figsize=(3.4, 4.6))
+    ax.plot([-10, x_back + 10], [0, 0], color="black", ls="--", lw=0.8)
+    ax.plot([-10, -sax], [-r0, -r0], color="green", lw=1.2)
+    ax.plot([-10, -sax], [r0, r0], color="green", lw=1.2)
     for s in (+1, -1):
-        # inlet pipe wall
-        ax.plot([-Lin, -sax], [s * r0, s * r0], **wall)
-        # casing polyline (visualize): eye wall -> conical front (follows the
-        # blade taper at constant axial gap s_ax) -> outer front -> outer
-        # wall -> back wall
-        ax.plot([-sax, -sax], [s * r0, s * r1], **wall)
-        ax.plot([-sax, -sax + rib + b1 - b2], [s * r1, s * r2], **wall)
-        ax.plot([-sax + rib + b1 - b2] * 2, [s * r2, s * (r2 + Hc)], **wall)
-        ax.plot([-sax + rib + b1 - b2, x_back + sax],
-                [s * (r2 + Hc)] * 2, **wall)
-        ax.plot([x_back + sax] * 2, [s * (r2 + Hc), s * r1], **wall)
-        # impeller blade: tapered front edge (root width b1+rib -> tip b2)
-        ax.plot([0, rib + b1 - b2, x_back, x_back, 0],
-                [s * r1, s * r2, s * r2, s * r1, s * r1], **imp)
-    # rib / disc web behind the blades
-    ax.plot([b1, b1 + rib, b1 + rib, b1, b1], [-r1, -r1, r1, r1, -r1],
-            color="C0", lw=0.9, ls=":")
-    # ---- dimensions ----
-    _dim(ax, (-Lin + 1.2, -r0), (-Lin + 1.2, r0), r"$d_0$",
-         tpos=(-Lin + 1.2, r0 * 0.55))
-    for xd, rr, lab in ((x_back + 3.2, r1, r"$d_1$"),
-                        (x_back + 6.4, r2, r"$d_2$")):
+        # blade (visualize polygon: root spans 0..rib+b1, tip width b2)
+        ax.add_patch(Polygon([[0, s * r1], [rib + b1 - b2, s * r2],
+                              [x_back, s * r2], [x_back, s * r1]],
+                             closed=True, fill=False, edgecolor="C0", lw=1.2))
+        # casing polyline (visualize: eye wall -> conical front -> outer)
+        ax.add_patch(Polygon([[-sax, s * r0], [-sax, s * r1],
+                              [-sax + rib + b1 - b2, s * r2],
+                              [-sax + rib + b1 - b2, s * (r2 + Hc)],
+                              [x_back + sax, s * (r2 + Hc)],
+                              [x_back + sax, s * r1]],
+                             closed=False, fill=False, edgecolor="black",
+                             lw=1.2))
+    ax.add_patch(Rectangle((b1, -r1), rib, 2 * r1, fill=False,
+                           edgecolor="purple", lw=1.0))
+    # ---- dimensions (symbols only; values live in tab_pump_design) ----
+    _dim(ax, (-8.0, -r0), (-8.0, r0), r"$d_0$", tpos=(-8.0, r0 * 0.55))
+    for xd, rr, lab in ((x_back + 3.5, r1, r"$d_1$"),
+                        (x_back + 7.0, r2, r"$d_2$")):
         ax.plot([x_back, xd], [rr, rr], color="0.7", lw=0.4)
         ax.plot([x_back, xd], [-rr, -rr], color="0.7", lw=0.4)
-        _dim(ax, (xd, -rr), (xd, rr), lab, tpos=(xd + 1.5, rr * 0.35))
+        _dim(ax, (xd, -rr), (xd, rr), lab, tpos=(xd + 1.7, rr * 0.35))
     rmid = (r1 + r2) / 2
     xb_mid = (rmid - r1) / (r2 - r1) * (rib + b1 - b2)
-    # s_ax gap is sub-mm at true scale -> leader annotation, not a dim arrow
     ax.annotate(r"$s_{ax}$", xy=(xb_mid - sax / 2, rmid),
-                xytext=(xb_mid - sax - 6.5, rmid + 4.0), fontsize=6.5,
+                xytext=(xb_mid - sax - 7.0, rmid + 4.0), fontsize=6.5,
                 arrowprops=dict(arrowstyle="->", lw=0.6))
     _dim(ax, (rib + b1 - b2, r2 + 0.5 * Hc), (x_back, r2 + 0.5 * Hc),
-         r"$b_2$", tpos=(rib + b1 - b2 / 2 - 2.5, r2 + 0.5 * Hc))
+         r"$b_2$", tpos=(rib + b1 - b2 / 2 - 2.7, r2 + 0.5 * Hc))
     _dim(ax, (0, -r1 * 0.55), (b1, -r1 * 0.55), r"$b_1$",
-         tpos=(b1 / 2, -r1 * 0.55 - 2.0))
+         tpos=(b1 / 2, -r1 * 0.55 - 2.2))
     _dim(ax, (-sax + rib + b1 - b2, r2 + Hc + 2.6), (x_back + sax, r2 + Hc + 2.6),
-         r"$b_c$", tpos=((rib + b1 - b2 + x_back) / 2, r2 + Hc + 4.6))
+         r"$b_c$", tpos=((rib + b1 - b2 + x_back) / 2, r2 + Hc + 4.8))
     _dim(ax, (x_back + 1.0, -r2), (x_back + 1.0, -(r2 + Hc)), r"$h_c$",
-         tpos=(x_back + 3.0, -(r2 + Hc / 2)))
+         tpos=(x_back + 3.2, -(r2 + Hc / 2)))
     ax.set_aspect("equal")
-    ax.set(xlim=(-Lin - 3, x_back + 9.5),
-           ylim=(-(r2 + Hc) - 5.5, (r2 + Hc) + 6.0))
-    ax.axis("off")
+    ax.set(xlim=(-11, x_back + 10.5), ylim=(-(r2 + Hc) - 6, (r2 + Hc) + 7),
+           xlabel="axial [mm]", ylabel="radial [mm]")
     save(fig, "barske_meridional")
 
-    # ---- (b) end view: impeller, annular casing, tangential diffuser ----
-    fig, ax = plt.subplots(figsize=(3.4, 3.4))
-    th = np.linspace(0, 2 * np.pi, 200)
-    ax.plot(Rc * np.cos(th), Rc * np.sin(th), **wall)              # casing bore
-    ax.plot(r2 * np.cos(th), r2 * np.sin(th), color="C0", lw=1.0, ls=":")
-    ax.plot(r1 * np.cos(th), r1 * np.sin(th), **imp)               # hub
-    ax.plot(r0 * np.cos(th), r0 * np.sin(th), color="0.6", lw=0.8, ls="--")  # eye
+    # ---- (b) top view: visualize()'s ax2 (circles + legend look), with
+    # blade THICKNESS added and the tangential diffuser for d3/d4 ----
+    from matplotlib.patches import Circle
+    fig, ax = plt.subplots(figsize=(4.0, 3.8))
+    ax.add_patch(Circle((0, 0), r0, fill=False, color="green",
+                        label=r"inlet ($d_0$)"))
+    ax.add_patch(Circle((0, 0), r1, fill=False, color="blue",
+                        label=r"blade root ($d_1$)"))
+    ax.add_patch(Circle((0, 0), r2, fill=False, color="red",
+                        label=r"blade tip ($d_2$)"))
+    ax.add_patch(Circle((0, 0), Rc, fill=False, color="black", ls="--",
+                        label="annular casing"))
     tb = p.blade_thickness * mm
-    for k in range(p.blade_number):                                # radial blades
+    for k in range(p.blade_number):                  # radial blades, thick
         a = 2 * np.pi * k / p.blade_number
         ca, sa = np.cos(a), np.sin(a)
         ax.plot([r1 * ca - tb / 2 * sa, r2 * ca - tb / 2 * sa],
-                [r1 * sa + tb / 2 * ca, r2 * sa + tb / 2 * ca], **imp)
+                [r1 * sa + tb / 2 * ca, r2 * sa + tb / 2 * ca], color="blue", lw=1.2)
         ax.plot([r1 * ca + tb / 2 * sa, r2 * ca + tb / 2 * sa],
-                [r1 * sa - tb / 2 * ca, r2 * sa - tb / 2 * ca], **imp)
+                [r1 * sa - tb / 2 * ca, r2 * sa - tb / 2 * ca], color="blue", lw=1.2)
         ax.plot([r2 * ca - tb / 2 * sa, r2 * ca + tb / 2 * sa],
-                [r2 * sa + tb / 2 * ca, r2 * sa - tb / 2 * ca], **imp)
-    # tangential conical diffuser, inner wall tangent at top of the casing bore
+                [r2 * sa + tb / 2 * ca, r2 * sa - tb / 2 * ca], color="blue", lw=1.2)
+    # tangential conical diffuser off the casing bore (throat d3 -> exit d4)
     Ld = 2.2 * d4
-    ax.plot([0, Ld], [Rc, Rc], **wall)                             # inner wall
-    ax.plot([0, Ld], [Rc + d3, Rc + d4], **wall)                   # diverging wall
-    ax.plot([0, 0], [Rc, Rc + d3], color="0.25", lw=0.8)           # cutwater/throat
+    ax.plot([0, Ld], [Rc, Rc], color="black", lw=1.2)
+    ax.plot([0, Ld], [Rc + d3, Rc + d4], color="black", lw=1.2)
+    ax.plot([0, 0], [Rc, Rc + d3], color="black", lw=0.8)
     _dim(ax, (0.06 * Ld, Rc), (0.06 * Ld, Rc + d3 + 0.06 * (d4 - d3)),
          r"$d_3$", tpos=(-0.35 * d4, Rc + d3 * 2.2))
-    _dim(ax, (Ld, Rc), (Ld, Rc + d4), r"$d_4$", tpos=(Ld + 0.75 * d4, Rc + d4 / 2))
-    ax.annotate("annular casing", xy=(-Rc * 0.72, Rc * 0.72),
-                xytext=(-1.55 * Rc, 1.25 * Rc), fontsize=7,
-                arrowprops=dict(arrowstyle="->", lw=0.7))
-    # rotation arrow (counter-clockwise, towards the tangential diffuser)
+    _dim(ax, (Ld, Rc), (Ld, Rc + d4), r"$d_4$",
+         tpos=(Ld + 0.85 * d4, Rc + d4 / 2))
+    # rotation arrow towards the diffuser
     rr = 0.55 * r1
     tha = np.linspace(np.deg2rad(150), np.deg2rad(30), 40)
     ax.plot(rr * np.cos(tha), rr * np.sin(tha), color="0.4", lw=0.8)
@@ -928,8 +990,9 @@ def fig_barske_geometry():
                 arrowprops=dict(arrowstyle="<-", lw=0.8, color="0.4"))
     ax.text(0, rr * 0.45, r"$\omega$", fontsize=8, ha="center", color="0.4")
     ax.set_aspect("equal")
-    ax.set(xlim=(-1.6 * Rc, 1.7 * Rc), ylim=(-1.25 * Rc, 1.45 * Rc))
-    ax.axis("off")
+    ax.set(xlim=(-1.45 * Rc, 1.85 * Rc), ylim=(-1.25 * Rc, 1.45 * Rc),
+           xlabel="x [mm]", ylabel="y [mm]")
+    ax.legend(fontsize=6, loc="lower right")
     return save(fig, "barske_plan")
 
 
@@ -1082,6 +1145,186 @@ def fig_campbell():
     return save(fig, "turbine_campbell")
 
 
+# 2026-04-24 valve Kv characterisation runs (valvekv.ipynb)
+VALVE_H5 = {
+    "inlet (1/2\")":  (r"D:\Projects\propbackend_logs\2026-04-24\hotfirelog\test_20260424_171514_HotfireLog.h5",
+                       "servos_pumpinlet_angle", 20.0, 3.0),   # kv full-open, design dp [bar]
+    "outlet (1/4\")": (r"D:\Projects\propbackend_logs\2026-04-24\hotfirelog\test_20260424_175759_HotfireLog.h5",
+                       "servos_pumpoutlet_angle", 7.0, 20.0),
+}
+# online ball-valve opening characteristic (valvekv.ipynb sources)
+_VK_ANGLE = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+_VK_RATIO = [0.0, 0.0336, 0.0554, 0.0978, 0.1620, 0.2487, 0.3837, 0.6398,
+             0.8598, 1.0]
+
+
+def fig_valve_kv():
+    """Valve flow capacity vs opening angle: online-data extrapolation
+    (dashed) vs the 2026-04-24 measured Kv characterisation (solid), with
+    the pump's throat-limited max flow line. Promoted from valvekv.ipynb
+    ('Online data extrapolation vs experimental data'); y-axis trimmed to
+    2 kg/s (Martin 06-13)."""
+    import pandas as pd
+    from scipy.interpolate import interp1d
+    a2r = interp1d(_VK_ANGLE, _VK_RATIO, kind="cubic")
+    ang = np.linspace(0, 90, 200)
+    fig, ax = plt.subplots(figsize=(4.8, 3.2))
+    for (name, c) in zip(VALVE_H5, ("C0", "C3")):
+        path, ch, kv_full, head = VALVE_H5[name]
+        with h5py.File(path, "r") as f:
+            g = f["channels"]
+            t = np.asarray(g["adc_pt_in_mv"]["time"][:], float)
+            m = (t >= 0) & (t <= 180)
+            pin = np.asarray(g["adc_pt_in_mv"]["data"][:], float)[m]
+            pout = np.asarray(g["adc_pt_out_mv"]["data"][:], float)[m]
+            q = np.asarray(g["fms_fm0_flowrate"]["data"][:], float)[m]
+            angle = 90 - np.asarray(g[ch]["data"][:], float)[m] / 2
+        roll = lambda x: pd.Series(x).rolling(1000, center=True).mean().to_numpy()
+        dp = roll(pin) - roll(pout)
+        kv = roll(q) / 1000 * 3600 / np.sqrt(np.clip(dp, 1e-6, None))
+        plot_tuned(ax, angle, kv * np.sqrt(head) / 3600 * 1000, color=c,
+                   label=f"{name} measured")
+        plot_theory(ax, ang, kv_full * a2r(ang) * np.sqrt(head) / 3600 * 1000,
+                    color=c, label=f"{name} extrapolated online data")
+    mdotmax = np.pi / 4 * D3 ** 2 * np.sqrt(2) * (np.pi * D2 * N_DES / 60) * 1000
+    ax.axhline(mdotmax, color="k", lw=0.8, ls="--")
+    ax.text(2, mdotmax + 0.04, "pump max flow (throat-limited)", fontsize=6.5)
+    ax.set(xlabel="valve opening angle [deg]", ylabel="flow rate [kg/s]",
+           xlim=(0, 90), ylim=(0, 2.0))
+    ax.legend(fontsize=6.5, loc="upper left")
+    return save(fig, "setup_valve_kv")
+
+
+def fig_eta_re():
+    """Peak overall efficiency per run vs Reynolds number: loss ratio
+    (1-eta) ~ Re^-a FITTED from the five measured speeds, extrapolated to
+    20k rpm with the fit-uncertainty band. Promoted from plots_round2.py P2."""
+    NU_W = 1.002e-6
+    def re_u(rpm):
+        return np.pi * D2 * np.asarray(rpm, float) / 60 * (D2 / 2) / NU_W
+    rows = []
+    for lbl, e in exp_runs().items():
+        d = e["d"]; t = d["t"]; m = (t >= 0.5) & (t <= 20)
+        Q = d["q"][m] / 1000
+        H = ep.head_m(d["pout"][m] - d["pin"][m])
+        rpm = d["rpm"][m]; w = rpm * 2 * np.pi / 60; tq = d["tq"][m]
+        Phyd = RHO * G * Q * H; Psh = tq * w
+        good = (rpm > 2000) & (Psh > 0) & (H > 0) & (Q > 0)
+        Q, eo = Q[good], (Phyd / Psh)[good]
+        qb = np.linspace(0, np.nanpercentile(Q * 1000, 98), 16)
+        idx = np.digitize(Q * 1000, qb)
+        med = [np.median(eo[idx == i]) for i in range(1, len(qb))
+               if (idx == i).sum() >= 5]
+        if med:
+            rows.append((e["N"], max(med)))
+    rows.sort()
+    N = np.array([r[0] for r in rows]); eta = np.array([r[1] for r in rows])
+    Re = re_u(N)
+    aa, cc = np.polyfit(np.log(Re), np.log(1 - eta), 1)
+    a = -aa
+    resid = np.log(1 - eta) - (cc + aa * np.log(Re))
+    a_sig = float(np.sqrt(np.sum(resid ** 2) / max(len(N) - 2, 1)
+                          / np.sum((np.log(Re) - np.log(Re).mean()) ** 2)))
+    Re0, e0 = Re[-1], eta[-1]      # anchor the extrapolation at the top point
+    def extrap(rpm, ai):
+        return 1 - (1 - e0) * (Re0 / re_u(rpm)) ** ai
+    nn = np.linspace(3000, 21000, 200)
+    fig, ax = plt.subplots(figsize=(4.8, 3.2))
+    plot_data(ax, N, eta * 100, ms=5, color="C0",
+              label=r"measured peak $\eta$ per run")
+    plot_tuned(ax, nn, extrap(nn, a) * 100, color="C0",
+               label=rf"fit $(1-\eta)\propto Re^{{-a}}$, $a={a:.2f}\pm{a_sig:.2f}$")
+    ax.fill_between(nn, extrap(nn, max(a - a_sig, 0)) * 100,
+                    extrap(nn, a + a_sig) * 100, color="C0", alpha=0.15)
+    ax.axvline(N_DES, color="k", lw=0.5)
+    ax.axhline(ETA_DESIGN_PCT, color="gray", ls=":",
+               label=f"design estimate {ETA_DESIGN_PCT:.0f}%")
+    ax.set(xlabel="shaft speed [rpm]", ylabel="overall efficiency [%]",
+           ylim=(0, 40))
+    ax.legend(fontsize=7, loc="upper left")
+    print(f"  eta_re: a = {a:.3f} +/- {a_sig:.3f}, "
+          f"eta(20k) = {extrap(20000, a) * 100:.1f}% "
+          f"({extrap(20000, max(a - a_sig, 0)) * 100:.1f}"
+          f"-{extrap(20000, a + a_sig) * 100:.1f}%)")
+    return save(fig, "results_eta_re_fit")
+
+
+def fig_sankey():
+    """Shaft-power budget at the measured BEP of the 50% run as a Sankey
+    diagram: useful hydraulic power from data; churning from the Barske disk
+    correlation x the measured 2.5 multiplier at the run speed; mechanical
+    (seal + bearings) from the measured shaft-only parasitic; remainder =
+    internal hydraulic losses (nozzle/diffuser/incidence)."""
+    from matplotlib.sankey import Sankey
+    e = exp_runs()["50%"]
+    d = e["d"]; t = d["t"]; m = (t >= 0.5) & (t <= 20)
+    Q = d["q"][m] / 1000
+    H = ep.head_m(d["pout"][m] - d["pin"][m])
+    rpm = d["rpm"][m]; w = rpm * 2 * np.pi / 60; tq = d["tq"][m]
+    Phyd = RHO * G * Q * H; Psh = tq * w
+    good = (rpm > 2000) & (Psh > 0) & (H > 0) & (Q > 0)
+    Q, Ph, Ps = Q[good], Phyd[good], Psh[good]
+    qb = np.linspace(0, np.nanpercentile(Q * 1000, 98), 16)
+    idx = np.digitize(Q * 1000, qb)
+    best, ph_b, ps_b = -1.0, 0.0, 0.0
+    for i in range(1, len(qb)):
+        mm = idx == i
+        if mm.sum() >= 5:
+            eta_i = float(np.median(Ph[mm] / Ps[mm]))
+            if eta_i > best:
+                best = eta_i
+                ph_b, ps_b = float(np.median(Ph[mm])), float(np.median(Ps[mm]))
+    N = e["N"]
+    P_churn = float(barske_disk_power(N) * DISK_MULT)
+    P_mech = float(np.interp(N, MR, MP))
+    P_int = ps_b - ph_b - P_churn - P_mech
+    fr = np.array([ph_b, P_churn, P_mech, P_int]) / ps_b * 100
+    fig, ax = plt.subplots(figsize=(5.8, 3.2))
+    sk = Sankey(ax=ax, scale=0.012, head_angle=130, shoulder=0.02,
+                offset=0.3, unit="%", format="%.0f")
+    sk.add(flows=[100, -fr[1], -fr[3], -fr[2], -fr[0]],
+           labels=["shaft power", "churning", "internal hydraulic",
+                   "mechanical", "useful"],
+           orientations=[0, 1, 1, -1, 0],
+           pathlengths=[0.5, 0.4, 0.3, 0.4, 0.6],
+           facecolor="C0", alpha=0.75, lw=0.5)
+    sk.finish()
+    ax.axis("off")
+    print(f"  sankey @ {N:.0f} rpm BEP: shaft {ps_b:.0f} W -> useful {ph_b:.0f} W"
+          f" ({fr[0]:.0f}%), churning {P_churn:.0f} W ({fr[1]:.0f}%), "
+          f"mech {P_mech:.0f} W ({fr[2]:.0f}%), internal {P_int:.0f} W ({fr[3]:.0f}%)")
+    return save(fig, "results_power_sankey")
+
+
+def fig_cav_suction():
+    """Gulich Fig 6.9-style suction test figure: head normalised by the
+    fully wetted reference vs NPSHa, one curve per held flow step
+    (Q = const), for the two video-validated runs. Successive inlet-pressure
+    reduction at constant speed; the 3% head-drop criterion is the line."""
+    fig, ax = plt.subplots(figsize=(4.8, 3.2))
+    curves = []
+    for lbl, mk in zip(CAV_RUNS, ("o", "s")):
+        e = exp_runs()[lbl]
+        cav = ep.analyse_cav(e["tag"], e["d"])
+        for s in cav["steps"]:
+            if s.get("lowhead") or len(s["cen"]) < 5:
+                continue
+            curves.append((float(s["q_ref"]), lbl, mk, s))
+    curves.sort(key=lambda c: c[0])
+    cmap = plt.get_cmap("viridis")
+    for i, (qr, lbl, mk, s) in enumerate(curves):
+        c = cmap(0.05 + 0.85 * i / max(len(curves) - 1, 1))
+        ax.plot(s["cen"], s["Hmed"] / s["H_ref"], marker=mk, ms=2.5, lw=1.0,
+                color=c, label=f"{qr:.2f} l/s ({lbl})")
+    ax.axhline(0.97, color="C3", lw=0.8, ls="--")
+    ax.text(0.98, 0.971, "3% head-drop criterion", fontsize=6.5, color="C3",
+            transform=ax.get_yaxis_transform(), ha="right", va="bottom")
+    ax.set(xlabel=r"NPSH$_\mathrm{a}$ [m]", ylabel=r"$H/H_\mathrm{ref}$")
+    ax.legend(fontsize=6, title="held flow (run)", title_fontsize=6,
+              loc="lower right")
+    return save(fig, "results_cav_suction")
+
+
 # =========================================================================== #
 FIGURES = {
     "theory_hq": fig_theory_hq,            # H-Q + psi-phi pair (keep combined)
@@ -1092,6 +1335,7 @@ FIGURES = {
     "coupled_hq": fig_coupled_hq,
     "coupled_torque": fig_coupled_torque,
     "turbine_eta_uc0": fig_turbine_eta_uc0,
+    "turbine_design_space": fig_turbine_design_space,  # (d_m, mdot) sweep + constraints
     # diagram / design / validation
     "moc_contour": fig_moc_contour,        # as-designed passage, labelled
     "moc_spread": fig_moc_spread,          # 2 PDFs: narrow vs wide Mach spread
@@ -1101,6 +1345,10 @@ FIGURES = {
     "goldman_validation": fig_goldman_validation,  # 2 PDFs: Mach + Hi replication
     "turbine_triangles": fig_turbine_triangles,  # design-point velocity triangles
     "campbell": fig_campbell,              # turbine shaft Campbell diagram (ross)
+    "valve_kv": fig_valve_kv,              # valve Kv: online data vs measured
+    "eta_re": fig_eta_re,                  # fitted (1-eta) ~ Re^-a + 20k extrap
+    "sankey": fig_sankey,                  # BEP shaft-power budget (Sankey)
+    "cav_suction": fig_cav_suction,        # Gulich 6.9-style suction curves
 }
 
 

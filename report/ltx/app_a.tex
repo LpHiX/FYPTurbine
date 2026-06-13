@@ -1,2 +1,51 @@
-\section{First Appendix Title}
-Appendix content goes here (e.g., calibration curves, large tables, or code).
+\section{Conventional Impeller Design Attempt}
+\label{sec:appendix_conventional}
+
+% STUB -- the full Kaplan-method conventional impeller construction (the "honest version of
+% the same exercise" that Kim's correlation patchwork avoided): Gulich 7.2.1 procedure,
+% where each correlation broke at this duty (efficiency correlation negative, b2* chart
+% extrapolated), the Kaplan 3D blade development, and the sub-millimetre channel result.
+% Conclusion cross-referenced from Ch1 and 3.1.7.
+
+\section{Supplementary Safety Calculations}
+\label{sec:appendix_safety}
+
+The containment and overspeed calculations that sized the protection hardware are in the main body, \cref{eq:baker_pressure} onwards. This appendix carries the remaining two analyses of the safety case: the venting noise and the venting reaction force. As in the body, the numbers are the 100 bar worst case for the stored air system that was later descoped to 7 bar shop air, retained because the hardware was retained.
+
+\subsection{Venting Noise}
+
+The sound level of gas venting is estimated per API 521 \cite{api521PressureRelieving}. The choked mass flow through the vent restriction is
+
+\begin{equation}
+    \dot{m} = A_{choke}\, P_0\, \frac{\Gamma}{\sqrt{T}}, \qquad
+    \Gamma = \sqrt{\frac{\gamma}{R} \left( \frac{2}{\gamma + 1} \right)^{\frac{\gamma + 1}{\gamma - 1}}}
+    \label{eq:choked_vent}
+\end{equation}
+
+and the sound pressure level at 30 m and at distance $r$ follow from
+
+\begin{equation}
+    L = 5\log_{10}\left(\frac{P_0}{P_e}\right) + 51.5, \qquad
+    L_{30} = L + 10\log_{10}\left(\tfrac{1}{2}\dot{m} c^2\right), \qquad
+    L_p = L_{30} - 20\log_{10}\left(\frac{r}{30}\right)
+    \label{eq:api521_noise}
+\end{equation}
+
+For the worst case 100 bar vent through a 1/8" line this gives 102 dB at 30 m and 131 dB at 1 m. Against the Control of Noise at Work Regulations 2005 limits, nobody is in the room during venting, and the 27 dB SNR ear defenders worn in the control room bring the exposure below the action level.
+
+\subsection{Venting Reaction Force}
+
+The reaction force of an open vent is
+
+\begin{equation}
+    F = \dot{m}\, c + A \left(P_{choked} - P_{e}\right)
+    \label{eq:vent_force}
+\end{equation}
+
+with $c$ the speed of sound at the choked condition. At 100 bar a 1/2" vent would produce around 1.6 kN, which is why the vent line is reduced to 1/8", bringing the force to around 100 N against a 50 kg weighted stand, with all vents pointed upward so the reaction acts into the floor.
+
+\section{Additional Figures and Tables}
+\label{sec:appendix_extra}
+
+% STUB -- as-built deviation tables, valve Kv appendix figure if cut from 4.3, assembly photos
+% (Knoll 06-09: photos to appendix), gain derivation for the ratiometric ADC chain.

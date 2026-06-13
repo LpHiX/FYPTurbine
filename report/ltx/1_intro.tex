@@ -17,7 +17,7 @@ Different pump geometries are optimal for different regions of specific speed as
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{placeholder.png}
-    \caption{TODO} % Fig 1.1: pump type / attainable efficiency vs specific speed regime chart, n_q approx 7 marked (source: interim deck / Gulich chart)
+    \caption{Optimum pump geometry and attainable efficiency against specific speed, with the design point of this thesis at $n_q = \valPumpNqDesign$ marked. Most rocket engine pumps sit in the radial impeller optimum of $n_q$ 20 to 40.} % PLACEHOLDER IMAGE: regime chart from interim deck / Gulich
     \label{fig:pump_type_by_specific_speed}
 \end{figure}
 
@@ -26,6 +26,8 @@ To achieve the specific speed of \valSamplepumpNq for a smaller rocket engine of
 As shown in \cref{fig:pump_type_by_specific_speed}, at lower specific speeds, the partial emission pump becomes the optimum efficiency pump geometry at specific speeds of \todo{get a real number here} 5-10. However, even though these pumps are the most efficient at these low specific speeds, they physically cannot achieve the high efficiencies of a full emission pump. This is the main limitation of trying to operate at low specific speeds.  \todo{maybe not mention full/partial emission so early?}
 
 Due to its lower efficiency and the lack of pump fed liquid rockets for small engines, there is a lack of literature, design knowledge and experimental data surrounding these pumps. This thesis aims to address this gap by reviewing existing literature, designing and manufacturing a partial emission centrifugal pump and comparing its experimental performance specifically in the use case of rocket engines.
+
+The lack of data is specifically a lack of experimental data. Open studies of this regime do exist, but they are numerical. A Barske type impeller at $n_q = 4.7$ was studied with CFD and reached an efficiency of 31.5\% \cite{knyazevaDesignFluidDynamics2021}. A conventional closed impeller was designed at the same specific speed as this thesis, but it was CFD only, unvalidated, and required closed channels of 0.31 mm width \cite{kimDevelopmentUltraLowSpecific2022}. A partial emission rocket e-pump for a lunar lander was designed for 630 m at 40,000 RPM, again in CFD \cite{danieliConceptualDesignElectric2023}. What is scarce is open experimental characterisation at this specific speed, with a measured loss breakdown and measured cavitation behaviour, and that is what this work supplies. Balje's selection diagrams show why this corner of the design space is poorly covered, as the efficiency islands collapse below a non-dimensional specific speed of around 0.1, right where this duty point sits \cite{baljeBaljeTurbomachinesGuide1981}. A NASA trade study of low thrust rocket pumps covers the same trade and carries the Barske pump as a candidate \cite{macgregorRotatingPositivedisplacementPumps1974}.
 
 \subsection{Small scale rocket turbine challenges}
 
@@ -38,6 +40,7 @@ This thesis tackles the design of a turbopump in the context of small scale liqu
 This thesis covers the theory, design, manufacture and testing of a small scale turbopump system on inert propellents. The pump was tested up to \valPumpRpmMaxreached, significantly lower than the design speed of \valPumpRpmDesign in the first and final iterations of the conducted experiments. This means the data validation can only happen for the off-design point and extrapolation to the design point is required. Cryogenic and hot gas design and testing are strictly outside the scope of tis thesis. Operational safety procedures are included in the appendix.
 
 \subsection{Aims and Objectives}
+\label{sec:intro_objectives}
 The aim of this thesis is to investigate the performance of a small scale rocket low specific speed turbopump with a Barske pump and a supersonic partial admission turbine. To this end, the objectives of this thesis are:
 
 \begin{enumerate}
@@ -49,5 +52,6 @@ The aim of this thesis is to investigate the performance of a small scale rocket
 
 \subsection{Thesis Structure}
 
-\todo{paragraph below still describes the old NINE-chapter layout --- rewrite to six: 2 theory, 3 design, 4 experimental setup, 5 results and discussion, 6 conclusions}
-Chapter 2 establishes the pump theoretical background: pump specific speed, Barske impeller characteristics, impulse turbine velocity triangle theory, and the relevant prior literature. Chapter 3 details the pump design and sizing methodology. Chapter 4 covers turbine design, including structural analysis of the rotor at \valPumpRpmDesign. Chapter 5 describes the custom instrumentation and data acquisition system. Chapter 6 documents the test rig and assembly. Chapter 7 presents the experimental results. Chapter 8 discusses the findings in the context of design predictions and prior literature. Chapter 9 draws conclusions and recommends future work.
+% old nine-chapter paragraph commented out (restructured to six chapters, Knoll 06-12):
+% Chapter 2 establishes the pump theoretical background: pump specific speed, Barske impeller characteristics, impulse turbine velocity triangle theory, and the relevant prior literature. Chapter 3 details the pump design and sizing methodology. Chapter 4 covers turbine design, including structural analysis of the rotor at \valPumpRpmDesign. Chapter 5 describes the custom instrumentation and data acquisition system. Chapter 6 documents the test rig and assembly. Chapter 7 presents the experimental results. Chapter 8 discusses the findings in the context of design predictions and prior literature. Chapter 9 draws conclusions and recommends future work.
+Chapter 2 establishes the theoretical background for both machines: specific speed, the Barske impeller and its sizing and loss models, and the supersonic impulse turbine theory including blade profile design, separation and starting. Chapter 3 applies these models to design the actual pump and turbine, including the mechanical and structural design. Chapter 4 describes the experimental setup: the test configurations, the water and air circuits, and the custom instrumentation and data acquisition system. Chapter 5 presents the experimental results and discusses them against the design predictions and prior literature. Chapter 6 draws conclusions against the objectives and recommends future work.
