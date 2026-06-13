@@ -11,6 +11,7 @@ Run with the FYPTurbine venv so pandas/uncertainties/etc. are available.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,7 +19,20 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PIPE = ROOT / "data_analysis" / "thesis_pipeline"
 REPORT = ROOT / "report"
-PY = sys.executable
+
+
+def _venv_python():
+    """Prefer the FYPTurbine .venv interpreter for the subprocesses so they get
+    pandas/uncertainties/CoolProp/etc. even when this script is launched with a
+    bare system Python. Running with system Python was the ModuleNotFoundError
+    ('No module named uncertainties') you hit. Falls back to whatever launched
+    us if no .venv is found."""
+    sub = "Scripts/python.exe" if os.name == "nt" else "bin/python"
+    cand = ROOT / ".venv" / sub
+    return str(cand) if cand.exists() else sys.executable
+
+
+PY = _venv_python()
 
 
 def run(cmd, cwd=None):
@@ -27,6 +41,7 @@ def run(cmd, cwd=None):
 
 
 def main(argv):
+    print(f"# interpreter: {PY}")
     run([PY, "build_values.py"], cwd=PIPE)      # -> results.json
     run([PY, "export_latex.py"], cwd=PIPE)      # -> values.tex
     run([PY, "export_tables.py"], cwd=PIPE)     # -> generated/tables/*.tex

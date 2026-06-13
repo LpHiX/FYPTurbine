@@ -18,6 +18,7 @@
 \newcommand{\valPumpDOne}{\qty{21.5}{\milli\meter}\xspace}  % impeller inlet (blade leading-edge) diameter, 1.1 d0
 \newcommand{\valPumpDTwo}{\qty{58.5}{\milli\meter}\xspace}  % impeller tip diameter
 \newcommand{\valPumpDThreeSized}{\qty{2.79}{\milli\meter}\xspace}  % sizing-model diffuser throat (as-built TRUE throat = pump_throat 3.0)
+\newcommand{\valPumpDFourAsbuilt}{\qty{9.0}{\milli\meter}\xspace}  % as-built diffuser exit diameter (sizing model gave 5.58; cone lengthened to clear the annular casing wall, which pushed the exit out to 9.0 at the fixed divergence angle)
 \newcommand{\valPumpDFourSized}{\qty{5.58}{\milli\meter}\xspace}  % sizing-model diffuser exit diameter (2 d3)
 \newcommand{\valPumpEtaDesign}{\qty{23.4}{\percent}\xspace}  % design-point overall efficiency (Barske loss model, as-designed Karassik seal f=0.07)
 \newcommand{\valPumpEtaExtrap}{\qty{27}{\percent}\xspace}  % Reynolds-extrapolated efficiency at 20k rpm (26-29 range)
@@ -38,10 +39,11 @@
 \newcommand{\valPumpRpmMaxreached}{\qty{9000}{\rpm}\xspace}  % maximum speed reached
 \newcommand{\valPumpSax}{\qty{0.59}{\milli\meter}\xspace}  % impeller-casing axial gap s_ax
 \newcommand{\valPumpSealF}{\num{0.014}\xspace}  % fitted seal friction coefficient (water-film)
-\newcommand{\valPumpThroat}{\qty{3.0}{\milli\meter}\xspace}  % true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 — the 3.8 mm cone cutwater is downstream of the minimum)
+\newcommand{\valPumpThroat}{\qty{3.0}{\milli\meter}\xspace}  % as-built diffuser throat (sizing model gave 2.79; rounded up to 3.0 for manufacturability). True throat is the semicircle into the annular casing, CAD-confirmed 2026-06-11; the 3.8 mm cone cutwater is downstream of the minimum
 \newcommand{\valPumpThroatCutwater}{\qty{3.8}{\milli\meter}\xspace}  % cone cutwater diameter, downstream of the true throat (NOT the minimum area)
 \newcommand{\valPumpTipForce}{\qty{6.98}{\newton}\xspace}  % per-blade tip force from design torque
 \newcommand{\valPumpTorqueDesign}{\qty{1.23}{\newton\meter}\xspace}  % design shaft torque
+\newcommand{\valPumpUZeroDesign}{\qty{1.0}{\meter\per\second}\xspace}  % blade speed at suction eye, design
 \newcommand{\valPumpUOneDesign}{\qty{22.5}{\meter\per\second}\xspace}  % blade speed at impeller inlet, design
 \newcommand{\valPumpUTwoDesign}{\qty{61.3}{\meter\per\second}\xspace}  % blade tip speed at design
 \newcommand{\valRigBaseplateThk}{\qty{20}{\milli\meter}\xspace}  % CNC mounting baseplate thickness

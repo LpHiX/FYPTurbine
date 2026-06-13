@@ -17,7 +17,7 @@ The containment and overspeed calculations that sized the protection hardware ar
 The sound level of gas venting is estimated per API 521 \cite{api521PressureRelieving}. The choked mass flow through the vent restriction is
 
 \begin{equation}
-    \dot{m} = A_{choke}\, P_0\, \frac{\Gamma}{\sqrt{T}}, \qquad
+    \dot{m} = A_{choke}\, p_0\, \frac{\Gamma}{\sqrt{T}}, \qquad
     \Gamma = \sqrt{\frac{\gamma}{R} \left( \frac{2}{\gamma + 1} \right)^{\frac{\gamma + 1}{\gamma - 1}}}
     \label{eq:choked_vent}
 \end{equation}
@@ -25,8 +25,8 @@ The sound level of gas venting is estimated per API 521 \cite{api521PressureReli
 and the sound pressure level at 30 m and at distance $r$ follow from
 
 \begin{equation}
-    L = 5\log_{10}\left(\frac{P_0}{P_e}\right) + 51.5, \qquad
-    L_{30} = L + 10\log_{10}\left(\tfrac{1}{2}\dot{m} c^2\right), \qquad
+    L = 5\log_{10}\left(\frac{p_0}{p_e}\right) + 51.5, \qquad
+    L_{30} = L + 10\log_{10}\left(\tfrac{1}{2}\dot{m} a^2\right), \qquad
     L_p = L_{30} - 20\log_{10}\left(\frac{r}{30}\right)
     \label{eq:api521_noise}
 \end{equation}
@@ -38,11 +38,11 @@ For the worst case 100 bar vent through a 1/8" line this gives 102 dB at 30 m an
 The reaction force of an open vent is
 
 \begin{equation}
-    F = \dot{m}\, c + A \left(P_{choked} - P_{e}\right)
+    F = \dot{m}\, a + A \left(p_{choked} - p_e\right)
     \label{eq:vent_force}
 \end{equation}
 
-with $c$ the speed of sound at the choked condition. At 100 bar a 1/2" vent would produce around 1.6 kN, which is why the vent line is reduced to 1/8", bringing the force to around 100 N against a 50 kg weighted stand, with all vents pointed upward so the reaction acts into the floor.
+with $a$ the speed of sound at the choked condition. At 100 bar a 1/2" vent would produce around 1.6 kN, which is why the vent line is reduced to 1/8", bringing the force to around 100 N against a 50 kg weighted stand, with all vents pointed upward so the reaction acts into the floor.
 
 \section{Additional Figures and Tables}
 \label{sec:appendix_extra}

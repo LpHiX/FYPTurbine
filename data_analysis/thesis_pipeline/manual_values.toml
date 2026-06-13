@@ -40,12 +40,18 @@ desc = "modified pre-rotation coefficient"
 val = 3.0
 unit = '\milli\meter'
 fmt = ".1f"
-desc = "true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 — the 3.8 mm cone cutwater is downstream of the minimum)"
+desc = "as-built diffuser throat (sizing model gave 2.79; rounded up to 3.0 for manufacturability). True throat is the semicircle into the annular casing, CAD-confirmed 2026-06-11; the 3.8 mm cone cutwater is downstream of the minimum"
 
 [pump_throat_cutwater]
 val = 3.8
 unit = '\milli\meter'
 desc = "cone cutwater diameter, downstream of the true throat (NOT the minimum area)"
+
+[pump_d4_asbuilt]
+val = 9.0
+unit = '\milli\meter'
+fmt = ".1f"
+desc = "as-built diffuser exit diameter (sizing model gave 5.58; cone lengthened to clear the annular casing wall, which pushed the exit out to 9.0 at the fixed divergence angle)"
 
 # ---------- analysis constants quoted in prose ----------
 [turb_start_limit]

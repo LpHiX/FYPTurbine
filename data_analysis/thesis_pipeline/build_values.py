@@ -101,6 +101,8 @@ def build_design(reg: Registry) -> Registry:
     reg.add("pump_d4_sized", p.d_4 * mm, unit=r"\milli\meter", fmt=".2f",
             desc="sizing-model diffuser exit diameter (2 d3)")
     # velocities / blade speeds
+    reg.add("pump_u0_design", p.v_0, unit=r"\meter\per\second", fmt=".1f",
+            desc="blade speed at suction eye, design")
     reg.add("pump_u1_design", p.u_1, unit=r"\meter\per\second", fmt=".1f",
             desc="blade speed at impeller inlet, design")
     reg.add("pump_u2_design", p.u_2, unit=r"\meter\per\second", fmt=".1f",

@@ -111,6 +111,13 @@
     "fmt": ".2f",
     "desc": "sizing-model diffuser throat (as-built TRUE throat = pump_throat 3.0)"
   },
+  "pump_d4_asbuilt": {
+    "val": 9.0,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "as-built diffuser exit diameter (sizing model gave 5.58; cone lengthened to clear the annular casing wall, which pushed the exit out to 9.0 at the fixed divergence angle)"
+  },
   "pump_d4_sized": {
     "val": 5.582489028715656,
     "unit": "\\milli\\meter",
@@ -256,7 +263,7 @@
     "unit": "\\milli\\meter",
     "unc": null,
     "fmt": ".1f",
-    "desc": "true diffuser throat (semicircle into annular casing; CAD-confirmed 2026-06-11 \u2014 the 3.8 mm cone cutwater is downstream of the minimum)"
+    "desc": "as-built diffuser throat (sizing model gave 2.79; rounded up to 3.0 for manufacturability). True throat is the semicircle into the annular casing, CAD-confirmed 2026-06-11; the 3.8 mm cone cutwater is downstream of the minimum"
   },
   "pump_throat_cutwater": {
     "val": 3.8,
@@ -278,6 +285,13 @@
     "unc": null,
     "fmt": ".2f",
     "desc": "design shaft torque"
+  },
+  "pump_u0_design": {
+    "val": 1,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "blade speed at suction eye, design"
   },
   "pump_u1_design": {
     "val": 22.513187574822748,

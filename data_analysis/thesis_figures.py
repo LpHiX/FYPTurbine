@@ -886,114 +886,123 @@ def _dim(ax, p0, p1, text, tpos=None, fs=6.5, **kw):
 
 
 def fig_barske_geometry():
-    """TWO PDFs (thesis subfigure pair): Barske pump geometry schematics driven
-    by the sized geometry object — (a) meridional half-section with d0/d1/d2,
-    b1/b2, s_ax, casing B x H; (b) end view with blades, annular casing and the
-    tangential conical diffuser (throat d3 -> exit d4). Schematic: radial
-    proportions true, wall thicknesses and diffuser arrangement illustrative."""
+    """ONE PDF (Martin 06-13): the two Barske schematics combined into a single
+    figure, side by side and sharing the radial (y) axis so the meridional
+    section and the end view map onto each other. (a) meridional half-section
+    with d0/d1/d2, b1/b2, s_ax, casing B x H; (b) end view with blades, annular
+    casing and the tangential conical diffuser (throat d3 -> exit d4, symmetric
+    about a centreline at r2, running to the LEFT). Dimension symbols enlarged.
+    Schematic: radial proportions true, wall thicknesses illustrative."""
     p = pump()
     mm = 1000.0
     r0, r1, r2 = p.d_0 / 2 * mm, p.d_1 / 2 * mm, p.d_2 / 2 * mm
     b1, b2, sax = p.b_1 * mm, p.b_2 * mm, p.s_ax * mm
     Bc, Hc = p.B * mm, p.H * mm
-    d3, d4 = p.d_3 * mm, p.d_4 * mm
-    Rc = r2 + Hc          # casing inner radius
-    rsh = 5.0             # shaft radius, illustrative
+    d3 = p.d_3 * mm           # throat from sizing
+    d4 = 6.0                  # exit diameter [mm], hard-coded (Martin 06-13)
+    Rc = r2 + Hc             # casing inner radius
+    rsh = 5.0                # shaft radius, illustrative
+    LBL = 12                 # dimension-symbol font size (was ~6.5, invisible)
 
-    # ---- (a) meridional view: LITERALLY BarskePump.visualize()'s ax1
-    # construction (Martin 06-13: keep the plain matplotlib look, label onto
-    # it) — same polygons, same colours, axes in mm, dims drawn on top.
-    from matplotlib.patches import Polygon, Rectangle
+    from matplotlib.patches import Polygon, Rectangle, Circle
     rib = 3.0                     # rib height [mm] — visualize() value
     x_back = rib + b1             # blade/rib back face axial position
-    fig, ax = plt.subplots(figsize=(3.4, 4.6))
-    ax.plot([-10, x_back + 10], [0, 0], color="black", ls="--", lw=0.8)
-    ax.plot([-10, -sax], [-r0, -r0], color="green", lw=1.2)
-    ax.plot([-10, -sax], [r0, r0], color="green", lw=1.2)
+    # shared radial axis so radial features line up across the two views
+    ylim = (-(Rc + 8), Rc + 8)
+    fig, (axm, axp) = plt.subplots(
+        1, 2, figsize=(7.4, 5.2), sharey=True,
+        gridspec_kw={"width_ratios": [1, 2.7]})
+
+    # ---- (a) meridional view: LITERALLY BarskePump.visualize()'s ax1
+    # construction (keep the plain matplotlib look, label onto it) — same
+    # polygons, same colours, axes in mm, dims drawn on top.
+    axm.plot([-10, x_back + 10], [0, 0], color="black", ls="--", lw=0.8)
+    axm.plot([-10, -sax], [-r0, -r0], color="green", lw=1.2)
+    axm.plot([-10, -sax], [r0, r0], color="green", lw=1.2)
     for s in (+1, -1):
         # blade (visualize polygon: root spans 0..rib+b1, tip width b2)
-        ax.add_patch(Polygon([[0, s * r1], [rib + b1 - b2, s * r2],
-                              [x_back, s * r2], [x_back, s * r1]],
-                             closed=True, fill=False, edgecolor="C0", lw=1.2))
+        axm.add_patch(Polygon([[0, s * r1], [rib + b1 - b2, s * r2],
+                               [x_back, s * r2], [x_back, s * r1]],
+                              closed=True, fill=False, edgecolor="C0", lw=1.2))
         # casing polyline (visualize: eye wall -> conical front -> outer)
-        ax.add_patch(Polygon([[-sax, s * r0], [-sax, s * r1],
-                              [-sax + rib + b1 - b2, s * r2],
-                              [-sax + rib + b1 - b2, s * (r2 + Hc)],
-                              [x_back + sax, s * (r2 + Hc)],
-                              [x_back + sax, s * r1]],
-                             closed=False, fill=False, edgecolor="black",
-                             lw=1.2))
-    ax.add_patch(Rectangle((b1, -r1), rib, 2 * r1, fill=False,
-                           edgecolor="purple", lw=1.0))
+        axm.add_patch(Polygon([[-sax, s * r0], [-sax, s * r1],
+                               [-sax + rib + b1 - b2, s * r2],
+                               [-sax + rib + b1 - b2, s * (r2 + Hc)],
+                               [x_back + sax, s * (r2 + Hc)],
+                               [x_back + sax, s * r1]],
+                              closed=False, fill=False, edgecolor="black",
+                              lw=1.2))
+    axm.add_patch(Rectangle((b1, -r1), rib, 2 * r1, fill=False,
+                            edgecolor="purple", lw=1.0))
     # ---- dimensions (symbols only; values live in tab_pump_design) ----
-    _dim(ax, (-8.0, -r0), (-8.0, r0), r"$d_0$", tpos=(-8.0, r0 * 0.55))
+    _dim(axm, (-8.0, -r0), (-8.0, r0), r"$d_0$", tpos=(-8.0, r0 * 0.55), fs=LBL)
     for xd, rr, lab in ((x_back + 3.5, r1, r"$d_1$"),
                         (x_back + 7.0, r2, r"$d_2$")):
-        ax.plot([x_back, xd], [rr, rr], color="0.7", lw=0.4)
-        ax.plot([x_back, xd], [-rr, -rr], color="0.7", lw=0.4)
-        _dim(ax, (xd, -rr), (xd, rr), lab, tpos=(xd + 1.7, rr * 0.35))
+        axm.plot([x_back, xd], [rr, rr], color="0.7", lw=0.4)
+        axm.plot([x_back, xd], [-rr, -rr], color="0.7", lw=0.4)
+        _dim(axm, (xd, -rr), (xd, rr), lab, tpos=(xd + 2.4, rr * 0.35), fs=LBL)
     rmid = (r1 + r2) / 2
     xb_mid = (rmid - r1) / (r2 - r1) * (rib + b1 - b2)
-    ax.annotate(r"$s_{ax}$", xy=(xb_mid - sax / 2, rmid),
-                xytext=(xb_mid - sax - 7.0, rmid + 4.0), fontsize=6.5,
-                arrowprops=dict(arrowstyle="->", lw=0.6))
-    _dim(ax, (rib + b1 - b2, r2 + 0.5 * Hc), (x_back, r2 + 0.5 * Hc),
-         r"$b_2$", tpos=(rib + b1 - b2 / 2 - 2.7, r2 + 0.5 * Hc))
-    _dim(ax, (0, -r1 * 0.55), (b1, -r1 * 0.55), r"$b_1$",
-         tpos=(b1 / 2, -r1 * 0.55 - 2.2))
-    _dim(ax, (-sax + rib + b1 - b2, r2 + Hc + 2.6), (x_back + sax, r2 + Hc + 2.6),
-         r"$b_c$", tpos=((rib + b1 - b2 + x_back) / 2, r2 + Hc + 4.8))
-    _dim(ax, (x_back + 1.0, -r2), (x_back + 1.0, -(r2 + Hc)), r"$h_c$",
-         tpos=(x_back + 3.2, -(r2 + Hc / 2)))
-    ax.set_aspect("equal")
-    ax.set(xlim=(-11, x_back + 10.5), ylim=(-(r2 + Hc) - 6, (r2 + Hc) + 7),
-           xlabel="axial [mm]", ylabel="radial [mm]")
-    save(fig, "barske_meridional")
+    axm.annotate(r"$s_{ax}$", xy=(xb_mid - sax / 2, rmid),
+                 xytext=(xb_mid - sax - 7.0, rmid + 4.0), fontsize=LBL,
+                 arrowprops=dict(arrowstyle="->", lw=0.6))
+    _dim(axm, (rib + b1 - b2, r2 + 0.5 * Hc), (x_back, r2 + 0.5 * Hc),
+         r"$b_2$", tpos=(rib + b1 - b2 / 2 - 2.7, r2 + 0.5 * Hc), fs=LBL)
+    _dim(axm, (0, -r1 * 0.55), (b1, -r1 * 0.55), r"$b_1$",
+         tpos=(b1 / 2, -r1 * 0.55 - 2.6), fs=LBL)
+    _dim(axm, (-sax + rib + b1 - b2, r2 + Hc + 2.6), (x_back + sax, r2 + Hc + 2.6),
+         r"$b_c$", tpos=((rib + b1 - b2 + x_back) / 2, r2 + Hc + 5.4), fs=LBL)
+    _dim(axm, (x_back + 1.0, -r2), (x_back + 1.0, -(r2 + Hc)), r"$h_c$",
+         tpos=(x_back + 4.0, -(r2 + Hc / 2)), fs=LBL)
+    axm.set_aspect("equal")
+    axm.set(xlim=(-11, x_back + 11), ylim=ylim, xlabel="axial [mm]",
+            ylabel="radial [mm]")
 
-    # ---- (b) top view: visualize()'s ax2 (circles + legend look), with
+    # ---- (b) end view: visualize()'s ax2 (circles + legend look), with
     # blade THICKNESS added and the tangential diffuser for d3/d4 ----
-    from matplotlib.patches import Circle
-    fig, ax = plt.subplots(figsize=(4.0, 3.8))
-    ax.add_patch(Circle((0, 0), r0, fill=False, color="green",
-                        label=r"inlet ($d_0$)"))
-    ax.add_patch(Circle((0, 0), r1, fill=False, color="blue",
-                        label=r"blade root ($d_1$)"))
-    ax.add_patch(Circle((0, 0), r2, fill=False, color="red",
-                        label=r"blade tip ($d_2$)"))
-    ax.add_patch(Circle((0, 0), Rc, fill=False, color="black", ls="--",
-                        label="annular casing"))
+    axp.add_patch(Circle((0, 0), r0, fill=False, color="green",
+                         label=r"inlet ($d_0$)"))
+    axp.add_patch(Circle((0, 0), r1, fill=False, color="blue",
+                         label=r"blade root ($d_1$)"))
+    axp.add_patch(Circle((0, 0), r2, fill=False, color="red",
+                         label=r"blade tip ($d_2$)"))
+    axp.add_patch(Circle((0, 0), Rc, fill=False, color="black", ls="--",
+                         label="annular casing"))
     tb = p.blade_thickness * mm
     for k in range(p.blade_number):                  # radial blades, thick
         a = 2 * np.pi * k / p.blade_number
         ca, sa = np.cos(a), np.sin(a)
-        ax.plot([r1 * ca - tb / 2 * sa, r2 * ca - tb / 2 * sa],
-                [r1 * sa + tb / 2 * ca, r2 * sa + tb / 2 * ca], color="blue", lw=1.2)
-        ax.plot([r1 * ca + tb / 2 * sa, r2 * ca + tb / 2 * sa],
-                [r1 * sa - tb / 2 * ca, r2 * sa - tb / 2 * ca], color="blue", lw=1.2)
-        ax.plot([r2 * ca - tb / 2 * sa, r2 * ca + tb / 2 * sa],
-                [r2 * sa + tb / 2 * ca, r2 * sa - tb / 2 * ca], color="blue", lw=1.2)
-    # tangential conical diffuser off the casing bore (throat d3 -> exit d4)
-    Ld = 2.2 * d4
-    ax.plot([0, Ld], [Rc, Rc], color="black", lw=1.2)
-    ax.plot([0, Ld], [Rc + d3, Rc + d4], color="black", lw=1.2)
-    ax.plot([0, 0], [Rc, Rc + d3], color="black", lw=0.8)
-    _dim(ax, (0.06 * Ld, Rc), (0.06 * Ld, Rc + d3 + 0.06 * (d4 - d3)),
-         r"$d_3$", tpos=(-0.35 * d4, Rc + d3 * 2.2))
-    _dim(ax, (Ld, Rc), (Ld, Rc + d4), r"$d_4$",
-         tpos=(Ld + 0.85 * d4, Rc + d4 / 2))
-    # rotation arrow towards the diffuser
+        axp.plot([r1 * ca - tb / 2 * sa, r2 * ca - tb / 2 * sa],
+                 [r1 * sa + tb / 2 * ca, r2 * sa + tb / 2 * ca], color="blue", lw=1.2)
+        axp.plot([r1 * ca + tb / 2 * sa, r2 * ca + tb / 2 * sa],
+                 [r1 * sa - tb / 2 * ca, r2 * sa - tb / 2 * ca], color="blue", lw=1.2)
+        axp.plot([r2 * ca - tb / 2 * sa, r2 * ca + tb / 2 * sa],
+                 [r2 * sa + tb / 2 * ca, r2 * sa - tb / 2 * ca], color="blue", lw=1.2)
+    # tangential conical diffuser: symmetric about a centreline at r2, throat
+    # d3 -> exit d4, running to the LEFT from x=0 to x=-Ld (hard-coded).
+    Ld = 30.0
+    yc = r2
+    axp.plot([0, -Ld], [yc + d3 / 2, yc + d4 / 2], color="black", lw=1.2)  # upper wall
+    axp.plot([0, -Ld], [yc - d3 / 2, yc - d4 / 2], color="black", lw=1.2)  # lower wall
+    axp.plot([0, 0], [yc - d3 / 2, yc + d3 / 2], color="black", lw=0.8)    # throat cap
+    axp.plot([-Ld, -Ld], [yc - d4 / 2, yc + d4 / 2], color="black", lw=0.8)  # exit cap
+    _dim(axp, (0.10 * Ld, yc - d3 / 2), (0.10 * Ld, yc + d3 / 2),
+         r"$d_3$", tpos=(0.40 * Ld, yc), fs=LBL)
+    _dim(axp, (-Ld, yc - d4 / 2), (-Ld, yc + d4 / 2), r"$d_4$",
+         tpos=(-Ld - 0.22 * Ld, yc), fs=LBL)
+    # rotation arrow
     rr = 0.55 * r1
     tha = np.linspace(np.deg2rad(150), np.deg2rad(30), 40)
-    ax.plot(rr * np.cos(tha), rr * np.sin(tha), color="0.4", lw=0.8)
-    ax.annotate("", xy=(rr * np.cos(tha[-1] - 0.12), rr * np.sin(tha[-1] - 0.12)),
-                xytext=(rr * np.cos(tha[-1]), rr * np.sin(tha[-1])),
-                arrowprops=dict(arrowstyle="<-", lw=0.8, color="0.4"))
-    ax.text(0, rr * 0.45, r"$\omega$", fontsize=8, ha="center", color="0.4")
-    ax.set_aspect("equal")
-    ax.set(xlim=(-1.45 * Rc, 1.85 * Rc), ylim=(-1.25 * Rc, 1.45 * Rc),
-           xlabel="x [mm]", ylabel="y [mm]")
-    ax.legend(fontsize=6, loc="lower right")
-    return save(fig, "barske_plan")
+    axp.plot(rr * np.cos(tha), rr * np.sin(tha), color="0.4", lw=0.8)
+    axp.annotate("", xy=(rr * np.cos(tha[-1] - 0.12), rr * np.sin(tha[-1] - 0.12)),
+                 xytext=(rr * np.cos(tha[-1]), rr * np.sin(tha[-1])),
+                 arrowprops=dict(arrowstyle="<-", lw=0.8, color="0.4"))
+    axp.text(0, rr * 0.45, r"$\omega$", fontsize=LBL, ha="center", color="0.4")
+    axp.set_aspect("equal")
+    axp.set(xlim=(-Ld - 12, 1.55 * Rc), xlabel="tangential [mm]")
+    axp.legend(fontsize=8, loc="lower right")
+    fig.subplots_adjust(wspace=0.05)
+    return save(fig, "barske_geometry")
 
 
 def fig_goldman_validation():
@@ -1326,6 +1335,200 @@ def fig_cav_suction():
 
 
 # =========================================================================== #
+# radial-inflow cantilever turbine terminology figure (promoted 2026-06-13 from
+# proto_cantilever_fig.py). Two panels: (L) MoC blade contour with the rotor
+# inlet/exit velocity triangles overlaid and aligned to the blade feet (true
+# scale), beta_3/beta_4 against u; (R) the annular cascade (d_i/d_m/d_o, the
+# same silhouette swept into the ring). MoC frame: local x = meridional, local
+# y = tangential; LE/TE are the two feet of the symmetric impulse bucket.
+# =========================================================================== #
+CANT_N_BLADES = 50
+CANT_D_IN_MM, CANT_D_MEAN_MM, CANT_D_OUT_MM = 85.0, 95.0, 105.0
+CANT_BLADE_FILL = "0.85"
+
+
+def _cant_blade_polygon(moc):
+    """Single solid MoC blade silhouette (the _draw_passage crescent), native
+    frame x = meridional, y = tangential. LE/TE are the two feet."""
+    res = moc.results
+    xl, yl = moc.coords["lower_rot"]["x"], moc.coords["lower_rot"]["y"]
+    xu, yu = moc.coords["upper_rot"]["x"], moc.coords["upper_rot"]["y"]
+    Rl, Ru = res["Rl"], res["Ru"]
+    a_l, a_u = res["alpha_lower_inlet"], res["alpha_upper_inlet"]
+    y_te = yu[-1] + (xl[-1] - xu[-1]) * np.tan(moc.beta_inlet)
+
+    th_l = np.linspace(np.pi / 2 + a_l, np.pi / 2 - a_l, 100)
+    xb = np.concatenate([np.flip(xl), Rl * np.cos(th_l), -xl])
+    yb = np.concatenate([np.flip(yl), Rl * np.sin(th_l), yl]) - yl[-1] + y_te
+
+    th_u = np.linspace(np.pi / 2 + a_u, np.pi / 2 - a_u, 100)
+    x_up = np.concatenate([[xl[-1]], np.flip(xu), Ru * np.cos(th_u), -xu, [-xl[-1]]])
+    y_up = np.concatenate([[y_te], np.flip(yu), Ru * np.sin(th_u), yu, [y_te]])
+
+    bx = np.concatenate([x_up, np.flip(xb)])
+    by = np.concatenate([y_up, np.flip(yb)])
+    return bx, by
+
+
+def _cant_oriented_blade(bx, by, chord_units):
+    """Blade for the L panel: u (local y) -> horizontal, meridional (local x)
+    -> vertical (LE up, TE down), lower-edge-left / upper-edge-right. Mapping
+    (x,y)->(y,-x), centred, scaled so the LE-TE span = chord_units."""
+    X, Y = by.copy(), -bx.copy()
+    X -= X.mean()
+    Y -= Y.mean()
+    s = chord_units / (Y.max() - Y.min())
+    return X * s, Y * s
+
+
+def _cant_arrow(ax, p0, p1, color, lw=1.6):
+    ax.annotate("", xy=p1, xytext=p0,
+                arrowprops=dict(arrowstyle="-|>", lw=lw, color=color,
+                                shrinkA=0, shrinkB=0))
+
+
+def _cant_triangle_at(ax, A, U, W, suf, cu_lab, wu_lab):
+    """One velocity triangle anchored at the u-tip A (the w_u/w corner).
+    u : O->A (O = A - U),  w : A->C (C = A + W),  c : O->C. Component guides."""
+    cU, cC, cW, cK = "0.2", "C0", "C3", "0.55"
+    O = A - U
+    C = A + W
+    K = np.array([C[0], O[1]])                    # right-angle corner (w_u end)
+    right = C[0] >= A[0]
+    _cant_arrow(ax, O, A, cU)                      # u
+    _cant_arrow(ax, A, C, cW)                      # w
+    _cant_arrow(ax, O, C, cC)                      # c
+    ax.text((O[0] + A[0]) / 2, O[1] + 6, r"$u$", color=cU, fontsize=10,
+            ha="center", va="bottom")
+    ax.text((A[0] + C[0]) / 2 + (5 if right else -5), (A[1] + C[1]) / 2,
+            r"$w_%s$" % suf, color=cW, fontsize=11,
+            ha="left" if right else "right", va="center")
+    ax.text((O[0] + C[0]) / 2 + (5 if right else -5), (O[1] + C[1]) / 2 - 6,
+            r"$c_%s$" % suf, color=cC, fontsize=11,
+            ha="left" if right else "right", va="center")
+    ax.plot([O[0], K[0]], [O[1], K[1]], color=cK, lw=0.7, ls=":")
+    ax.plot([K[0], K[0]], [O[1], C[1]], color=cK, lw=0.7, ls=":")
+    ax.text((O[0] + K[0]) / 2, O[1] + 6, cu_lab, color=cK, fontsize=9,
+            ha="center", va="bottom")
+    ax.text(K[0] + (4 if right else -4), (O[1] + C[1]) / 2, r"$c_{%s m}$" % suf,
+            color=cK, fontsize=9, ha="left" if right else "right", va="center")
+    ax.text((A[0] + K[0]) / 2, A[1] - 6, wu_lab, color=cK, fontsize=9,
+            ha="center", va="top")
+
+
+def _cant_beta(ax, foot, tangent_deg, lab, ext=62, r=30):
+    """Extend the LE/TE straight segment to the LEFT of `foot`, draw a leftward
+    horizontal reference, and arc the metal angle between them."""
+    d = np.deg2rad(tangent_deg)
+    dx, dy = np.cos(d), np.sin(d)
+    if dx > 0:                                  # force the line to point LEFT
+        dx, dy = -dx, -dy
+    p1 = foot + ext * np.array([dx, dy])
+    ax.plot([foot[0], p1[0]], [foot[1], p1[1]], color="0.2", lw=1.2)
+    ax.plot([foot[0], foot[0] - ext * 0.95], [foot[1], foot[1]],
+            color="0.55", lw=0.8, ls="--")
+    da = np.arctan2(dy, dx) - np.pi
+    da = (da + np.pi) % (2 * np.pi) - np.pi      # wrap to (-pi, pi]
+    th = np.linspace(np.pi, np.pi + da, 40)
+    ax.plot(foot[0] + r * np.cos(th), foot[1] + r * np.sin(th),
+            color="C3", lw=1.1)
+    am = np.pi + da / 2
+    ax.text(foot[0] + 1.7 * r * np.cos(am), foot[1] + 1.7 * r * np.sin(am),
+            lab, color="C3", fontsize=12, ha="center", va="center")
+
+
+def _cant_panel_triangles(ax, t, X, Y):
+    """MoC blade contour with the rotor inlet (3) and exit (4) velocity
+    triangles overlaid and aligned to it. Inlet anchored (u-tip) on the LE,
+    exit on the TE; w3 runs along the LE tangent, w4 along the TE tangent, and
+    beta_3 / beta_4 are the angles those make with the horizontal (u). True
+    scale, displaced left of the blade with dashed leaders back to the feet."""
+    vs = 0.20                                    # m/s -> figure units (true scale)
+    u, c3u, c3m = float(t.u), float(t.c3u), float(t.c3m)
+    c4u = float(t.c4u)
+    ax.fill(X, Y, color=CANT_BLADE_FILL, ec="k", lw=1.3, zorder=1)
+    le = np.array([X[np.argmax(Y)], Y.max()])    # LE foot (top)
+    te = np.array([X[np.argmin(Y)], Y.min()])    # TE foot (bottom)
+    U = np.array([u, 0.0]) * vs
+    W3 = np.array([c3u - u, -c3m]) * vs           # along LE tangent
+    W4 = np.array([c4u - u, -c3m]) * vs           # along TE tangent
+    dx = 70.0
+    A3 = le - np.array([dx, 0.0])
+    A4 = te - np.array([dx, 0.0])
+    ax.plot([le[0], A3[0]], [le[1], A3[1]], color="0.4", ls="--", lw=0.8, zorder=0)
+    ax.plot([te[0], A4[0]], [te[1], A4[1]], color="0.4", ls="--", lw=0.8, zorder=0)
+    _cant_triangle_at(ax, A3, U, W3, "3", r"$c_{3u}$", r"$w_{3u}$")
+    _cant_triangle_at(ax, A4, U, W4, "4", r"$-c_{4u}$", r"$-w_{4u}$")
+    n = len(X)
+    i_le, i_te = int(np.argmax(Y)), int(np.argmin(Y))
+
+    def tang(i):
+        a, b = X[(i - 3) % n], X[(i + 3) % n]
+        c, d = Y[(i - 3) % n], Y[(i + 3) % n]
+        return np.rad2deg(np.arctan2(d - c, b - a))
+
+    _cant_beta(ax, le, tang(i_le), r"$\beta_3$")
+    _cant_beta(ax, te, tang(i_te), r"$\beta_4$")
+    ax.text(A3[0], A3[1] + 22, "rotor inlet (3)", fontsize=8, ha="center")
+    ax.text(A4[0], A4[1] - 26, "rotor exit (4)", fontsize=8, ha="center")
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+
+def _cant_panel_ring(ax, Xo, Yo):
+    """Annular cascade. Xo,Yo = oriented blade (LE at +Y, TE at -Y, meridional
+    vertical), the same silhouette the left panel shows. Each blade is placed
+    with its OWN radial axis: LE (+Y) -> outer diameter, TE (-Y) -> inner
+    diameter. Uniform scale (shape preserved); per-blade rotation is the
+    radial heading."""
+    r_in, r_mean, r_out = CANT_D_IN_MM / 2, CANT_D_MEAN_MM / 2, CANT_D_OUT_MM / 2
+    band = r_out - r_in
+    s = 0.98 * band / (Yo.max() - Yo.min())       # meridional span -> radial band
+    bx_r, by_r = Xo * s, Yo * s                    # by_r -> radial, bx_r -> tangential
+
+    for k in range(CANT_N_BLADES):
+        th = 2 * np.pi * k / CANT_N_BLADES
+        radial = r_mean + by_r                     # LE outer, TE inner
+        tang = bx_r
+        gx = radial * np.cos(th) - tang * np.sin(th)
+        gy = radial * np.sin(th) + tang * np.cos(th)
+        ax.fill(gx, gy, color=CANT_BLADE_FILL, ec="k", lw=0.5, zorder=2)
+
+    th = np.linspace(0, 2 * np.pi, 400)
+    for r, ls in ((r_in, "-"), (r_mean, (0, (5, 4))), (r_out, "-")):
+        ax.plot(r * np.cos(th), r * np.sin(th), color="0.25", ls=ls, lw=0.9,
+                zorder=1)
+    for r, lab, ang in ((r_in, r"$d_i$", -90), (r_mean, r"$d_m$", -66),
+                        (r_out, r"$d_o$", -50)):
+        a = np.deg2rad(ang)
+        ax.annotate(lab, xy=(r * np.cos(a), r * np.sin(a)),
+                    xytext=(1.34 * r_out * np.cos(a), 1.34 * r_out * np.sin(a)),
+                    fontsize=11, ha="center", va="center", color="0.2",
+                    arrowprops=dict(arrowstyle="->", lw=0.7, color="0.45"))
+    ax.text(0, 1.18 * r_out, f"{CANT_N_BLADES} blades", fontsize=8, ha="center")
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+
+def fig_cantilever():
+    """Radial-inflow cantilever turbine terminology: velocity triangles on the
+    MoC blade contour + the annular cascade (promoted from proto_cantilever_fig)."""
+    t = turbine_design()
+    moc = moc_design()
+    bx, by = _cant_blade_polygon(moc)
+    X_tri, Y_tri = _cant_oriented_blade(bx, by, chord_units=100)    # contour + triangles
+    X_ring, Y_ring = _cant_oriented_blade(bx, by, chord_units=1.0)  # ring (rescaled inside)
+    print(f"  cantilever: u={t.u:.1f}  c3={t.c3:.1f}  c3u={t.c3u:.1f}  "
+          f"c3m={t.c3m:.1f}  c4u={t.c4u:.1f}  c4={t.c4:.1f}")
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.0),
+                             gridspec_kw=dict(width_ratios=[1.5, 1.4]))
+    _cant_panel_triangles(axes[0], t, X_tri, Y_tri)
+    _cant_panel_ring(axes[1], -X_ring, Y_ring)
+    fig.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0.03)
+    return save(fig, "turbine_cantilever")
+
+
+# =========================================================================== #
 FIGURES = {
     "theory_hq": fig_theory_hq,            # H-Q + psi-phi pair (keep combined)
     "eta_phi": fig_eta_phi,
@@ -1341,9 +1544,10 @@ FIGURES = {
     "moc_spread": fig_moc_spread,          # 2 PDFs: narrow vs wide Mach spread
     "moc_separation": fig_moc_separation,  # Hi on as-designed blade vs 1.8-2.4
     "moc_displaced": fig_moc_displaced,    # ideal vs delta*-displaced contour
-    "barske_geometry": fig_barske_geometry,  # 2 PDFs: meridional + end view
+    "barske_geometry": fig_barske_geometry,  # 1 PDF: meridional + end view, shared y
     "goldman_validation": fig_goldman_validation,  # 2 PDFs: Mach + Hi replication
     "turbine_triangles": fig_turbine_triangles,  # design-point velocity triangles
+    "cantilever": fig_cantilever,          # cantilever turbine terminology (triangles + ring)
     "campbell": fig_campbell,              # turbine shaft Campbell diagram (ross)
     "valve_kv": fig_valve_kv,              # valve Kv: online data vs measured
     "eta_re": fig_eta_re,                  # fitted (1-eta) ~ Re^-a + 20k extrap

@@ -1,11 +1,12 @@
 \section*{Nomenclature}
 \addcontentsline{toc}{section}{Nomenclature}
 
-% Generated from the nomenclature register (AI SK-NOMENCLATURE.md, 2026-06-13).
+% Generated from the nomenclature register (AI SK-NOMENCLATURE.md), swept 2026-06-13.
 % Conventions: velocities lowercase u/c/w; total states carry a leading 0 (p01);
 % flow angles measured from the circumferential direction; stations are
 % machine-scoped (pump 0-4, turbine 1-4); one symbol = one meaning, except the
-% two declared scoped sets (MoC starred set, Sasman-Cresci BL set).
+% scoped sets declared below (MoC starred set, Sasman-Cresci BL set, and the
+% structural / instrumentation symbols).
 
 % \noindent\textbf{Latin symbols}\\[2pt]
 \begin{tabular}{ll}
@@ -20,28 +21,35 @@
   $C_H$, $K_1$ & Lock/Busemann head-correction constants ($-$) \\
   $d_0 \ldots d_4$ & Pump station diameters (\si{\milli\meter}) \\
   $d_m$ & Turbine mean (pitch) diameter (\si{\milli\meter}) \\
+  $E$ & Energy (\si{\joule}); Young's modulus in \cref{eq:overhung_critical} (\si{\pascal}) \\
   $f$ & Friction coefficient ($-$) \\
   $F_R$ & Radial thrust (\si{\newton}) \\
   $g$ & Gravitational acceleration (\si{\meter\per\square\second}) \\
-  $H$ & Pump head (\si{\meter}); $H_{th}$ theoretical (Euler) head; $H_3$ head at diffuser throat \\
+  $H$ & Pump head (\si{\meter}); $H_{th}$ theoretical (Euler) head ($H_{th,0}$ before prerotation correction); $H_3$ head at diffuser throat \\
   $h$ & Specific enthalpy (\si{\joule\per\kilogram}); $\Delta h_s$ isentropic drop \\
+  $I$ & Second moment of area (m$^4$) \\
+  $J$ & Mass moment of inertia (kg\,m$^2$) \\
   $k_d$ & Barske diffuser kinetic-recovery coefficient ($-$) \\
   $k_N$, $k_R$ & Nozzle, rotor velocity coefficients (Weiss) ($-$) \\
   $k_0$ & Lock shutoff head constant ($-$) \\
   $K_R$ & Radial thrust coefficient ($-$) \\
+  $K_v$ & Valve flow coefficient (\cref{eq:kv_definition}) \\
   $M$ & Mach number; $M_{w3}$ rotor-inlet relative Mach ($-$) \\
   $\dot{m}$ & Mass flow rate (\si{\kilogram\per\second}) \\
   $n$ & Shaft speed (\si{\rpm}) \\
   $n_q$ & Specific speed $n\sqrt{Q}/H^{0.75}$ (rpm, \si{\cubic\meter\per\second}, m) \\
   $\textrm{NPSH}_a$, $\textrm{NPSH}_3$ & Available NPSH; NPSH at 3\,\% head drop (\si{\meter}) \\
   $p$ & Static pressure (\si{\pascal}); $p_{01}$, $T_{01}$ total state at station 1; $p_v$ vapour pressure \\
-  $P$ & Power (\si{\watt}); $P_{RR}$ disc friction/churning; $P_w$ ventilation (windage) power \\
+  $\Delta p$ & Pump total pressure rise (\si{\pascal}); $\Delta p_{st}$ static component \\
+  $P$ & Power (\si{\watt}); $P_{RR}$ disc friction/churning; $P_m$ mechanical loss; $P_w$ ventilation (windage) power \\
+  $\mathrm{Pr}$ & Prandtl number ($-$) \\
   $q$ & Dynamic pressure $\tfrac{1}{2}\rho c^2$ (\si{\pascal}) \\
-  $Q$ & Volumetric flow rate (\si{\cubic\meter\per\second}); $Q_L$ leakage flow \\
+  $Q$ & Volumetric flow rate (\si{\cubic\meter\per\second}); $Q_L$ leakage flow; $Q_{opt}$ optimum-flow point \\
   $r$ & Radius (\si{\meter}); recovery factor in \cref{eq:recovery_temperature} only \\
   $R$ & Specific gas constant (\si{\joule\per\kilogram\per\kelvin}) \\
   $Re_u$ & Peripheral Reynolds number $u_2 r_2/\nu_l$ ($-$) \\
   $s_{ax}$ & Impeller--casing axial clearance (\si{\milli\meter}) \\
+  $SG$ & Specific gravity ($-$) \\
   $T$ & Temperature (\si{\kelvin}) \\
   $u$ & Blade (peripheral) speed (\si{\meter\per\second}) \\
   $w$ & Relative velocity (\si{\meter\per\second}) \\
@@ -54,13 +62,42 @@
   $\zeta_D$ & Diffuser-nozzle loss coefficient ($-$) \\
   $\eta$ & Efficiency: pump overall $\rho g Q H/(\tau\omega)$; $\eta_h$ hydraulic; $\eta_{ts}$ turbine total-to-static \\
   $\mu$ & Dynamic viscosity (always with a state subscript); Mach angle within the MoC set only \\
-  $\nu$ & Prandtl--Meyer angle (\si{\degree}); kinematic viscosity is written $\mu/\rho$ or $\nu_l$ \\
+  $\nu$ & Prandtl--Meyer angle (\si{\degree}); kinematic viscosity is written $\mu/\rho$ or $\nu_l$; Poisson's ratio in \cref{eq:disc_hoop} \\
   $\rho$ & Density (\si{\kilogram\per\cubic\meter}); $\rho_b$ blade material density \\
-  $\sigma$ & Slip factor (Wiesner), \S\ref{sec:theory} only ($-$) \\
-  $\tau$ & Shaft torque (\si{\newton\meter}) \\
+  $\sigma$ & Stress, with subscript (\cref{eq:disc_hoop}); slip factor (Wiesner) in \S\ref{sec:theory}; standard deviation in the uncertainty analysis \\
+  $\tau$ & Shaft torque (\si{\newton\meter}); $\tau_{pc}$ polycarbonate shear strength in \cref{eq:shear_plug} \\
   $\phi$ & Pump flow coefficient $Q/(\pi d_2 b_2 u_2)$ ($-$) \\
   $\psi$ & Pump head coefficient $2gH/u_2^2$ ($-$) \\
-  $\omega$ & Shaft angular velocity (\si{\radian\per\second}); $\omega_s$ nondimensional specific speed \\
+  $\omega$ & Shaft angular velocity (\si{\radian\per\second}); $\dot\omega$ angular acceleration; $\omega_s$ nondimensional specific speed \\
+\end{tabular}
+\\[8pt]
+
+\noindent\textbf{Structural and instrumentation symbols} (scoped to their sections)\\[2pt]
+\begin{tabular}{ll}
+  $B_r$ & Seal balance ratio ($-$) \\
+  $M_b$, $y$ & Blade root bending moment (\si{\newton\meter}); extreme fibre distance (\si{\meter}) \\
+  $V$, $V_{ref}$, $V_{exc}$ & Voltage; ADC reference and transducer excitation (\si{\volt}) \\
+  $N$ & Sample count in oversampling, \cref{eq:oversampling} ($-$) \\
+  $\mathcal{V}$ & Stored-gas / vessel volume (\si{\cubic\meter}) \\
+  $s_p$ & Shear-plug perimeter, \cref{eq:shear_plug} (\si{\meter}) \\
+\end{tabular}
+\\[8pt]
+
+\noindent\textbf{Subscripts}\\[2pt]
+\begin{tabular}{ll}
+  $0\ldots4$ & Station index (machine-scoped, see below) \\
+  $th$, $st$ & Theoretical; static \\
+  $RR$, $m$, $h$, $ts$ & Disc friction (churning); mechanical / mean; hydraulic; total-to-static \\
+  $opt$, $max$ & Optimum-flow point; maximum \\
+  $aw$, $s$, $v$, $L$ & Adiabatic wall; isentropic; vapour; leakage \\
+\end{tabular}
+\\[8pt]
+
+\noindent\textbf{Superscripts and operators}\\[2pt]
+\begin{tabular}{ll}
+  $\dot{\square}$, $\bar{\square}$ & Time rate; mean / non-dimensionalised \\
+  $\square^*$ & Critical (sonic) reference / non-dimensional (MoC set) \\
+  $\square^{\,e}$ & Effective value, e.g. $c_{3u}^{\,e}$ \\
 \end{tabular}
 \\[8pt]
 
@@ -75,7 +112,7 @@
 \begin{tabular}{ll}
   MoC set (\cref{subsec:method_of_characteristics}) & $M^* = c/a^*$, $a^* = \sqrt{\gamma R T^*}$, $r^*$, $R^*$, $x^*$, $y^*$, $\mu_k$ (Mach angle), $m_k$, $\Delta\nu$ \\
   Starting set (\cref{subsec:method_of_characteristics}) & $M^*_l$, $M^*_u$ surface critical Machs; $K^*_{max}$ weight-flow constant; $Q$ vortex parameter; $C$ 2D reduction factor \\
-  Boundary layer set (Sasman--Cresci) & $H_i$ shape factor, $\theta$ momentum thickness, $f$, $C_f$, $g_w$, $T_e$, $\bar{T}$, $s/c$ \\
+  Boundary layer set (Sasman--Cresci) & $H_i$ shape factor, $\theta$ momentum thickness, $f$, $C_f$, $g_w$, $T_e$, $\bar{T}$, $s/c$, $\delta^*$ displacement thickness \\
 \end{tabular}
 \\[8pt]
 

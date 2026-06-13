@@ -88,7 +88,7 @@ This claim needs to be scoped, because a formally converged conventional design 
 All theories relating to pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation:
 
 \begin{equation}
-    P=T_{shaft}\omega=\rho Q \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega=\rho Q\left(u_2c_{2u}-u_1c_{1u}\right)
+    P=\tau\omega=\rho Q \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega=\rho Q\left(u_2c_{2u}-u_1c_{1u}\right)
     \label{eq:euler_turbine_equation}
 \end{equation}
 
@@ -127,10 +127,10 @@ Then, the kinetic energy increase assuming negligible inlet prerotation is:
 
 
 
-\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. Barske uses the symbol $\psi$ for this coefficient, but as it conflicts with the commonly used symbol for head coefficient, this paper will instead use $c_k$. Combining the static and kinetic pressure rise, the total increase in pressure is:
+\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. Barske uses the symbol $\psi$ for this coefficient, but as it conflicts with the commonly used symbol for head coefficient, this paper will instead use $k_d$. Combining the static and kinetic pressure rise, the total increase in pressure is:
 
 \begin{equation}
-    p_t = p_{s_{th}} + c_k p_{d_{th}}=\frac{1}{2}\rho\left((1+c_k) u_2^2 - u_1^2\right)
+    \Delta p = \Delta p_{st} + k_d\, q=\frac{1}{2}\rho\left((1+k_d) u_2^2 - u_1^2\right)
     \label{eq:barske_pressure_rise}
 \end{equation}
 
@@ -151,7 +151,7 @@ The impeller blade inlet diameter is enlarged by a small amount as some pre-rota
 By substituting $u=\pi n d / 60$ into \cref{eq:barske_pressure_rise}, the required impeller tip diameter can be calculated:
 
 \begin{equation}
-    d_2 = \sqrt{\frac{1}{1+c_k}\left(\frac{7200p_t}{\rho n^2\pi^2} + d_1^2\right)}
+    d_2 = \sqrt{\frac{1}{1+k_d}\left(\frac{7200\Delta p}{\rho n^2\pi^2} + d_1^2\right)}
     \label{eq:barske_tip_diameter}
 \end{equation}
 
@@ -186,14 +186,14 @@ As the hydraulic efficiency is defined as the useful power out of the pump over 
 
 \begin{align}
 \eta_h & = \frac{\text{Useful power}}{\text{Input power}} = \frac{P}{P_{th}+P_{RR}}
- & = \frac{Qp}{Qp_{th}+P_{RR}}
- & = \frac{p}{p_{th}+P_{RR}/Q}
+ & = \frac{Q\Delta p}{Q\Delta p_{th}+P_{RR}}
+ & = \frac{\Delta p}{\Delta p_{th}+P_{RR}/Q}
 \end{align}
 
 If total shaft efficiency is desired, the mechanical losses can be included:
 
 \begin{equation}
-    \eta=\frac{p}{p_{th}+\frac{P_F+P_{Mech}}{Q}}
+    \eta=\frac{\Delta p}{\Delta p_{th}+\frac{P_{RR}+P_m}{Q}}
 \end{equation}
 
 \subsubsection{Lock's Refined Model}
@@ -204,41 +204,41 @@ Lock provides a refined model which takes into account prerotation, nozzle losse
 By writing the total theoretical pressure gain in head:
 
 \begin{equation}
-    H_T = \frac{U_2^2 - U_1^2}{2g} + \frac{U_2^2}{2g}
+    H_{th,0} = \frac{u_2^2 - u_1^2}{2g} + \frac{u_2^2}{2g}
 \end{equation}
 
 Lock uses busemann's corrections and derives a refined total head, taking into account prerotation:
 
 \begin{equation}
-    H_{TH} = h_0\frac{U_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{op}}\right)\!\frac{D_1}{D_2}\,\frac{U_2^2}{g}
+    H_{th} = k_0\frac{u_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{opt}}\right)\!\frac{d_1}{d_2}\,\frac{u_2^2}{g}
     \label{eq:lock_total_head}
 \end{equation}
 
 \begin{equation}
-H_{SP} = H_{TH} - \underbrace{\zeta_{LD}\left[1-\left(\tfrac{D_3}{D_4}\right)^2\right]^2\frac{V_3^2}{2g}}_{\text{diffuser-nozzle loss}} - \frac{V_4^2}{2g} + \frac{V_0^2}{2g}
+H = H_{th} - \underbrace{\zeta_{D}\left[1-\left(\tfrac{d_3}{d_4}\right)^2\right]^2\frac{c_3^2}{2g}}_{\text{diffuser-nozzle loss}} - \frac{c_4^2}{2g} + \frac{c_0^2}{2g}
 \label{eq:lock_static_head}
 \end{equation}
 
-Where $\zeta_{LD}=0.194$ is the diffuser loss coefficient from Hydraulic Institute's Pipe Friction Manual \cite{hydraulicpipemanual}.
+Where $\zeta_{D}=0.194$ is the diffuser loss coefficient from Hydraulic Institute's Pipe Friction Manual \cite{hydraulicpipemanual}.
 
-By expressing $V^2/2g$ by $(8/g\pi^2)Q^2/D^4$ with $V=4Q/\pi D^2$, the head can be expressed as a function of flow rate:
+By expressing $c^2/2g$ by $(8/g\pi^2)Q^2/d^4$ with $c=4Q/\pi d^2$, the head can be expressed as a function of flow rate:
 
 \begin{equation}
-    H_{SP} = h_0\frac{U_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{op}}\right)\!\frac{D_1}{D_2}\,\frac{U_2^2}{g} - \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4} + \frac{1}{D_4^4} - \frac{1}{D_0^4}\right)
+    H = k_0\frac{u_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{opt}}\right)\!\frac{d_1}{d_2}\,\frac{u_2^2}{g} - \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{D}}{d_3^4} + \frac{1}{d_4^4} - \frac{1}{d_0^4}\right)
     \label{eq:lock_static_head_flow}
 \end{equation}
 
 To find the optimum flow rate used to shape the pump curve, the derivative of the head with respect to flow rate can be taken and set to zero:
 
 \begin{equation}
-    Q_{op} = \sqrt{\frac{h_0\frac{U_2^2}{g}}{\frac{24}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4}\left(1-\left(\tfrac{D_3}{D_4}\right)^2\right) + \frac{1}{D_4^4} - \frac{1}{D_0^4}\right)}}
+    Q_{opt} = \sqrt{\frac{k_0\frac{u_2^2}{g}}{\frac{24}{g\pi^2}\left(\frac{\zeta_{D}}{d_3^4}\left(1-\left(\tfrac{d_3}{d_4}\right)^2\right) + \frac{1}{d_4^4} - \frac{1}{d_0^4}\right)}}
     \label{eq:lock_optimum_flow}
 \end{equation}
 
 Lock and Barske suggest that the flow cutoff point is limited by the diffuser throat. To find the static pressure at the diffuser throat, reversing the transfer between dynamic head into static head provided by the previous equations \todo{link to the previous equations}:
 
 \begin{equation}
-    H_3 = H_{SP} + \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{LD}}{D_3^4}\left(1-\left(\frac{D_3}{D_4}\right)^2\right) + \frac{1}{D_4^4} - \frac{1}{D_3^4}\right)
+    H_3 = H + \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{D}}{d_3^4}\left(1-\left(\frac{d_3}{d_4}\right)^2\right) + \frac{1}{d_4^4} - \frac{1}{d_3^4}\right)
     \label{eq:lock_diffuser_throat}
 \end{equation}
 
@@ -293,7 +293,7 @@ the absolute margin of the inlet head above vapour pressure. The standard perfor
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{placeholder.png}
+    \includegraphics[width=0.6\textwidth]{turbine_cantilever.pdf}
     \caption{Impulse turbine velocity triangle nomenclature at the rotor inlet (station 3) and exit (station 4). The design point triangles with actual values are shown in \cref{fig:turbine-triangles-design}.} % PLACEHOLDER IMAGE: generic labelled triangles, or merge with fig:turbine-triangles-design
     \label{fig:turbine-velocity-triangles}
 \end{figure}
@@ -305,7 +305,7 @@ Turbines work with the same Euler turbine equation. In the supersonic impulse tu
     \label{eq:turbine_specific_work}
 \end{equation}
 
-From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher $\Delta h_0$ according to equation \cref{eq:euler_specific_work}. This means that high absolute velocities, and for the maximum amount of the flow angled in the circumferential direction is optimal. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus the supersonic velocities. Then for the angles, the highest turning angle achievable is optimal. The amount of flow turning is usually limited by the achievable geometry.
+From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher $\Delta k_0$ according to equation \cref{eq:euler_specific_work}. This means that high absolute velocities, and for the maximum amount of the flow angled in the circumferential direction is optimal. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus the supersonic velocities. Then for the angles, the highest turning angle achievable is optimal. The amount of flow turning is usually limited by the achievable geometry.
 
 The ideal efficiency of the impulse stage follows from \cref{eq:turbine_specific_work} and the velocity triangles. At the rotor inlet and exit the circumferential components of the absolute and relative velocities are related by
 
@@ -333,7 +333,7 @@ Two things come out of \cref{eq:impulse_work}. First, solving it for the inlet s
     \label{eq:triangle_inversion}
 \end{equation}
 
-where $\beta_3$ is the nozzle angle measured from the circumferential direction. Second, dividing the work by the kinetic energy the nozzle supplies gives the stage efficiency. In a pure impulse stage the entire expansion happens in the nozzle, so the available energy per unit mass is the jet kinetic energy $c_3^2/2$, and with $c_{3u} = c_3\cos\beta_3$,
+where $\beta_3$ is the nozzle angle measured from the circumferential direction. Second, dividing the work by the kinetic energy the nozzle supplies gives the stage efficiency. In a pure impulse stage the entire expansion happens in the nozzle, so the available energy per unit mass is the jet kinetic energy $c_3^2/2$, and with $c_{3u} = c_3\cos\beta_3$, \todo{this is wrong. wtf is inlet swirl}
 
 \begin{equation}
     \eta_{\textrm{ideal}}
@@ -353,7 +353,7 @@ The efficiency depends only on the blade to jet speed ratio $u/c_3$ and the nozz
 
 
 % In my notes, this can be found "SP-8110.md" file and "Supersonic Turbine Blade Pitch and Height.md"
-The jet velocity $C_0$ used in this ratio is the spouting velocity, the velocity reached by an ideal isentropic expansion of the gas over the full stage pressure ratio,
+The jet velocity $c_s$ used in this ratio is the spouting velocity, the velocity reached by an ideal isentropic expansion of the gas over the full stage pressure ratio,
 
 \begin{equation}
     c_s = \sqrt{2\,\Delta h_s}
@@ -361,9 +361,9 @@ The jet velocity $C_0$ used in this ratio is the spouting velocity, the velocity
     \label{eq:spouting_velocity}
 \end{equation}
 
-It links the available inlet pressure directly to the achievable jet velocity, and it is what makes the blade speed problem concrete. A small turbine on a 20,000 RPM shaft has a blade speed of around 100 m/s, while the spouting velocity of even a moderate pressure ratio gas generator is several hundred m/s, so $U/C_0$ is forced far below the optimum of around 0.5.
+It links the available inlet pressure directly to the achievable jet velocity, and it is what makes the blade speed problem concrete. A small turbine on a 20,000 RPM shaft has a blade speed of around 100 m/s, while the spouting velocity of even a moderate pressure ratio gas generator is several hundred m/s, so $u/c_s$ is forced far below the optimum of around 0.5.
 
-NASA special publication 8110 shows that for low $U/C_0$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency, just not at the low $U/C_0$ regime. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. \todo{need to explain what reaction and impulse turbines are, maybe with a diagram?}
+NASA special publication 8110 shows that for low $u/c_s$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency, just not at the low $u/c_s$ regime. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. \todo{need to explain what reaction and impulse turbines are, maybe with a diagram?}
 
 
 
@@ -451,11 +451,11 @@ Vortex flow is a special type of supersonic flow in which flow follows a theoret
 A special condition of vortex flow satisfies the equation
 
 \begin{equation}
-    \frac{V}{r} = \textrm{constant}
+    \frac{c}{r} = \textrm{constant}
     \label{eq:vortex_condition}
 \end{equation}
 
-Boxer and Goldman nondimensionalizes this equation using the critical velocity $M^{*}=V/a^*$ where $a^*=\sqrt{\gamma R T^*}$ is the speed of sound at the sonic point. As $a^*$ only depends on stagnation temperature, it is constant along any streamline of fixed stagnation enthalpy. Then, a nondimensional radius $r^*$ is introduced as the sonic velocity streamline in the vortex field, giving the following condition:
+Boxer and Goldman nondimensionalizes this equation using the critical velocity $M^{*}=c/a^*$ where $a^*=\sqrt{\gamma R T^*}$ is the speed of sound at the sonic point. As $a^*$ only depends on stagnation temperature, it is constant along any streamline of fixed stagnation enthalpy. Then, a nondimensional radius $r^*$ is introduced as the sonic velocity streamline in the vortex field, giving the following condition:
 
 \begin{equation}
     \frac{M^*}{r^*} = 1
@@ -620,16 +620,18 @@ Two limitations of the method should be stated, both flagged by Goldman himself 
 
 \paragraph{Starting}
 
-On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passsage must be able to "swallow" this shock, allowing the shock to move through the whole passage.
+On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passsage must be able to "swallow" this shock, allowing the shock to move through the whole passage. \todo{make sure this explains at standstill}
 
-To do so, the do so, the post shock flow with a reduced total pressure must have enough of a flow area pass the required mass flow similar to the choked flow condition. A similar condition is the unstart of a supersonic wind tunnel or a supersonic internal intake. However, Boxer noticed in 1952 that due to the large velocity gradient between the channel walls due to tue turning, the flow cannot be assumed one directional as in the previous examples. Goldman in 1968 provides the condition accounting for the "reduction of mass flow due to curvilinear flow" to calculate the maximum inlet design mach number to ensure starting as:
+To do so, the post shock flow with a reduced total pressure must have enough of a flow area pass the required mass flow similar to the choked flow condition. A similar condition is the unstart of a supersonic wind tunnel or a supersonic internal intake. However, Boxer notes that due to the large velocity gradient between the channel walls due to tue turning, the flow cannot be assumed one directional as in the previous examples. Goldman in 1968 provides the condition accounting for the "reduction of mass flow due to curvilinear flow" to calculate the maximum inlet design mach number to ensure starting as:
 
 \begin{equation}
 \frac{p_{02}}{p_{01}}(M_i) \;\geq\; \frac{Q}{1-C}
 \label{eq:goldman_starting}
 \end{equation}
 
-Each term carries real content, so they are written out in full here because the off-design version of this inequality is what explains the coupled test in \cref{sec:results}. The left side is the total pressure recovery across the detached normal shock at the inlet design Mach number $M_i$, given by the Rankine and Hugoniot relation
+\todo{what the fuck is this section}
+
+Each term carries real content, so they are written out in full here because the off-design version of this inequality is what explains the coupled test in \cref{sec:results}. The left side is the total pressure recovery across the detached normal shock at the inlet design Mach number $M_i$, given by the Rankine and Hugoniot relation 
 
 \begin{equation}
 \frac{p_{02}}{p_{01}}(M_i) = \left[\frac{(\gamma+1)M_i^2}{(\gamma-1)M_i^2+2}\right]^{\frac{\gamma}{\gamma-1}}

@@ -270,11 +270,11 @@ Experimental turbomachinery has to be designed on the assumption that any rotati
 For the failure of a pressure holding component, the fragment velocity is estimated with the method of Baker \cite{bakerExplosionHazards1983}, developed from simulations of a vessel breaking into sectional fragments and matched to experiment within 10\%. The non-dimensional burst pressure is
 
 \begin{equation}
-    \bar{P} = \frac{\left(P_0 - P_e\right)V_0}{m_c\, \gamma R T_0}
+    \bar{P} = \frac{\left(p_0 - p_e\right)\mathcal{V}}{m_c\, \gamma R T_0}
     \label{eq:baker_pressure}
 \end{equation}
 
-where $P_0$ is the vessel pressure at failure (the full 100 bar, assuming both the regulator and the burst disc have failed), $P_e$ is atmospheric pressure, $V_0$ the vessel volume and $m_c$ the casing mass. The worst case line of Baker's velocity chart is
+where $p_0$ is the vessel pressure at failure (the full 100 bar, assuming both the regulator and the burst disc have failed), $p_e$ is atmospheric pressure, $\mathcal{V}$ the vessel volume and $m_c$ the casing mass. The worst case line of Baker's velocity chart is
 
 \begin{equation}
     \log_{10}{\bar{u}} = 0.6 \log_{10}{\bar{P}} + 0.15, \qquad
@@ -292,7 +292,7 @@ with $K = 1$ for evenly distributed fragment mass. The only non commercial press
 For the rotating assembly, the bounding energy is the full rotational kinetic energy of the blisk at design speed,
 
 \begin{equation}
-    E = \tfrac{1}{2} I \omega^2 = \tfrac{1}{2} \times 6\times10^{-5} \times 2094^2 = 131 \textrm{ J}
+    E = \tfrac{1}{2} J \omega^2 = \tfrac{1}{2} \times 6\times10^{-5} \times 2094^2 = 131 \textrm{ J}
     \label{eq:blisk_ke}
 \end{equation}
 
@@ -305,14 +305,14 @@ The main line of defence is a 20 mm Dyneema (UHMWPE composite) ballistic panel o
 
 where $A$ is the projected area of the impacting fragment, $t$ the panel thickness and $\rho$ the panel density. The $SEA$ is derived from published $v_{50}$ ballistic limits for fragment simulating projectiles against 20 mm panels \cite{hazellArmour2015}: a 12.7 mm FSP gives 1.84 MJ/kg and a 20 mm FSP gives 1.68 MJ/kg, the latter agreeing with independent flat projectile data. Using the conservative value, the panel can absorb 163 kJ over the stator's projected area and 32.6 kJ over the blisk's, against the fragment energies of \cref{eq:fragment_ke,eq:blisk_ke}. The containment margins are roughly 600 and 250.
 
-A 15 mm polycarbonate shield additionally separates the turbomachinery from the dynamometer. Its capacity is estimated with the shear plug model \cite{hazellArmour2015}, where the projectile shears a plug of perimeter $P_{im}$ out of the sheet:
+A 15 mm polycarbonate shield additionally separates the turbomachinery from the dynamometer. Its capacity is estimated with the shear plug model \cite{hazellArmour2015}, where the projectile shears a plug of perimeter $s_p$ out of the sheet:
 
 \begin{equation}
-    E = \int_0^t P_{im}\, \tau \left(t-x\right) dx = \tfrac{1}{2} P_{im}\, \tau\, t^2
+    E = \int_0^t s_p\, \tau_{pc} \left(t-x\right) dx = \tfrac{1}{2} s_p\, \tau_{pc}\, t^2
     \label{eq:shear_plug}
 \end{equation}
 
-with $\tau = 60$ MPa for polycarbonate, conservative because the material strain hardens at impact rates. This gives 2.7 kJ for the stator perimeter and 4.1 kJ for the blisk perimeter, safety factors of 10 and 30 on their own.
+with $\tau_{pc} = 60$ MPa for polycarbonate, conservative because the material strain hardens at impact rates. This gives 2.7 kJ for the stator perimeter and 4.1 kJ for the blisk perimeter, safety factors of 10 and 30 on their own.
 
 \subsubsection{Bounding Shaft Torque}
 
@@ -338,7 +338,7 @@ The electrical system itself is low risk by construction: everything in the test
 The protection system has to act faster than the worst credible overspeed. With a broken shaft leaving only the turbine, blisk and bearings, the angular acceleration under the maximum torque at the 17,000 RPM redline is
 
 \begin{equation}
-    \alpha = \frac{\tau}{I} = \frac{0.9}{2.74\times10^{-4}} = 3285 \textrm{ rad/s}^2 \approx 31{,}300 \textrm{ RPM/s}
+    \dot\omega = \frac{\tau}{J} = \frac{0.9}{2.74\times10^{-4}} = 3285 \textrm{ rad/s}^2 \approx 31{,}300 \textrm{ RPM/s}
     \label{eq:runaway_accel}
 \end{equation}
 
