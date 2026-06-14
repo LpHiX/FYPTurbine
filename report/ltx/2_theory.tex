@@ -112,7 +112,7 @@ Then, by substituting the head coefficient into specific speed and rearranging f
     n_q = \frac{n\sqrt{Q}}{H^{3/4}} 
 \;\propto\; \frac{\omega\sqrt{Q}}{\left(\psi\,\omega^2 r_2^2\right)^{3/4}}
 = \frac{\sqrt{Q}}{\psi^{3/4}\,\omega^{1/2} r_2^{3/2}}
-\Rightarrow\quad n_q^2 &\propto \frac{Q}{\psi^{3/2}\,\omega\, r_2^3}
+\Rightarrow\quad n_q^2 \propto \frac{Q}{\psi^{3/2}\,\omega\, r_2^3}
 \qquad\Longrightarrow\qquad 
 Q \propto n_q^2\,\psi^{3/2}\,\omega\, r_2^3 \\[8pt]
 \end{equation}
@@ -121,7 +121,7 @@ Back into the ratio:
 
 \begin{equation}
 \frac{P_{RR}}{P_{hyd}}
-&\approx \frac{2 k_{RR}\,\omega r_2^3}{\psi\, Q}
+\approx \frac{2 k_{RR}\,\omega r_2^3}{\psi\, Q}
 \;\propto\; \frac{k_{RR}\,\omega r_2^3}{\psi \cdot n_q^2\,\psi^{3/2}\,\omega\, r_2^3}
 = \boxed{\;\frac{k_{RR}}{n_q^{2}\,\psi^{5/2}}\;}
 \label{eq:disc_loss_specific_speed}
@@ -178,13 +178,13 @@ The Barske pump, also known as the partial-emission pump \cite{barbernichols}, f
         \caption{Barske open partial emission impeller} % from lock
         \label{fig:impeller-barske}
     \end{subfigure}
-    % \caption{Comparison of the conventional and Barske pump architectures. The Barske impeller is open, has straight radial blades, and discharges into an annular casing with a single tangential diffuser.}
-    % \label{fig:impeller-comparison}
+    \caption{Comparison of the conventional and Barske pump architectures. The Barske impeller is open, has straight radial blades, and discharges into an annular casing with a single tangential diffuser.}
+    \label{fig:impeller-comparison}
 \end{figure}
 
 The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications became one of the highest efficiency designs at this specific speed. The barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{something}. The barske impeller is instead designed to induce almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barskeDevelopmentUnconventionalCentrifugal1960} where meridonal or radially outward flow is negligable \cite{barskeDesignOpenImpeller}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses.
 % shrouds stuff page 102 gulich
-Another difference between conventional impellers and the barske impeller is the absence of shrouds. The open impeller choice is to further reduce disc friction losses as in the case of radial impellers, shroud friction far exceeds contributions the contribution of all other components \cite{gulichCentrifugalPumps2020}. Conventional impellers uses shrouds to guide the flow and reduce secondary flows, but as the Barske impeller operates on a wholely different principle, this shroud is remoevd. Removing the shrouds also reduces axial thrust loads on the impeller as there is less surface area for the fluid to push against, which assists with sealing and mechanical design of the pump shaft.
+Another difference between conventional impellers and the barske impeller is the absence of shrouds. The open impeller choice is to further reduce disc friction losses as in the case of radial impellers, shroud friction far exceeds contributions the contribution of all other components \cite{gulichCentrifugalPumps2020}. Conventional impellers uses shrouds to guide the flow and reduce secondary flows, but as the Barske impeller operates on a wholely different principle, this shroud is not needed. Removing the shrouds also reduces axial thrust loads on the impeller as there is less surface area for the fluid to push against, which assists with sealing and mechanical design of the pump shaft.
 
 % Conventional pump design with current design tools produce nonsensical geometries and results at low specific speeds because of one number that is used in the design process, which is the slip coefficient. The slip coefficient determines the angular deflection of the fluid leaving the impeller from the blade angle at the impeller exit, because a finite number of blades cannot perfectly guide the flow. It is given by an empirical regression, the most widely used being Wiesner's fit to Busemann's potential flow solutions \cite{gulichCentrifugalPumps2020}:
 
@@ -206,7 +206,7 @@ Another difference between conventional impellers and the barske impeller is the
 
 \subsubsection{Barske Pump Performance}
 
-
+To predict the performance of a Barske pump, Barske starts by assuming that the flow is nearly a pure forced vortex as shown in \cref{fig:pump-velocity-triangle}. He also assumes the relative velocity $w$ is assumed to be negligable. This turns \cref{eq:pressure_rise} into \cref{eq:pressure_rise_negligible_w}, which is the theoretical static pressure rise of a Barske impeller.
 
 \begin{figure}[H]
 \centering
@@ -215,34 +215,27 @@ Another difference between conventional impellers and the barske impeller is the
 \label{fig:pump-velocity-triangle}
 \end{figure}
 
-In Barske, Lobanoff and Lock the relative velocity $w$ is assumed to be negligable. This turns \cref{eq:pressure_rise} into \cref{eq:pressure_rise_negligible_w}, which is the theoretical static pressure rise of a Barske impeller.
 
 \begin{equation}
     \Delta p_{st} = \frac{\rho}{2}\left(u_2^2-u_1^2\right)
     \label{eq:pressure_rise_negligible_w}
 \end{equation}
 
-Then, the kinetic energy increase assuming negligible inlet prerotation is:
+The kinetic energy increase assuming negligible inlet prerotation is:
 
 \begin{equation}
     q = \frac{\rho}{2}u_2^2
     \label{eq:pressure_rise_negligible_w_prerotation}
 \end{equation}
 
-
-
-
-\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical total pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. Barske uses the symbol $\psi$ for this coefficient, but as it conflicts with the commonly used symbol for head coefficient, this paper will instead use $k_d$. Combining the static and kinetic pressure rise, the total increase in pressure is:
+\cref{eq:pressure_rise_negligible_w_prerotation} is the theoretical dynamic pressure a barske impeller generates at the blade tips. In a barske pump, the diffuser is responsible for converting this kinetic energy into static pressure by slowing down the fluid in an expanding diffuser. Barske introduces a loss coefficient for the kinetic energy which can be recovered through the diffuser to be between 0.2 and 0.5. Barske uses the symbol $\psi$ for this coefficient, but as it conflicts with the commonly used symbol for head coefficient, this paper will instead use $k_d$. Combining the static and kinetic pressure rise, the total increase in pressure is:
 
 \begin{equation}
     \Delta p = \Delta p_{st} + k_d\, q=\frac{1}{2}\rho\left((1+k_d) u_2^2 - u_1^2\right)
     \label{eq:barske_pressure_rise}
 \end{equation}
 
-\todo{include this nondimen stuff?}
-%It is particularly meaningful for this pump: a pure forced vortex delivers $\Delta p = \tfrac{1}{2}\rho u_2^2$, which is exactly $\psi = 1$, so the measured $\psi$ directly tests whether the forced vortex is achieved
-
-This forms a simple basic model for barske pump performance. 
+This simple model is used to generate the dimensions in \cref{sec:theory_barske_sizing}, but a more refined model from Lock \cite{lockForcedVortexPump1966} is described in \cref{sec:theory_lock} to more accurately predict the full characteristics of the pump at any operating point.
 
 \subsubsection{Barske Sizing Method}
 \label{sec:theory_barske_sizing}
@@ -256,7 +249,7 @@ The barske pump is sized by the methods provided by barske \cite{barskeDesignOpe
 
 The impeller blade inlet diameter is enlarged by a small amount as some pre-rotation is desirable for increased head. For example, $d_1\sim1.1d_0$.
 
-By substituting $u=\pi n d / 60$ into \cref{eq:barske_pressure_rise}, the required impeller tip diameter can be calculated:
+By substituting $u_2=\pi n d_2 / 60$ into \cref{eq:barske_pressure_rise} and solving for $d_2$, the required impeller tip diameter can be calculated from mass continuity:
 
 \begin{equation}
     d_2 = \sqrt{\frac{1}{1+k_d}\left(\frac{7200\Delta p}{\rho n^2\pi^2} + d_1^2\right)}
@@ -265,20 +258,18 @@ By substituting $u=\pi n d / 60$ into \cref{eq:barske_pressure_rise}, the requir
 
 Barske then gives these guidelines for other dimensions of the pump:
 
-\begin{align}
-    s_{ax} & \leq \min{\left(0.75, \frac{d_2}{100}\right)} \\
-    b_1 & \geq \frac{1}{4} d_1 \\ %note to self, b is blade height
-    b_2 & \geq \max{\left(b_1 \frac{d_1}{d_2}, 3s_{ax}\right)} \\
-\end{align}
+\begin{equation}
+    s_{ax} \leq \min{\left(0.75, \frac{d_2}{100}\right)} \qquad
+    b_1 \geq \frac{1}{4} d_1 \qquad
+    b_2 \geq \max{\left(b_1 \frac{d_1}{d_2}, 3s_{ax}\right)} 
+\end{equation}
 
-For the annular casing sizing, Barske doesn't have very specific numbers, so Gulich's guideline where B/H = 1.5 to 2.5 can be followed:
+For the annular casing sizing, Gulich's guideline where B/H = 1.5 to 2.5 can be followed:
 
-\begin{align}
-    B & = 2 s_ax + b_2 \\
-    H & = B / 2
-\end{align}
-
-\todo{look at efficiency that dynamicpumps uses, and cavitation maybe as well, iirc they have first principles}
+\begin{equation}
+    B = 2 s_{ax} + b_2 \qquad
+    H = B / 2
+\end{equation}
 
 To size the diffuser, Barske suggests sizing the diffuser throat to be around 0.8 to 0.9 of $u_2$, with the area of the diffuser outlet to be 3-4 times the area of the diffuser throat.
 
@@ -292,33 +283,25 @@ Barske assumes that the disc friction losses can be approximated as a circular d
 
 As the hydraulic efficiency is defined as the useful power out of the pump over the total power into the pump, efficiency can be defined as:
 
-\begin{align}
-\eta_h & = \frac{\text{Useful power}}{\text{Input power}} = \frac{P}{P_{th}+P_{RR}}
- & = \frac{Q\Delta p}{Q\Delta p_{th}+P_{RR}}
- & = \frac{\Delta p}{\Delta p_{th}+P_{RR}/Q}
-\end{align}
+\begin{equation}
+\eta_h  = \frac{\text{Useful power}}{\text{Input power}} = \frac{P}{P_{th}+P_{RR}}
+  = \frac{Q\Delta p}{Q\Delta p_{th}+P_{RR}}
+  = \frac{\Delta p}{\Delta p_{th}+P_{RR}/Q}
+\end{equation}
 
-If total shaft efficiency is desired, the mechanical losses can be included:
+If total shaft efficiency is desired, the mechanical losses $P_m$ can be included:
 
 \begin{equation}
-    \eta=\frac{\Delta p}{\Delta p_{th}+\frac{P_{RR}+P_m}{Q}}
+    \eta=\frac{\Delta p}{\Delta p_{th}+(P_{RR}+P_m)/Q}
 \end{equation}
 
 \subsubsection{Lock's Refined Model}
+\label{sec:theory_lock}
 
-Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann \cite{buseman}. \todo{think if his 5 or so equations should be included here ot not, he also says that disc friction is treated as mechanical loss so doesn't effect head measurements and only effect efficiency calcluations, i will check if my code does this later on.}
-
-
-By writing the total theoretical pressure gain in head:
+Lock provides a refined model which takes into account prerotation, nozzle losses and correction coefficients taking into account theoretical two dimensional flow solutions by A. Busemann and Wislicenus \cite{lockForcedVortexPump1966,wislicenusFluidMechanicsTurbomachinery1947}. Lock uses busemann's corrections and derives a refined total head as \cref{eq:lock_total_head}, where $C_H$ and $h_0$ are Busemann correction coefficients, $K_1=0.5$ is the Wislicenus correction coefficient, and $Q_{opt}$ is the optimum flow rate at which the pump operates at maximum efficiency.
 
 \begin{equation}
-    H_{th,0} = \frac{u_2^2 - u_1^2}{2g} + \frac{u_2^2}{2g}
-\end{equation}
-
-Lock uses busemann's corrections and derives a refined total head, taking into account prerotation:
-
-\begin{equation}
-    H_{th} = k_0\frac{u_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{opt}}\right)\!\frac{d_1}{d_2}\,\frac{u_2^2}{g}
+    H_{th} = h_0\frac{u_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{opt}}\right)\!\frac{d_1}{d_2}\,\frac{u_2^2}{g}
     \label{eq:lock_total_head}
 \end{equation}
 
@@ -332,14 +315,14 @@ Where $\zeta_{D}=0.194$ is the diffuser loss coefficient from Hydraulic Institut
 By expressing $c^2/2g$ by $(8/g\pi^2)Q^2/d^4$ with $c=4Q/\pi d^2$, the head can be expressed as a function of flow rate:
 
 \begin{equation}
-    H = k_0\frac{u_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{opt}}\right)\!\frac{d_1}{d_2}\,\frac{u_2^2}{g} - \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{D}}{d_3^4} + \frac{1}{d_4^4} - \frac{1}{d_0^4}\right)
+    H = h_0\frac{u_2^2}{g} - C_H\,K_1\!\left(1-\frac{Q}{Q_{opt}}\right)\!\frac{d_1}{d_2}\,\frac{u_2^2}{g} - \frac{8Q^2}{g\pi^2}\left(\frac{\zeta_{D}}{d_3^4} + \frac{1}{d_4^4} - \frac{1}{d_0^4}\right)
     \label{eq:lock_static_head_flow}
 \end{equation}
 
 To find the optimum flow rate used to shape the pump curve, the derivative of the head with respect to flow rate can be taken and set to zero:
 
 \begin{equation}
-    Q_{opt} = \sqrt{\frac{k_0\frac{u_2^2}{g}}{\frac{24}{g\pi^2}\left(\frac{\zeta_{D}}{d_3^4}\left(1-\left(\tfrac{d_3}{d_4}\right)^2\right) + \frac{1}{d_4^4} - \frac{1}{d_0^4}\right)}}
+    Q_{opt} = \sqrt{\frac{h_0\frac{u_2^2}{g}}{\frac{24}{g\pi^2}\left(\frac{\zeta_{D}}{d_3^4}\left(1-\left(\tfrac{d_3}{d_4}\right)^2\right) + \frac{1}{d_4^4} - \frac{1}{d_0^4}\right)}}
     \label{eq:lock_optimum_flow}
 \end{equation}
 
@@ -373,7 +356,7 @@ Turbines work with the same Euler turbine equation. In the supersonic impulse tu
     \label{eq:turbine_specific_work}
 \end{equation}
 
-From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher $\Delta k_0$ according to equation \cref{eq:euler_specific_work}. This means that high absolute velocities, and for the maximum amount of the flow angled in the circumferential direction is optimal. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus the supersonic velocities. Then for the angles, the highest turning angle achievable is optimal. The amount of flow turning is usually limited by the achievable geometry.
+From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher $\Delta h_{use}$ according to equation \cref{eq:euler_specific_work}. This means that high absolute velocities, and for the maximum amount of the flow angled in the circumferential direction is optimal. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus the supersonic velocities. Then for the angles, the highest turning angle achievable is optimal. The amount of flow turning is usually limited by the achievable geometry.
 
 The ideal efficiency of the impulse stage follows from \cref{eq:turbine_specific_work} and the velocity triangles. At the rotor inlet and exit the circumferential components of the absolute and relative velocities are related by
 
