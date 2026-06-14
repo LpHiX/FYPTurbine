@@ -9,13 +9,45 @@ Much of the supersonic blading design methodology dates from the 1950s and 60s \
 
 \subsection{Pump Theory}
 
-% \subsubsection{Pump geometry and }
+\subsubsection{Euler Turbine Equation}
 
-\todo{maybe triangles here?}
+The working principles for pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation shown in \cref{eq:euler_turbine_equation}, where $c$ is velocity in the inertial frame, $w$ is in the rotatating frame and $u$ is the local circumferential velocity as shown in \cref{fig:conv-velocity-triangle}.
+
+\begin{equation}
+    P=\tau\omega=\rho Q \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega=\rho Q\left(u_2c_{2u}-u_1c_{1u}\right)
+    \label{eq:euler_turbine_equation}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{veltriangles.png}
+    \caption{Velocity triangles in a conventional pump, adapted from Gulich} % from gulich fig 3.2, adapted to remove some symbols
+    \label{fig:conv-velocity-triangle}
+\end{figure}
+
+
+Rewriting this equation in terms of specific work $Y=P/\rho Q$ per unit mass:
+
+\begin{equation}
+    Y = \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega = u_2c_{2u}-u_1c_{1u}
+     \label{eq:euler_specific_work}
+\end{equation}
+
+derive from bernouli, with rotating frame substitution $c^2=w^2-u^2+2\times u \times c_u$ and neglecting compressibility losses:
+
+$$p_{1}+\frac{\rho}{2}w_{1}^2-\frac{\rho}{2}u_{1}^2=p_{2}+\frac{\rho}{2}w_{2}^2-\frac{\rho}{2}u_{2}^2$$
+
+and as such the theoretical rise in static pressure:
+
+\begin{equation}
+    \Delta p_{st} = p_2-p_1 = \frac{\rho}{2}\left(w_1^2-w_2^2\right)+\frac{\rho}{2}\left(u_2^2-u_1^2\right)
+    \label{eq:pressure_rise}
+\end{equation}
+
 \subsubsection{Non-dimensional Performance and Scaling}
 \label{sec:theory_nondim}
 
-Understanding why low specific speed pumps are less efficient, and the design choices that follow from it, comes down to a few non-dimensional parameters so they are defined first. A pump adds energy to the fluid by spinning it up towards the speed of the impeller rim, $u_2$. The work it does per unit mass is the rim speed times the swirl velocity it adds to the fluid, $u_2 c_{2u}$, and that swirl is proportional to the rim speed, so the head a pump can generate scales with $u_2^2$. The flow rate meanwhile leaves the impeller radially through the exit area $\pi d_2 b_2$ at the meridional velocity $c_{m2}$, so $Q = \pi d_2 b_2\, c_{m2}$. Measuring the head against the rim-speed head $u_2^2$, and the radial velocity against the rim speed $u_2$, gives the head and flow coefficients, following Gülich \cite{gulichCentrifugalPumps2020}:
+Understanding why low specific speed pumps are less efficient, and the design choices that follow from it, comes down to a few non-dimensional parameters so they are defined first. The following derivation uses velocity terms shown visually in \cref{fig:conv-velocity-triangle}. A pump adds energy to the fluid by spinning it up towards the speed of the impeller rim, $u_2$. The work it does per unit mass is the rim speed times the swirl velocity it adds to the fluid, $u_2 c_{2u}$, and that swirl is proportional to the rim speed, so the head a pump can generate scales with $u_2^2$. The flow rate meanwhile leaves the impeller radially through the exit area $\pi d_2 b_2$ at the meridional velocity $c_{m2}$ where $b_2$ is the blade width at the exit, so $Q = \pi d_2 b_2\, c_{m2}$. Measuring the head against the rim-speed head $u_2^2$, and the radial velocity against the rim speed $u_2$, gives the head and flow coefficients, following Gülich \cite{gulichCentrifugalPumps2020}:
 
 \begin{equation}
     \psi = \frac{2gH}{u_2^2}, \qquad
@@ -54,7 +86,11 @@ So $\psi$ is the fraction of the achievable rim-speed head that the machine actu
 
 % The introduction established that this duty sits at low specific speed and that the partial emission pump is the efficiency optimum there. This section explains where that efficiency ceiling comes from, since identifying and measuring the dominant loss is one of the aims of this work.
 
-The main loss at low specific speed is disc friction. When a rotor spins in a fluid, the shear stress in the fluid acts on the rotor faces as a drag torque. In most centrifugal pumps the impeller is broadly disc shaped, so this is called disc friction loss. Taking the main parameters of the equation from Gulich \cite{gulichCentrifugalPumps2020}, the power lost to disc friction scales as
+Losses in pumps can be separated into power losses and head losses. Power losses increase the shaft power required to drive the pump but does not directly affect the head delivered, while head losses directly reduce the head from the ideal value.
+
+\subsection{Disc Friction Loss}
+
+When a rotor spins in a fluid, the shear stress in the fluid acts on the rotor faces as a drag torque. In most centrifugal pumps the impeller is broadly disc shaped, so this is called disc friction loss. Taking the main parameters of the equation from Gulich \cite{gulichCentrifugalPumps2020}, the power lost to disc friction scales as
 
 \begin{equation}
     P_{RR} \approx k_{RR}\, \rho\, \omega^3 r_2^5
@@ -66,116 +102,120 @@ where $k_{RR}$ is a friction coefficient that falls slowly with Reynolds number.
 %The important property of \cref{eq:disc_friction_scaling} is that it has no flow rate in it. The disc burns this power whether the pump is delivering flow or is deadheaded against a closed valve. The useful hydraulic power on the other hand is $P_{hyd}=\rho g Q H$, which goes to zero as the flow goes to zero. So the relative size of the disc friction loss is set by how these two compare, and that ratio is where the specific speed enters.
 
 \begin{equation}
-    \frac{P_{RR}}{P_{hyd}} \approx \frac{k_{RR}\,\rho\,\omega^3 r_2^5}{\rho g Q H} \approx \frac{2 k_{RR}}{\psi\,\phi_D}, \qquad \phi_D \equiv \frac{Q}{\omega r_2^3}
+    \frac{P_{RR}}{P_{hyd}} \approx \frac{k_{RR}\,\rho\,\omega^3 r_2^5}{\rho g Q H} \approx \frac{k_{RR}\,\omega^3 r_2^5}{g Q}\cdot\frac{2g}{\psi\,\omega^2 r_2^2} = \frac{2 k_{RR}\,\omega r_2^3}{\psi\, Q}
     \label{eq:disc_loss_fraction}
 \end{equation}
 
-where $\phi_D$ is a capacity coefficient based on the impeller diameter, used here only for this scaling argument and not to be confused with the width based flow coefficient $\phi$ of \cref{eq:psi_phi}. Both the density and the speed cancel out, so the disc friction fraction is set purely by the head coefficient and by how much flow the machine passes for its size. This ties straight back to specific speed. Since $n_q\propto n\sqrt{Q}/H^{3/4}$ and $H\propto\psi\,\omega^2 r_2^2$, a few lines of substitution give $n_q\propto\sqrt{\phi_D}/\psi^{3/4}$, so that $\phi_D\propto n_q^2\,\psi^{3/2}$. Putting this back into \cref{eq:disc_loss_fraction},
+Then, by substituting the head coefficient into specific speed and rearranging for Q:
 
 \begin{equation}
-    \frac{P_{RR}}{P_{hyd}} \propto \frac{k_{RR}}{n_q^{2}\,\psi^{5/2}}
-    \label{eq:disc_loss_specific_speed}
+    n_q = \frac{n\sqrt{Q}}{H^{3/4}} 
+\;\propto\; \frac{\omega\sqrt{Q}}{\left(\psi\,\omega^2 r_2^2\right)^{3/4}}
+= \frac{\sqrt{Q}}{\psi^{3/4}\,\omega^{1/2} r_2^{3/2}}
+\Rightarrow\quad n_q^2 &\propto \frac{Q}{\psi^{3/2}\,\omega\, r_2^3}
+\qquad\Longrightarrow\qquad 
+Q \propto n_q^2\,\psi^{3/2}\,\omega\, r_2^3 \\[8pt]
 \end{equation}
 
-This is the reason low specific speed pumps cannot reach high efficiency, and it drops out of first principles rather than being asserted. The relative disc friction scales as $1/n_q^2$, so halving the specific speed quadruples the share of the input power lost to the disc. The disc loss itself does not grow, the useful power shrinks out from under it as the flow drops. As a calibration point on the size of this, Gülich gives the disc friction as roughly $30\%$ of the useful power of the impeller at $n_q=10$, $\psi\approx1$ and $\mathrm{Re}=10^7$ \cite{gulichCentrifugalPumps2020}.
+Back into the ratio:
 
-\cref{eq:disc_loss_specific_speed} also hands over the two levers a designer has at a fixed specific speed, both sitting in the denominator. The first is the head coefficient, which enters as $\psi^{5/2}$. A high head coefficient means a smaller tip speed, and so a smaller diameter, delivers the required head, and since $P_{RR}\sim r_2^5$ shrinking the diameter collapses the disc friction. This is why Gülich recommends maximising the head coefficient at low specific speed, and it is exactly what the forced vortex Barske impeller does, reaching $\psi\approx1$ and being pushed a little above it by diffuser recovery. The second lever is to not let the flow coefficient collapse to nothing, which for a conventional impeller means keeping a sensible impeller exit width $b_2$. The difficulty is that holding the duty at low $n_q$ in a conventional blade guided design drives $b_2$ towards zero anyway, and that geometric failure is the subject of \cref{subsec:barske}.
+\begin{equation}
+\frac{P_{RR}}{P_{hyd}}
+&\approx \frac{2 k_{RR}\,\omega r_2^3}{\psi\, Q}
+\;\propto\; \frac{k_{RR}\,\omega r_2^3}{\psi \cdot n_q^2\,\psi^{3/2}\,\omega\, r_2^3}
+= \boxed{\;\frac{k_{RR}}{n_q^{2}\,\psi^{5/2}}\;}
+\label{eq:disc_loss_specific_speed}
+\end{equation}
 
-Disc friction is the dominant loss but not the only one that shifts with specific speed. \cref{fig3.33gulich} shows the loss breakdown against specific speed. At low specific speed the impeller blade losses are small, because the velocities of the flow relative to the blades are low, while the disc friction dominates and the collector losses become the next largest term. The collector is the stationary passage that catches the flow leaving the impeller, which in a Barske pump is the annular casing and the diffuser. Because the fluid leaves the impeller at high velocity and the collector has to handle all of it, the surface finish of the annular casing becomes a primary concern for efficiency at this scale \cite{lockdesignfeatures}. Gülich also notes that for $n_q<12$ an annular casing can reach higher efficiencies than a volute, the spiral collector of a conventional pump \cite{gulich7.12}, which has the side benefit of being far simpler to manufacture, a real advantage at small scale where tight tolerances are hard to hold.
-
-The theory here only claims that disc friction should dominate. Whether it actually does, and by how much, is measured directly in \cref{sec:results}.
+This is the reason low specific speed pumps cannot reach high efficiency. The relative disc friction scales as $1/n_q^2$, so halving the specific speed quadruples the share of the input power lost to the disc. As an example point on the size of this, Gülich gives the disc friction as roughly $30\%$ of the useful power of the impeller at $n_q=10$, $\psi\approx1$ and $\mathrm{Re}=10^7$ \cite{gulichCentrifugalPumps2020}. Gulich provides \cref{fig:disc_loss} to show this relationship visually.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.55\textwidth]{placeholder.png}
-    \caption{Breakdown of pump losses against specific speed, after Gülich. At low specific speed the disc friction dominates while the impeller (blade) losses are small.} % PLACEHOLDER IMAGE: Gulich Fig 3.33 reproduction
+    \includegraphics[width=0.55\textwidth]{disc_loss.png}
+    \caption{Disc friction loss vs specific speed $n_q$ after Gülich. At low specific speed the disc friction dominates.} % gulich fig 3.21
+    \label{fig:disc_loss}
+\end{figure}
+
+The head coefficient in the denominator of \cref{eq:disc_loss_specific_speed} also points the pump designer to design a pump with a higher head coefficient as $P_{RR}\propto\psi^{-5/2}$. For a fixed desired head $H$ and rotational speed $n$, a high head coefficient means a smaller tip speed and thus a smaller diameter can be derived from \cref{eq:head_coefficient}:
+
+\begin{equation}
+    u_2 = \sqrt{\frac{2gH}{\psi}} = \frac{\pi d_2 n}{60}
+\end{equation}
+
+Since $P_{RR}\sim r_2^5$ shrinking the diameter collapses the disc friction. This is why Gülich recommends maximising the head coefficient at low specific speed.% and it is exactly what the forced vortex Barske impeller does, reaching $\psi\approx1$ and being pushed a little above it by diffuser recovery.
+
+\subsubsection{Hydraulic Losses}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{impeller_casing_loss.png}
+    \caption{Breakdown of pump losses against specific speed, after Gülich. At low specific speed the disc friction dominates while the impeller (blade) losses are small.} %  Gulich Fig 3.33 
     \label{fig3.33gulich}
 \end{figure}
 
-\subsubsection{The Barske Partial-Emission Pump}
+\cref{fig3.33gulich} shows the hydraulic loss breakdown against specific speed. At low specific speed the impeller blade losses are small, because the velocities of the flow relative to the blades are low, while the volute and the discharge nozzle losses become the next largest term. 
+
+\subsection{The Barske Partial-Emission Pump}
+
+%barbernichols https://barber-nichols.com/wp-content/uploads/2019/07/partial_emission_pumps_bridging_efficiency_gap_between_positive_displacement_and_full_emission_pumps.pdf
+
+The Barske pump, also known as the partial-emission pump \cite{barbernichols}, forced vortex pump \cite{lockForcedVortexPump1966} is a type of centrifugal pump found to be effective in these conditions. The Barske Pump is very simple in geometry as shown in \cref{fig:impeller-barske} as compared to a conventional pump such as \cref{fig:impeller-conventional}. The impeller consists of a flat disc with straight radial blades. The volute is swapped for cylindrical (annular) casing, with a divergent diffuser placed tangent to the casing. Because the fluid leaves the impeller at high velocity relative to both the casing and the diffusor, the surface finish becomes a primary concern for efficiency at this scale \cite{lockdesignfeatures}. Gülich also notes that for $n_q<12$ an annular casing can reach higher efficiencies than a volute, the spiral collector of a conventional pump \cite{gulich7.12}, which has the side benefit of being far simpler to manufacture, a real advantage at small scale where tight tolerances are hard to hold. Conversely, as the losses in the impeller are small, the Barske impeller surface finish is not critical and can be left rough.
+
 \label{subsec:barske}
 
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{Conventional shrouded full emission impeller} % PLACEHOLDER IMAGE
+        \includegraphics[width=\textwidth]{conventionalpump.png}
+        \caption{Conventional shrouded full emission impeller} % from karassik
         \label{fig:impeller-conventional}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{placeholder.png}
-        \caption{Barske open partial emission impeller} % PLACEHOLDER IMAGE
+        \includegraphics[width=\textwidth]{barskepump.png}
+        \caption{Barske open partial emission impeller} % from lock
         \label{fig:impeller-barske}
     \end{subfigure}
-    \caption{Comparison of the conventional and Barske pump architectures. The Barske impeller is open, has straight radial blades, and discharges into an annular casing with a single tangential diffuser.}
-    \label{fig:impeller-comparison}
+    % \caption{Comparison of the conventional and Barske pump architectures. The Barske impeller is open, has straight radial blades, and discharges into an annular casing with a single tangential diffuser.}
+    % \label{fig:impeller-comparison}
 \end{figure}
 
-The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications became one of the highest efficiency designs at this specific speed. \todo{i might want a section on explaining basic pump and turbine geometry and terminology before this.} The barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{something}. The barske impeller is instead designed to induced almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barskeunconventionalpaper}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses. 
-
-\todo{I know that conventional pumps are impossible to design at this specific speed, but still need to explain lock's assertion that "The efficiencies of forced vortex pumps in the same specific speed range and capacity are higher than those of similar conventional pump"}
-
-Barske comments that the number of impeller blades does not seem to be critical, with 3-6 being operated successfully. However, altering the number of blades can be used to elminite fluid vibrations \cite{barske1953}. Lock provides corrections for blades from 1 to 16 \cite{lockfig10A}.
-
+The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications became one of the highest efficiency designs at this specific speed. The barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{something}. The barske impeller is instead designed to induce almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barskeDevelopmentUnconventionalCentrifugal1960} where meridonal or radially outward flow is negligable \cite{barskeDesignOpenImpeller}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses.
 % shrouds stuff page 102 gulich
-The open impeller choice is to further reduce disc friction losses as in the case of radial impellers, shroud friction far exceeds contributions the contribution of all other components \cite{gulichCentrifugalPumps2020}. Conventional impellers uses shrouds to guide the flow and reduce secondary flows. However, as in a Barske pump the impeller serves only to generate the forced vortex flow, this was deemed unnecessary by at least Barske and Lock. This also removes axial thrust loads on the impeller, helping with sealing and mechanical design of the shaft. Also, simplify manufacturing.
+Another difference between conventional impellers and the barske impeller is the absence of shrouds. The open impeller choice is to further reduce disc friction losses as in the case of radial impellers, shroud friction far exceeds contributions the contribution of all other components \cite{gulichCentrifugalPumps2020}. Conventional impellers uses shrouds to guide the flow and reduce secondary flows, but as the Barske impeller operates on a wholely different principle, this shroud is remoevd. Removing the shrouds also reduces axial thrust loads on the impeller as there is less surface area for the fluid to push against, which assists with sealing and mechanical design of the pump shaft.
 
-Conventional pump design with current design tools produce nonsensical geometries and results at low specific speeds because of one number that is used in the design process, which is the slip coefficient. The slip coefficient determines the angular deflection of the fluid leaving the impeller from the blade angle at the impeller exit, because a finite number of blades cannot perfectly guide the flow. It is given by an empirical regression, the most widely used being Wiesner's fit to Busemann's potential flow solutions \cite{gulichCentrifugalPumps2020}:
+% Conventional pump design with current design tools produce nonsensical geometries and results at low specific speeds because of one number that is used in the design process, which is the slip coefficient. The slip coefficient determines the angular deflection of the fluid leaving the impeller from the blade angle at the impeller exit, because a finite number of blades cannot perfectly guide the flow. It is given by an empirical regression, the most widely used being Wiesner's fit to Busemann's potential flow solutions \cite{gulichCentrifugalPumps2020}:
 
-\begin{equation}
-    \sigma = 1 - \frac{\sqrt{\sin\beta_{2B}}}{z^{0.7}}
-    \label{eq:wiesner_slip}
-\end{equation}
+% \begin{equation}
+%     \sigma = 1 - \frac{\sqrt{\sin\beta_{2B}}}{z^{0.7}}
+%     \label{eq:wiesner_slip}
+% \end{equation}
 
-where $\beta_{2B}$ is the blade exit angle from the circumferential direction and $z$ the blade count. The slip factor closes the theoretical head, because the Euler head of \cref{eq:euler_specific_work} with a finite blade count and the outlet velocity triangle becomes
+% where $\beta_{2B}$ is the blade exit angle from the circumferential direction and $z$ the blade count. The slip factor closes the theoretical head, because the Euler head of \cref{eq:euler_specific_work} with a finite blade count and the outlet velocity triangle becomes
 
-\begin{equation}
-    \psi_{th} = 2\left(\sigma - \phi_2 \cot\beta_{2B}\right)
-    \label{eq:head_with_slip}
-\end{equation}
+% \begin{equation}
+%     \psi_{th} = 2\left(\sigma - \phi_2 \cot\beta_{2B}\right)
+%     \label{eq:head_with_slip}
+% \end{equation}
 
-with $\psi$ and $\phi_2$ the head and flow coefficients of \cref{eq:psi_phi}. The difficulty at low specific speed is now visible in the equation rather than asserted. The duty fixes a high target $\psi$ at a very low $\phi_2$, which \cref{eq:head_with_slip} can only meet by pushing $\beta_{2B}$ towards the radial and the blade count up, while continuity $\phi_2 = Q/(\pi d_2 b_2 u_2)$ at the same low flow and large diameter simultaneously drives the outlet width $b_2$ towards zero. The closure does have a root, but it lands on geometry that is either unmanufacturable or outside the validity range of \cref{eq:wiesner_slip}, whose own limit on the blade loading is $\varepsilon_{lim} = \exp(-8.16\sin\beta_{2B}/z)$. This is what motivates the forced vortex Barske architecture, which abandons the attached blade-guided flow model entirely and so removes the slip factor from the design process.
+% with $\psi$ and $\phi_2$ the head and flow coefficients of \cref{eq:psi_phi}. The difficulty at low specific speed is now visible in the equation rather than asserted. The duty fixes a high target $\psi$ at a very low $\phi_2$, which \cref{eq:head_with_slip} can only meet by pushing $\beta_{2B}$ towards the radial and the blade count up, while continuity $\phi_2 = Q/(\pi d_2 b_2 u_2)$ at the same low flow and large diameter simultaneously drives the outlet width $b_2$ towards zero. The closure does have a root, but it lands on geometry that is either unmanufacturable or outside the validity range of \cref{eq:wiesner_slip}, whose own limit on the blade loading is $\varepsilon_{lim} = \exp(-8.16\sin\beta_{2B}/z)$. This is what motivates the forced vortex Barske architecture, which abandons the attached blade-guided flow model entirely and so removes the slip factor from the design process.
 
-This claim needs to be scoped, because a formally converged conventional design at this specific speed has been published. Kim obtained a converged Wiesner design with $\beta_{2B} = 51.7^\circ$ at the same specific speed as this thesis, but only by mixing correlations from different sources, each used outside its stated validity range, and the resulting geometry required closed channels of $b_2 = 0.31$ mm on a 24 mm impeller \cite{kimDevelopmentUltraLowSpecific2022}. That is exactly the corner of \cref{eq:head_with_slip} described above: a root exists, but the practical failure of the conventional architecture at this scale is manufacturability and suction robustness rather than pure mathematics. This is explored further with the design attempt in \cref{sec:appendix_conventional} and \cref{sec:results}.
+% As conventional impellers are rarely designed at this specific speed, empirical correlations fitted around conventional impellers  $b_2 = 0.31$ mm on a 24 mm impeller \cite{kimDevelopmentUltraLowSpecific2022}. That is exactly the corner of \cref{eq:head_with_slip} described above: a root exists, but the practical failure of the conventional architecture at this scale is manufacturability and suction robustness rather than pure mathematics. This is explored further with the design attempt in \cref{sec:appendix_conventional} and \cref{sec:results}.
 
-\subsubsection{Euler and Forced-Vortex Head}
+\subsubsection{Barske Pump Performance}
+
+
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.55\textwidth]{forced_vortex_triangles}
-    \caption{Velocity triangle nomenclature and the forced vortex flow field in the Barske impeller, where the fluid rotates as a solid body so the tangential velocity equals the local blade speed, $u = \omega r$.}
-    \label{fig:pump-velocity-triangle}
+\centering
+\includegraphics[width=0.5\textwidth]{forced_vortex_triangles}
+\caption{Velocity triangles in a forced vortex pump}
+\label{fig:pump-velocity-triangle}
 \end{figure}
 
-All theories relating to pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation:
-
-\begin{equation}
-    P=\tau\omega=\rho Q \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega=\rho Q\left(u_2c_{2u}-u_1c_{1u}\right)
-    \label{eq:euler_turbine_equation}
-\end{equation}
-
-Rewriting this equation in terms of specific work $Y=P/\rho Q$ per unit mass:
-
-\begin{equation}
-    Y = \left(r_2 c_{2u} - r_1 c_{1u}\right)\omega = u_2c_{2u}-u_1c_{1u}
-     \label{eq:euler_specific_work}
-\end{equation}
-
-derive from bernouli, with rotating frame substitution $c^2=w^2-u^2+2\times u \times c_u$ and neglecting compressibility losses:
-
-$$p_{1}+\frac{\rho}{2}w_{1}^2-\frac{\rho}{2}u_{1}^2=p_{2}+\frac{\rho}{2}w_{2}^2-\frac{\rho}{2}u_{2}^2$$
-
-and as such the theoretical rise in static pressure:
-
-\begin{equation}
-    \Delta p_{st} = p_2-p_1 = \frac{\rho}{2}\left(w_1^2-w_2^2\right)+\frac{\rho}{2}\left(u_2^2-u_1^2\right)
-    \label{eq:pressure_rise}
-\end{equation}
-
-In Barske, Lobanoff and Lock the relative velocity $w$ is assumed to be negligable, ending up with:
+In Barske, Lobanoff and Lock the relative velocity $w$ is assumed to be negligable. This turns \cref{eq:pressure_rise} into \cref{eq:pressure_rise_negligible_w}, which is the theoretical static pressure rise of a Barske impeller.
 
 \begin{equation}
     \Delta p_{st} = \frac{\rho}{2}\left(u_2^2-u_1^2\right)
@@ -185,7 +225,7 @@ In Barske, Lobanoff and Lock the relative velocity $w$ is assumed to be negligab
 Then, the kinetic energy increase assuming negligible inlet prerotation is:
 
 \begin{equation}
-    \Delta p_{st} = \frac{\rho}{2}u_2^2
+    q = \frac{\rho}{2}u_2^2
     \label{eq:pressure_rise_negligible_w_prerotation}
 \end{equation}
 
@@ -207,7 +247,7 @@ This forms a simple basic model for barske pump performance.
 \subsubsection{Barske Sizing Method}
 \label{sec:theory_barske_sizing}
 
-The barske pump is sized by the methods provided by barske \cite{barske1953} with the assitance of Gulich. First the inlet is sized by choosing a reasonable inlet velocity and calculating the inlet area:
+The barske pump is sized by the methods provided by barske \cite{barskeDesignOpenImpeller} with the assitance of Gulich. First the inlet is sized by choosing a reasonable inlet velocity and calculating the inlet area:
 
 \begin{equation}
     d_0 = \sqrt{\frac{4\dot{m}}{\pi \rho c_0}}
