@@ -41,6 +41,8 @@ The diffuser is a single conical passage placed tangentially on the annular casi
 
 \subsubsection{Mechanical Design}
 
+\todo{this shit is ALL wrong lol}
+
 The dominant mechanical load is not torque but radial thrust. Because the pump is partial emission, the pressure field around the impeller is asymmetric, and the net radial force this produces governs the shaft and bearing design rather than efficiency considerations. The radial thrust is estimated with the standard projected area form
 
 \begin{equation}
@@ -119,11 +121,9 @@ Before committing to the Barske architecture, a conventional shrouded impeller w
 
 \subsubsection{Design Point and Regime Shift}
 
-Turbine sizing has to satisfy many requirements simultaneously, many design variables. After the pump was sized for \valPumpRpmDesign at a power of \valTurbPowerDesign, there are many remaining free variables.
+Turbine sizing has to satisfy many requirements simultaneously to reach the global requirements of a rotational speed of \valPumpRpmDesign at a power of \valTurbPowerDesign. Parameters such as diameter $d_m$, mass flow through the turbine $\dot{m}$, blade inlet angle $\beta_3$, pressure ratio $p_{01}/p_{02}$ have to be balanced against each other to reach a feasible design point.
 
-The main parameters being turbine diameter $d_m$, mass flow through the turbine $\dot{m}$, blade inlet angle $\beta_3$.
-
-The turbine has two operating regimes, and the distinction runs through this section and the results. The design point is \valTurbPowerDesign{} at \valPumpRpmDesign{} on \valTurbPZeroOneDesign{} supply. The test point is what the laboratory shop air could actually deliver, around 2.9 bar absolute at the stator with the pressure drooping under flow, which settled the coupled shaft at around \valCoupledRpm{} RPM. \cref{tab:turbine_design_vs_test} compares the two. The choked supersonic nozzle behaves the same in both regimes because choked flow is speed independent, but the rotor stage similitude parameters were not matched at test, and this difference drives most of the discussion in \cref{sec:results}.
+The turbine has two operating regimes, and the distinction runs through this section and the results. The design point is \valTurbPowerDesign{} at \valPumpRpmDesign{} on \valTurbPZeroOneDesign{} supply. The test point is what the \todo{what the fuck is this} laboratory shop air could actually deliver, around 2.9 bar absolute at the stator with the pressure drooping under flow, which settled the coupled shaft at around \valCoupledRpm{} RPM. \cref{tab:turbine_design_vs_test} compares the two. The choked supersonic nozzle behaves the same in both regimes because choked flow is speed independent, but the rotor stage similitude parameters were not matched at test, and this difference drives most of the discussion in \cref{sec:results}.
 
 \begin{table}[H]
     \centering
@@ -150,6 +150,8 @@ The established rocket turbopump turbine is an axial flow stage, to the point th
 The stage is an impulse stage, for the reasons established in \cref{sec:theory}, and its tolerance to tip clearance matters here because the rotor is printed \cite{LiquidRocketEngine1974}. The central constraint is diameter. Running the stage at the optimum blade to jet speed ratio on a 20,000 RPM shaft would need a mean diameter in the hundreds of millimetres, which does not fit the rig or the shaft dynamics, so the turbine accepts a small diameter and a heavily off optimum speed ratio instead. The small mass flow then cannot fill the annulus at any sensible blade height, so partial admission is used. The degree of admission $\varepsilon = \valTurbDoa$ was chosen by working \cref{eq:turbine_blade_height} backwards, picking the admission fraction that raises the blade height to \valTurbBladeHeight, the smallest height that prints reliably and keeps the aspect ratio sensible.
 
 \subsubsection{Sizing}
+
+\todo{this shit is so wrong i dont even know what to say}
 
 The mean line sizing is the inverse design chain of the theory chapter, executed in order. The inputs are the shaft power $P$, speed $n$, mean diameter $d_m$, mass flow $\dot{m}$, nozzle angle $\beta_3$, degree of admission $\varepsilon$, the gas properties and the exit pressure $p_e$. The blade speed follows from the speed and diameter, $u = \omega d_m/2$, and the required specific work from the power, $\Delta h_{\textrm{use}} = P/\dot{m}$. The velocity triangle inversion \cref{eq:triangle_inversion} then fixes the jet the nozzle must deliver, $c_{3u}$, $c_3$ and $c_{3m}$. The nozzle exit static state follows from conservation of energy in the adiabatic nozzle and the isentropic relations:
 

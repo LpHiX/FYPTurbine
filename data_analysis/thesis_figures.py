@@ -907,11 +907,17 @@ def fig_barske_geometry():
     from matplotlib.patches import Polygon, Rectangle, Circle
     rib = 3.0                     # rib height [mm] — visualize() value
     x_back = rib + b1             # blade/rib back face axial position
-    # shared radial axis so radial features line up across the two views
+    Ld = 30.0                     # diffuser length [mm], hard-coded (used below)
+    # shared radial axis so radial features line up across the two views;
+    # width_ratios set to each panel's x-data span so that, with equal aspect,
+    # both axes boxes render at the SAME height (height = k * y_range for both).
     ylim = (-(Rc + 8), Rc + 8)
+    xlim_m = (-11, x_back + 11)
+    xlim_p = (-Ld - 12, 1.55 * Rc)
+    wr = [xlim_m[1] - xlim_m[0], xlim_p[1] - xlim_p[0]]
     fig, (axm, axp) = plt.subplots(
         1, 2, figsize=(7.4, 5.2), sharey=True,
-        gridspec_kw={"width_ratios": [1, 2.7]})
+        gridspec_kw={"width_ratios": wr})
 
     # ---- (a) meridional view: LITERALLY BarskePump.visualize()'s ax1
     # construction (keep the plain matplotlib look, label onto it) — same
@@ -955,8 +961,7 @@ def fig_barske_geometry():
     _dim(axm, (x_back + 1.0, -r2), (x_back + 1.0, -(r2 + Hc)), r"$h_c$",
          tpos=(x_back + 4.0, -(r2 + Hc / 2)), fs=LBL)
     axm.set_aspect("equal")
-    axm.set(xlim=(-11, x_back + 11), ylim=ylim, xlabel="axial [mm]",
-            ylabel="radial [mm]")
+    axm.set(xlim=xlim_m, ylim=ylim, xlabel="axial [mm]", ylabel="radial [mm]")
 
     # ---- (b) end view: visualize()'s ax2 (circles + legend look), with
     # blade THICKNESS added and the tangential diffuser for d3/d4 ----
@@ -979,8 +984,7 @@ def fig_barske_geometry():
         axp.plot([r2 * ca - tb / 2 * sa, r2 * ca + tb / 2 * sa],
                  [r2 * sa + tb / 2 * ca, r2 * sa - tb / 2 * ca], color="blue", lw=1.2)
     # tangential conical diffuser: symmetric about a centreline at r2, throat
-    # d3 -> exit d4, running to the LEFT from x=0 to x=-Ld (hard-coded).
-    Ld = 30.0
+    # d3 -> exit d4, running to the LEFT from x=0 to x=-Ld (hard-coded above).
     yc = r2
     axp.plot([0, -Ld], [yc + d3 / 2, yc + d4 / 2], color="black", lw=1.2)  # upper wall
     axp.plot([0, -Ld], [yc - d3 / 2, yc - d4 / 2], color="black", lw=1.2)  # lower wall
@@ -999,7 +1003,7 @@ def fig_barske_geometry():
                  arrowprops=dict(arrowstyle="<-", lw=0.8, color="0.4"))
     axp.text(0, rr * 0.45, r"$\omega$", fontsize=LBL, ha="center", color="0.4")
     axp.set_aspect("equal")
-    axp.set(xlim=(-Ld - 12, 1.55 * Rc), xlabel="tangential [mm]")
+    axp.set(xlim=xlim_p, xlabel="tangential [mm]")
     axp.legend(fontsize=8, loc="lower right")
     fig.subplots_adjust(wspace=0.05)
     return save(fig, "barske_geometry")
@@ -1652,7 +1656,136 @@ def fig_cantilever():
 
 
 # =========================================================================== #
+# SP-8107 / Logan (Handbook of Turbomachinery) efficiency-vs-specific-speed pump
+# map, re-annotated with a second metric n_q axis (Martin 06-14). The scanned
+# chart's x-axis is stage specific speed N_s in US units (rpm, gpm, ft); the
+# thesis works in metric n_q (rpm, m^3/s, m, intro eq.1), so a converted log axis
+# is drawn below the original.
+#   x_px = NS_X0 + NS_PX_DEC*log10(N_s)   fitted from the five power-of-ten N_s
+#   labels in the bitmap (decade spacing 296 px, residuals a few px).
+#   N_s(US) = NS_PER_NQ * n_q,  NS_PER_NQ = 51.64 (gpm,ft -> m^3/s,m).
+# Sanity on the unit basis: the chart's centrifugal optimum sits at N_s ~2000-3000,
+# i.e. n_q ~40-60, the known metric centrifugal band. If a future source uses a
+# different N_s definition, change NS_PER_NQ only.
+# =========================================================================== #
+PUMP_MAP_SRC = os.path.join(_ROOT, "report", "figs", "pump_map_source.png")
+NS_X0, NS_PX_DEC = 103.4, 296.05        # N_s=1 x-pixel; pixels per N_s decade
+NS_PER_NQ = 51.64                       # N_s(US gpm,ft) = NS_PER_NQ * n_q(metric)
+PMAP_CROP_Y = 818                       # keep plot + N_s numbers; drop old subtitle/caption
+PMAP_EXTRA = 180                        # white rows added below for the n_q axis
+PMAP_XSPAN = (100, 1494)                # plot-box left/right x-pixels for the n_q line
+PMAP_NQ_TICKS = [0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500]
+PMAP_FONT_NUM, PMAP_FONT_LAB = 9, 10    # n_q tick-number / axis-label font sizes
+
+
+def fig_pump_map_nq():
+    """SP-8107 / Logan efficiency-vs-specific-speed pump map with a second log
+    axis added below, converting the chart's US N_s (rpm, gpm, ft) to metric n_q
+    (rpm, m^3/s, m). Scanned bitmap re-annotated; the original subtitle and
+    'Figure 18' caption are cropped (the LaTeX \\caption replaces them).
+    Calibration and the N_s<->n_q factor live in the PMAP_*/NS_* constants above;
+    tweak NS_X0/NS_PX_DEC if the n_q ticks drift off the N_s ticks."""
+    from PIL import Image
+    img = np.asarray(Image.open(PUMP_MAP_SRC).convert("RGB"))[:PMAP_CROP_Y]
+    H, W, _ = img.shape
+    canvas = np.full((H + PMAP_EXTRA, W, 3), 255, np.uint8)
+    canvas[:H] = img
+
+    def nq_to_x(nq):
+        return NS_X0 + NS_PX_DEC * np.log10(NS_PER_NQ * np.asarray(nq, float))
+
+    xL, xR = PMAP_XSPAN
+    y_axis, y_num, y_lab = H + 52, H + 78, H + 114   # n_q line / numbers / label rows
+    fig, ax = plt.subplots(figsize=(6.5, 6.5 * (H + PMAP_EXTRA) / W))
+    ax.imshow(canvas)
+    ax.set(xlim=(0, W), ylim=(H + PMAP_EXTRA, 0))
+    ax.axis("off")
+    # N_s unit reminder where the cropped subtitle was
+    ax.text((xL + xR) / 2, H + 10, r"Stage specific speed, $N_s$  (rpm, gpm, ft)",
+            ha="center", va="center", fontsize=PMAP_FONT_LAB)
+    ax.plot([xL, xR], [y_axis, y_axis], color="k", lw=1.2)
+    for nq in PMAP_NQ_TICKS:
+        x = float(nq_to_x(nq))
+        if x < xL - 1 or x > xR + 1:
+            continue
+        dec = abs(np.log10(nq) - round(np.log10(nq))) < 1e-6   # power of ten
+        ax.plot([x, x], [y_axis, y_axis + (13 if dec else 8)], color="k", lw=1.2)
+        ax.text(x, y_num, "%g" % nq, ha="center", va="center",
+                fontsize=PMAP_FONT_NUM, fontweight=("bold" if dec else "normal"))
+    ax.text((xL + xR) / 2, y_lab, r"Metric specific speed, $n_q$  (rpm, m$^3$/s, m)",
+            ha="center", va="center", fontsize=PMAP_FONT_LAB)
+    print(f"  pump_map_nq: n_q=1 -> N_s={NS_PER_NQ:.0f} -> x={nq_to_x(1):.0f}px;  "
+          f"n_q=10 -> N_s={NS_PER_NQ*10:.0f} -> x={nq_to_x(10):.0f}px")
+    return save(fig, "pump_map_nq")
+
+
+# =========================================================================== #
+# Balje (Turbomachines, 1981) maximum-efficiency vs DIMENSIONLESS design specific
+# speed N_D pump map (Martin 06-14). Cleaner than the SP-8107 chart: a single
+# "partial emission pumps" curve, no Barske/PE split. N_D is Balje's universal
+# specific speed (omega*sqrt(Q)/(g*H)^0.75, dimensionless; centrifugal optimum at
+# N_D ~1). The thesis works in metric n_q, so a converted log axis is drawn below.
+#   x_px = ND_X0 + ND_PX_DEC*log10(N_D)   least-squares fit over the plot borders
+#   (0.01@77px, 40@633px) + the 0.1/1/10 labels; residuals < 5 px, decade 154 px.
+#   n_q = NQ_PER_ND * N_D,  NQ_PER_ND = (60/2*pi)*g^0.75 = 52.93 (g=9.81).
+# >>> TODO(Martin): cross-check NQ_PER_ND and N_D's exact definition against
+#     Balje's book tomorrow; change NQ_PER_ND only if his N_D differs. <<<
+# =========================================================================== #
+PUMP_MAP6_SRC = os.path.join(_ROOT, "report", "figs", "pump_map_balje_source.png")
+ND_X0, ND_PX_DEC = 383.57, 154.115      # N_D=1 x-pixel; pixels per N_D decade
+NQ_PER_ND = 52.93                       # n_q = NQ_PER_ND * N_D (dimensionless -> metric)
+PMAP6_CROP_Y = 422                      # keep plot + N_D numbers; drop axis title
+PMAP6_EXTRA = 150                       # white rows added below for the n_q axis
+PMAP6_XSPAN = (77, 633)                 # plot-box left/right x-pixels (N_D 0.01..40)
+PMAP6_NQ_TICKS = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000]
+PMAP6_FONT_NUM, PMAP6_FONT_LAB = 9, 10  # n_q tick-number / axis-label font sizes
+
+
+def fig_pump_map_balje():
+    """Balje dimensionless-N_D pump efficiency map with a second log axis added
+    below converting N_D to metric n_q (n_q = 52.93*N_D). Cleaner alternative to
+    pump_map_nq: one partial-emission curve, no Barske/PE ambiguity. Scanned
+    bitmap re-annotated; the original axis title is cropped (LaTeX \\caption
+    replaces it). Calibration/conversion in the PMAP6_*/ND_*/NQ_PER_ND constants;
+    NQ_PER_ND pending a cross-check against Balje's book."""
+    from PIL import Image
+    img = np.asarray(Image.open(PUMP_MAP6_SRC).convert("RGB"))[:PMAP6_CROP_Y]
+    H, W, _ = img.shape
+    canvas = np.full((H + PMAP6_EXTRA, W, 3), 255, np.uint8)
+    canvas[:H] = img
+
+    def nq_to_x(nq):
+        return ND_X0 + ND_PX_DEC * np.log10(np.asarray(nq, float) / NQ_PER_ND)
+
+    xL, xR = PMAP6_XSPAN
+    y_axis, y_num, y_lab = H + 44, H + 68, H + 104   # n_q line / numbers / label rows
+    fig, ax = plt.subplots(figsize=(6.5, 6.5 * (H + PMAP6_EXTRA) / W))
+    ax.imshow(canvas)
+    ax.set(xlim=(0, W), ylim=(H + PMAP6_EXTRA, 0))
+    ax.axis("off")
+    # N_D reminder where the cropped axis title was
+    ax.text((xL + xR) / 2, H + 8, r"Design specific speed, $N_D$  (dimensionless)",
+            ha="center", va="center", fontsize=PMAP6_FONT_LAB)
+    ax.plot([xL, xR], [y_axis, y_axis], color="k", lw=1.2)
+    for nq in PMAP6_NQ_TICKS:
+        x = float(nq_to_x(nq))
+        if x < xL - 1 or x > xR + 1:
+            continue
+        dec = abs(np.log10(nq) - round(np.log10(nq))) < 1e-6   # power of ten
+        ax.plot([x, x], [y_axis, y_axis + (12 if dec else 7)], color="k", lw=1.2)
+        ax.text(x, y_num, "%g" % nq, ha="center", va="center",
+                fontsize=PMAP6_FONT_NUM, fontweight=("bold" if dec else "normal"))
+    ax.text((xL + xR) / 2, y_lab, r"Metric specific speed, $n_q$  (rpm, m$^3$/s, m)",
+            ha="center", va="center", fontsize=PMAP6_FONT_LAB)
+    print(f"  pump_map_balje: n_q=10 -> N_D={10/NQ_PER_ND:.3f} -> x={nq_to_x(10):.0f}px;  "
+          f"n_q=50 -> N_D={50/NQ_PER_ND:.2f} -> x={nq_to_x(50):.0f}px")
+    return save(fig, "pump_map_balje")
+
+
+# =========================================================================== #
 FIGURES = {
+    "pump_map_balje": fig_pump_map_balje,  # intro: Balje N_D map + n_q axis (preferred)
+    "pump_map_nq": fig_pump_map_nq,        # intro: SP-8107 map + n_q axis (backup)
     "theory_hq": fig_theory_hq,            # H-Q + psi-phi pair (keep combined)
     "eta_phi": fig_eta_phi,
     "churning": fig_churning,              # disk_mult corroboration
