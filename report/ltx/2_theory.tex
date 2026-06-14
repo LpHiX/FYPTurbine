@@ -82,13 +82,13 @@ So $\psi$ is the fraction of the achievable rim-speed head that the machine actu
 
 % the absolute margin of the inlet head above vapour pressure. The standard performance criterion is NPSH$_3$, the available NPSH at which the developed head has dropped 3\% below its fully wetted value at constant speed and flow \cite{gulichCentrifugalPumps2020}. Suction capability is compared across machines through the suction specific speed, defined like \cref{eq:specific_speed} but with NPSH$_3$ in place of head.
 
-\subsubsection{Why Efficiency Collapses at Low Specific Speed}
+\subsection{Main Loss Mechanisms at Low Specific Speed}
 
 % The introduction established that this duty sits at low specific speed and that the partial emission pump is the efficiency optimum there. This section explains where that efficiency ceiling comes from, since identifying and measuring the dominant loss is one of the aims of this work.
 
 Losses in pumps can be separated into power losses and head losses. Power losses increase the shaft power required to drive the pump but does not directly affect the head delivered, while head losses directly reduce the head from the ideal value.
 
-\subsection{Disc Friction Loss}
+\subsubsection{Disc Friction Loss}
 
 When a rotor spins in a fluid, the shear stress in the fluid acts on the rotor faces as a drag torque. In most centrifugal pumps the impeller is broadly disc shaped, so this is called disc friction loss. Taking the main parameters of the equation from Gulich \cite{gulichCentrifugalPumps2020}, the power lost to disc friction scales as
 
@@ -524,10 +524,14 @@ Finally, \cref{eq:weiss_ventilation} captures the losses due to partial admissio
 % 39 - Traupel W Thermische, 40 - Craig HRM, 41 - Kacker SC
 
 
-\subsubsection{Method of Characteristics Blade Design}
+\subsection{Turbine Blade Design}
+
+The design so far is based on 1D mean line theory. The design of the actual blade profile is what will guide the supersonic flow from the inlet direction to the outlet direction to maximize $c_{3u}-c_{4u}$. The basis of supersonic impulse blade profiling is often accomplished using an application of the Method of Characteristics (MOC) to transition a uniform flow field into vortex flow.
+
+\subsubsection{Method of Characteristics for Supersonic Impulse Blade Design}
 \label{subsec:method_of_characteristics}
 
-The design so far is based on 1D mean line theory. The design of the actual blade profile is what will guide the supersonic flow from the inlet direction to the outlet direction to maximize $c_{3u}-c_{4u}$. The basis of supersonic impulse blade profiling is often accomplished using an application of the Method of Characteristics (MOC) to transition a uniform flow field into vortex flow. Vortex flow is a special type of supersonic flow in which every streamline follows a concentric path around a central point. This flow field was first discovered by A. Busemann \cite{colcloughDesignTurbineBlades1966}, achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. Boxer then first developed the method to transition uniform flow into vortex flow with MOC \cite{boxerApplicationSupersonicVortexflow1952}. This method generates the profile for an inlet Mach number, turning angle and the mach numbers on the blade surfaces. Later analysis will need to be required to choose these desired Mach numbers.
+ Vortex flow is a special type of supersonic flow in which every streamline follows a concentric path around a central point. This flow field was first discovered by A. Busemann \cite{colcloughDesignTurbineBlades1966}, achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. Boxer then first developed the method to transition uniform flow into vortex flow with MOC \cite{boxerApplicationSupersonicVortexflow1952}. This method generates the profile for an inlet Mach number, turning angle and the mach numbers on the blade surfaces. Later analysis will need to be required to choose these desired Mach numbers.
 
 \begin{figure}[H]
     \centering
@@ -564,7 +568,7 @@ M^* = \sqrt{\frac{(\gamma+1)M^2/2}{1 + (\gamma-1)M^2/2}}
 \label{eq:mach_to_critical_mach}
 \end{equation}
 
-The rest of the methodology to design the blade profile can be found in Goldman's paper \cite{goldmanAnalyticalInvestigationSupersonic1968} and will not be repeated here. Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} are highlighted as they can be used to derive the nondimensional radius of the upper and lower surfaces of the blade, which will be important in the following discussion on surface Mach number selection. It is important to note that the inlet mach number for starting here is computed not with the absolute velocity $c_3$ but with the relative velocity $w_3$, as the flow will be turning inside the rotating frame of the turbine blade. This distinction is made as the relative velocity is dependent on the rotational speed of the turbine, meaning that this blade profiling is optimized for only the design point of the turbine.
+The rest of the methodology to design the blade profile can be found in Goldman's paper \cite{goldmanAnalyticalInvestigationSupersonic1968} and will not be repeated here. Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} are highlighted as they can be used to derive the nondimensional radius of the upper and lower surfaces of the blade, which will be important in the following discussion on surface Mach number selection. It is important to note that the inlet mach number for starting here is computed not with the absolute velocity $c_3$ but with the relative velocity $w_3$, as the flow will be turning inside the rotating frame of the turbine blade. This distinction is made as the relative velocity is dependent on the rotational speed of the turbine, meaning that this blade profiling is optimized for only the design point of the turbine. The surface Mach numbers are constrained by two mechanisms. Flow separation and supersonic starting.
 
 %To summarize the methodology, 
 
@@ -630,11 +634,10 @@ The rest of the methodology to design the blade profile can be found in Goldman'
 
 % \todo{add "i" to the variables to define inlet}
 
-\subsubsection{Surface Mach Number Selection}
 
-There are two main factors to consider when choosing the inlet, outlet and surface mach numbers. One is to prevent flow separation, and the other is to ensure that supersonic flow within the blade passage can "start".
 
 \subsubsection{Flow Separation}
+\label{subsec:flow_separation}
 
 Separation occurs in high adverse pressure gradients. In supersonic flow, this happens whenever the flow is decelerating along the surface.  There are two main regions on the blade surfaces which separation can occur. At the upper surface, the inlet transition arc accelerates the flow from the inlet velocity until the vortex flow, then decelerates the flow until the outlet. At the lower surface, the inlet transition arc decelerates the flow from the inlet velocity until the vortex flow, then accelerates the flow until the outlet.  Goldman believes that separation on the lower surface is probably not as important as the flow would tend to reattach shortly as the pressure gradient becomes favourable again \cite{goldmanAnalyticalInvestigationBlade1970}. Goldman uses the value of the incompressible form factor $H_i$ along the blade surface to predict separation, where Schlichting \cite{schlichtingBoundaryLayerTheory2017} found that separation usually occurs in the range of $H_i$ from 1.8 to 2.4. The variation of $H_i$ along the blade surface can be seen in \cref{fig:goldman-hi-paper}.
 
@@ -691,6 +694,7 @@ It is important to note that Goldman provides another set of equations in his NA
 
 
 \subsubsection{Supersonic Starting}
+\label{subsec:supersonic_starting}
 
 On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passsage must be able to "swallow" this shock, allowing the shock to move through the whole passage. \todo{make sure this explains at standstill}
 
@@ -747,23 +751,18 @@ Historically, starting was a major problem for supersonic turbines. Before the t
 
 %Colclough's cascade tests also produced something the inviscid theory cannot, an empirical derating of the starting limit that accounts for boundary layer blockage. His measured startable contraction is $k = A_{min}/A_2 = 1.029 - 0.163(M_2 - 1)$, valid for $1.0 < M_2 < 1.4$ \cite{colcloughDesignTurbineBlades1966}. This is applied on top of the Goldman limit in the design of \cref{sec:design}, and the design inlet relative Mach number of this turbine sits inside its validity range.
 
-\paragraph{The efficiency trade}
+\subsubsection{Surface Mach Number Selection}
 
-The separation criterion limits the acceleration of the flow along the upper surface, and the deceleration of the flow along the lower surface. Then, the starting criterion provides an additional limit on the inlet design mach number based on these surface mach numbers. 
+The separation criterion described in \cref{subsec:flow_separation} limits the acceleration of the flow along the upper surface, and the deceleration of the flow along the lower surface. Then, the starting criterion described in \cref{subsec:supersonic_starting} provides an additional limit on the inlet design mach number based on these surface mach numbers. 
 
-However, Goldman notes that for optimum efficiency, the maximum spread of surface number leads to maximum efficiencies. It comes from the obvious fact that a loss of velocity across the impulse blade leads to a loss of kinetic energy, so he posits the efficiency of an impulse blade to be:
+However, Goldman notes that for optimum efficiency, the maximum spread of surface number leads to maximum efficiencies \cite{goldmanAnalyticalInvestigationBlade1970}. It comes from the fact that a loss of velocity across the impulse blade leads to a loss of kinetic energy transfer to the blades, so he posits the efficiency of an impulse blade to be:
 
 \begin{equation}
     \eta = \left(\frac{w_{exit}}{w_{exit,ideal}}\right)^2
+    \label{eq:goldman_efficiency}
 \end{equation}
 
-
-
-This is nearly the same as Weiss' \cref{eq:weiss_rotor_coeff} loss. Weiss derived his empirical model only of 1D parameters such as inlet mach number and the angled the flow is turned. 
-
-What this efficiency tries to capture is the boundary layer friction losses, shocks, and exit wake mixing losses. The effect of spreading the surface mach numbers becomes clear by looking at the vortex equation \cref{eq:vortex_condition_nondim}. The larger the mach number spread, the larger the difference in $R^*$ between the upper and lower surface, the larger physical passage width. The wider the channel compared to the blade chord, the lower fraction of the boundary layer thickness to passage width, the lower the wetted surface area per unit flow, and thus the lower the losses.
-
-This is the challenge of supersonic turbine blade design, maximum efficiency is achieved by riding along the edge of separation and starting.
+\cref{eq:goldman_efficiency} is nearly the same as Weiss' \cref{eq:weiss_rotor_coeff} loss. Weiss derived his empirical model only of 1D parameters such as inlet mach number and the angled the flow is turned. What this efficiency tries to capture is the boundary layer friction losses, shocks, and exit wake mixing losses. The effect of spreading the surface mach numbers becomes clear by looking at the vortex equation \cref{eq:vortex_condition_nondim}. The larger the mach number spread, the larger the difference in $R^*$ between the upper and lower surface, the larger physical passage width as shown in\cref{fig:moc-spread}. The wider the channel compared to the blade chord, the lower fraction of the boundary layer thickness to passage width, the lower the wetted surface area per unit flow, and thus the lower the losses. This is the challenge of supersonic turbine blade design, maximum efficiency is achieved by riding along the edge of separation and starting.
 
 \begin{figure}[H]
     \centering
