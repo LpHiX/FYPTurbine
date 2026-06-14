@@ -642,5 +642,124 @@
     "unc": null,
     "fmt": ".1f",
     "desc": "mean blade speed at design"
+  },
+  "turbex_ar_hi": {
+    "val": 0.7,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "low-aspect-ratio regime upper bound (Ohlsson tested band H/chord)"
+  },
+  "turbex_ar_lo": {
+    "val": 0.07,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "low-aspect-ratio regime lower bound (Ohlsson tested band H/chord)"
+  },
+  "turbex_beta": {
+    "val": 15.0,
+    "unit": "\\degree",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine nozzle flow angle from tangential"
+  },
+  "turbex_c3": {
+    "val": 537.8024909259228,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine spouting velocity (PR=10, 300 K air)"
+  },
+  "turbex_c3m": {
+    "val": 139.1935271552044,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine nozzle-exit meridional velocity c3 sin(beta)"
+  },
+  "turbex_dh": {
+    "val": 86.8666202990215,
+    "unit": "\\kilo\\joule\\per\\kilo\\gram",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine Euler work per unit mass (symmetric impulse)"
+  },
+  "turbex_dmean": {
+    "val": 100.0,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine mean (pitch) diameter"
+  },
+  "turbex_height_full": {
+    "val": 0.7376441399242406,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "example turbine FULL-admission blade height (eq:..full_admission)"
+  },
+  "turbex_height_partial": {
+    "val": 4.917627599494937,
+    "unit": "\\milli\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "example turbine blade height at partial admission"
+  },
+  "turbex_mdot": {
+    "val": 23.02380354059347,
+    "unit": "\\gram\\per\\second",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "example turbine mass flow for target power"
+  },
+  "turbex_power": {
+    "val": 2000.0,
+    "unit": "\\watt",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine target shaft power"
+  },
+  "turbex_pr": {
+    "val": 10.0,
+    "unit": "",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine stage pressure ratio p01/p_exit"
+  },
+  "turbex_rho3": {
+    "val": 2.2423899290165505,
+    "unit": "\\kilo\\gram\\per\\cubic\\metre",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "example turbine rotor-inlet static density (isentropic, p3=p_exit)"
+  },
+  "turbex_t3": {
+    "val": 155.38424037693636,
+    "unit": "\\kelvin",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine rotor-inlet static temperature"
+  },
+  "turbex_u": {
+    "val": 104.71975511965978,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine mean blade speed"
+  },
+  "turbex_u_c3": {
+    "val": 0.19471786926714688,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "example turbine blade-jet speed ratio u/c3"
+  },
+  "turbex_zeta": {
+    "val": 15.0,
+    "unit": "\\percent",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "example turbine partial admission ratio"
   }
 }

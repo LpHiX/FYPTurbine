@@ -242,10 +242,63 @@ def build_computed(reg: Registry) -> Registry:
     return reg
 
 
+def build_theory_example(reg: Registry) -> Registry:
+    """Worked 'example turbine' for the Blade Height / Partial Admission section.
+
+    First-principles single impulse stage (decoupled from the full Weiss model)
+    so the prose numbers are reproducible by hand. Feeds the \\todo{addvalue}
+    blanks around eq:turbine_blade_height. 20k rpm, 100 mm pitch diameter,
+    PR = 10, 300 K air, 2 kW, 15 deg nozzle angle. See get_sample_turbine() for
+    the physics and the PR=5/PR=10 c3 note.
+    """
+    from quicknumbers.intro_ns import get_sample_turbine
+    s = get_sample_turbine()
+    mm = 1000.0
+    reg.add("turbex_pr", s["PR"], fmt=".0f",
+            desc="example turbine stage pressure ratio p01/p_exit")
+    reg.add("turbex_power", s["P"], unit=r"\watt", fmt=".0f",
+            desc="example turbine target shaft power")
+    reg.add("turbex_dmean", s["d_mean"] * mm, unit=r"\milli\meter", fmt=".0f",
+            desc="example turbine mean (pitch) diameter")
+    reg.add("turbex_beta", s["beta_deg"], unit=r"\degree", fmt=".0f",
+            desc="example turbine nozzle flow angle from tangential")
+    reg.add("turbex_c3", s["c3"], unit=r"\meter\per\second", fmt=".0f",
+            desc="example turbine spouting velocity (PR=10, 300 K air)")
+    reg.add("turbex_u", s["u"], unit=r"\meter\per\second", fmt=".0f",
+            desc="example turbine mean blade speed")
+    reg.add("turbex_u_c3", s["u_c3"], fmt=".2f",
+            desc="example turbine blade-jet speed ratio u/c3")
+    reg.add("turbex_c3m", s["c3m"], unit=r"\meter\per\second", fmt=".0f",
+            desc="example turbine nozzle-exit meridional velocity c3 sin(beta)")
+    reg.add("turbex_dh", s["deltah_useful"] / 1000.0, unit=r"\kilo\joule\per\kilo\gram", fmt=".0f",
+            desc="example turbine Euler work per unit mass (symmetric impulse)")
+    reg.add("turbex_mdot", s["mdot"] * 1000.0, unit=r"\gram\per\second", fmt=".1f",
+            desc="example turbine mass flow for target power")
+    reg.add("turbex_t3", s["T3"], unit=r"\kelvin", fmt=".0f",
+            desc="example turbine rotor-inlet static temperature")
+    reg.add("turbex_rho3", s["rho3"], unit=r"\kilo\gram\per\cubic\metre", fmt=".2f",
+            desc="example turbine rotor-inlet static density (isentropic, p3=p_exit)")
+    reg.add("turbex_height_full", s["H_full"] * mm, unit=r"\milli\meter", fmt=".2f",
+            desc="example turbine FULL-admission blade height (eq:..full_admission)")
+    reg.add("turbex_zeta", s["zeta"] * 100.0, unit=r"\percent", fmt=".0f",
+            desc="example turbine partial admission ratio")
+    reg.add("turbex_height_partial", s["H_partial"] * mm, unit=r"\milli\meter", fmt=".2f",
+            desc="example turbine blade height at partial admission")
+    # blade aspect ratio (H/chord) regime. NOT a "desired band": Ohlsson tested
+    # low-AR impulse stages over H/c = 0.07-0.70 and gives a ~1/AR endwall
+    # penalty law, so this class lives in that band, not conventional AR >= 1.
+    reg.add("turbex_ar_lo", 0.07, fmt=".2f",
+            desc="low-aspect-ratio regime lower bound (Ohlsson tested band H/chord)")
+    reg.add("turbex_ar_hi", 0.70, fmt=".2f",
+            desc="low-aspect-ratio regime upper bound (Ohlsson tested band H/chord)")
+    return reg
+
+
 def main():
     reg = Registry.from_manual(MANUAL)   # hand-entered constants
     build_design(reg)                    # everything the design models compute
     build_computed(reg)                  # analysis outputs
+    build_theory_example(reg)            # hand-worked theory-chapter example turbine
     path = reg.to_json(OUT)
     print(f"wrote {path}  ({len(reg)} values)")
 

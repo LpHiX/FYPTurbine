@@ -363,7 +363,7 @@ Turbines work with the same Euler turbine equation. In the supersonic impulse tu
     \label{fig:turbine-velocity-triangles}
 \end{figure}
 
-From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher specific work $\Delta h_{use}$ according to equation \cref{eq:euler_specific_work}. Maximizing $c_{3u}-c_{4u}$ as visualized by \cref{fig:turbine-velocity-triangles} is done by maximizing the absolute velocity and as close to $180^\circ$ of turning as possible. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus supersonic velocities. The amount of flow turning is usually limited by geometrical and mechanical design reasons.
+This following derivation follows from Sudhof's \cite{sudhofDevelopmentTechniquesSupersonic2020}.From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher specific work $\Delta h_{use}$ according to equation \cref{eq:euler_specific_work}. Maximizing $c_{3u}-c_{4u}$ as visualized by \cref{fig:turbine-velocity-triangles} is done by maximizing the absolute velocity and as close to $180^\circ$ of turning as possible. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus supersonic velocities. The amount of flow turning is usually limited by geometrical and mechanical design reasons.
 
 \subsubsection{Impulse Turbine Efficiency}
 
@@ -424,7 +424,7 @@ The jet spouting velocity $c_3$ used in this ratio is the spouting velocity, the
     \label{eq:spouting_velocity}
 \end{equation}
 
-For 300 K air with a pressure ratio of 5, $c_3 \approx 470$. A 100 mm diameter turbine on a 20,000 RPM shaft has a blade speed of around 100 m/s, leading to a $u/c_3$ of 0.2. The spouting velocity of even a moderate pressure ratio gas generator at a higher outlet temperature can quickly reach up to velocities $c_3$ from 800 m/s upwards, so $u/c_3$ is forced far below the optimum of around 0.5. This is a fundamental limitation of small diameter turbines.
+For 300 K air with a pressure ratio of 10, $c_3 = \valTurbexCThree$. A 100 mm diameter turbine on a 20,000 RPM shaft has a blade speed of around \valTurbexU, leading to a $u/c_3$ of \valTurbexUCThree. The spouting velocity of even a moderate pressure ratio gas generator at a higher outlet temperature can quickly reach up to velocities $c_3$ from 800 m/s upwards, so $u/c_3$ is forced far below the optimum of around 0.5. This is a fundamental limitation of small diameter turbines.
 
 \subsubsection{Impulse vs Reaction Turbines}
 
@@ -456,31 +456,34 @@ NASA published \cref{fig:eff_vs_uc} in its SP-8110 showing that for low $u/c_3$ 
 Another problem with designing small turbines is with the low blade height required. By calculating the mass flux through the turbine, the blade height can be designed:
 
 \begin{equation}
-    H_3 = \frac{\dot{m}}{\rho_3 c_{3m} d_{\textrm{mean}}}
+    H = \frac{\dot{m}}{\rho_3 c_{3m} d_{\textrm{mean}}}
     \label{eq:turbine_blade_height_full_admission}
 \end{equation}
 
-Where $\rho_3$ is the density of the turbine gas at the turbine inlet calculated using isentropic gas relations. Using the example turbine above, the required blade height would be \todo{addvalue}. By introducing partial admission, the mass flow through the turbine can be restricted to a smaller arc around the annulus at a slight cost to efficiency. The partial admission ratio $\zeta$ can be included into the blade height formula as so:
+Where $\rho_3$ is the density of the turbine gas at the turbine inlet calculated using isentropic gas relations. Using the example turbine above (a 2 kW stage with $\dot{m}=\valTurbexMdot$ at $\rho_3=\valTurbexRhoThree$), the required full admission blade height would be \valTurbexHeightFull, which is far too small to manufacture or to run without the wall boundary layers swallowing the whole passage. Blade height as small as 1.25mm on a turbine diameter of 50 mm has been reported to work in practice by \cite{weissCustomizedORCMicro2020}. This is in line with their internal design rules, where a blade height to mean diameter of $h/d_{\textrm{mean}}$ from 0.025 to 0.10 is recommended. However, NASA's SP-8107 recommeneds a minimum height of 3.8 mm \cite{TurbopumpSystemsLiquid1974} for.  By introducing partial admission, the mass flow through the turbine can be restricted to a smaller arc around the annulus at a slight cost to efficiency. The partial admission ratio $\zeta$ can be included into the blade height formula as so:
 
 \begin{equation}
-    H_3 = \frac{\dot{m}}{\zeta \rho_3 c_{3m} d_{\textrm{mean}}}
+    H = \frac{\dot{m}}{\zeta \rho_3 c_{3m} d_{\textrm{mean}}}
     \label{eq:turbine_blade_height}
 \end{equation}
 
-By reducing the partial admission to \todo{addvalue}, the blade height is increased to \todo{addvalue}. The design of the turbine blade height is very important due to multiple reasons. Firstly, the aspect ratio of the turbine blade determines the magnitude of of the wall boundary layer blockage. For this reason, a aspect ratio between \todo{addvalue} is desired.
+By reducing the admission to $\zeta=\valTurbexZeta$, the same mass flow is forced through a smaller arc of the annulus and the blade height is increased to \valTurbexHeightPartial. The blade height matters because it sets the blade aspect ratio $H/c$, the blade height over chord, which fixes how much of the passage the endwall boundary layers block. 
 
-Another way to increase the blade height is to decrease the meridonal velocity $c_{3m}$. This is achieved by increasing the angle that the flow has to turn as $c_{3m}=c_3\sin(\beta_3)$.
+Ohlsson found that blade efficiency and nozzle efficiency both drop with low aspect ratio blades. He tested 4 turbines with aspect ratios ranging from 0.07 and 0.7 on a 4 inch diameter turbine. He found that the efficiency of both the nozzle and the rotor dropped linearly to the inverse of the aspect ratio, as shown in \cref{eq:ohlsson_efficiency} \cite{ohlssonLowAspectRatio1964}.
 
-The cost of partial admission and of low aspect ratio blading is not guesswork, as both have experimentally validated loss theories. Ohlsson derived and validated a closed form partial admission loss model where the efficiency penalty is a function of the ratio of active arc length to blade chord \cite{ohlssonPartialAdmissionTurbines1962}, and the same rig produced loss correlations for very low aspect ratio impulse blades \cite{ohlssonLowAspectRatio1964}. These are used to check the loss model predictions in \cref{sec:results}.
+\begin{equation}
+\eta_{\textrm{nozzle}} = 0.92 - 0.016(c_{\textrm{nozzle}}/H_{\textrm{nozzle}}) \qquad \eta_{\textrm{rotor}} = 0.91 - 0.10(c_{\textrm{rotor}}/H_{\textrm{rotor}})
+\label{eq:ohlsson_efficiency}
+\end{equation}
 
-For supersonic flow to develop within a turbine blade passage, a condition called "starting" must be satisfied. On the startup of a supersonic turbine, a normal shock starts at the inlet of the blade passage and as to pass through the whole passage before the flow into and out of the turbine passage can be supersonic. \todo{add derivation for this, later? also, loss models.}
+This loss of efficiency with low aspect ratio has to be balanced with the loss of efficiency with partial admission. Weiss provides \cref{eq:weiss_ventilation} for the power loss having to drag the non-admitted arc through stagnant air as a function of partial admission ratio $\zeta$ and blade height $H$. The other loss present only in partial admission turbines is the loss asssociated with the filling and empting the blade channels. Ohlsson found that having a single continous arc of admission was more efficient than distributing arcs of admission around the annulus as the entering loss is repeated \cite{ohlssonPartialAdmissionTurbines1962}. NASA SP-8110 agrees with this, but also notes that sometimes this continous nozzle arc has to be violated if designs cannot sustain the uneven loads \cite{LiquidRocketEngine1974}.
 
+% For supersonic flow to develop within a turbine blade passage, a condition called "starting" must be satisfied. On the startup of a supersonic turbine, a normal shock starts at the inlet of the blade passage and as to pass through the whole passage before the flow into and out of the turbine passage can be supersonic. \todo{add derivation for this, later? also, loss models.}
 
 \subsubsection{Loss Model}
 \label{subsec:weissloss}
 
-The main loss model used in the design of the turbine is the one provided by Weiß \cite{weiss}. There are more general loss models provided by texts such as NASA SP-290, giving loss models for tip-clearance, disk friction, partial admission and incidence losses. However, those models were built on large full-admission, subsonic to transonic turbines. Weiss specifically derived his loss model for the specialized application of a supersonic impulse turbines at small scales (1-200kW). As the regime of the turbine considered in this thesis matches closer to Weiss's model compared to SP-290's model, Weiss's model is used. Weiss describes different models lead to stage efficiency differences of about 10\% points. Derived from rocket turbopumps literature and adjusted by in-house measurements, Weiss provides three efficiencies.
-
+The main loss model used in the design of the turbine is the one provided by Weiß \cite{weiss}. There are more general loss models provided by texts such as NASA SP-290 \cite{glassmanTurbineDesignApplication1994}, giving loss models for tip-clearance, disk friction, partial admission and incidence losses. However, those models were built on large full-admission, subsonic to transonic turbines. Weiss specifically derived his loss model for the specialized application of a supersonic impulse turbines at small scales (1-200kW) \cite{weissCustomizedORCMicro2020}. As the regime of the turbine considered in this thesis matches closer to Weiss's model compared to SP-290's model, Weiss's model is used. Weiss describes different models lead to stage efficiency differences of about 10\% points. Derived from rocket turbopumps literature and adjusted by in-house measurements, Weiss provides three empirical relations to form his loss model. Weiss references Traupel \cite{traupelThermischeTurbomaschinenZweiter2013}, Craig \cite{craigPerformanceEstimationAxial1970a} and Kacker's \cite{kackerMeanLinePrediction1982} models for these larger subsonic full admission turbines.
 
 \begin{equation}
     k_N = \sqrt{1 - \left( 0.0029\,M_3^3 - 0.0502\,M_3^2 + 0.2241\,M_3 - 0.0877 \right)}
@@ -508,15 +511,15 @@ The main loss model used in the design of the turbine is the one provided by Wei
 \cref{eq:weiss_rotor_coeff} is the loss of velocity along the blade passage through a theoretically impulse blade, relating the actual velocity to the theoretical velocity by $k_R=w_{exit}/w_{inlet}$.
 
 \begin{equation}
-    P_v = \frac{1.85}{2}\,(1 - \varepsilon)\,\rho_3 \left( \frac{n}{60} \right)^{3} d_m^4 \,(4.5\,b)
+    P_v = \frac{1.85}{2}\,(1 - \zeta)\,\rho_3 \left( \frac{n}{60} \right)^{3} d_m^4 \,(4.5\,H)
     \label{eq:weiss_ventilation}
 \end{equation}
 
 Finally, \cref{eq:weiss_ventilation} captures the losses due to partial admission. Weiss calls this loss ventillation losses, but it can also be called windage losses. Ventilation losses refers to the the non-admitted arc being dragged through stagnant air.
 
-The choice of Weiss's model over the classical decompositions is a regime match rather than a claim that one is better. The losses that dominate a small supersonic partial admission impulse stage are supersonic friction in the nozzle and blade passage plus ventilation, which is exactly what Weiss's coefficients parameterise. The classical loss breakdowns such as Glassman's are anchored in large full admission machines where tip clearance and incidence dominate \cite{glassmanTurbineDesignApplication1994}, and those losses are largely absent here by architecture, since the blades are shrouded and the velocity triangles are matched at the design point. Whether the Weiss prediction is actually trustworthy is checked against measured data from a machine of the same architecture in \cref{sec:results}.
+% The choice of Weiss's model over the classical decompositions is a regime match rather than a claim that one is better. The losses that dominate a small supersonic partial admission impulse stage are supersonic friction in the nozzle and blade passage plus ventilation, which is exactly what Weiss's coefficients parameterise. The classical loss breakdowns such as Glassman's are anchored in large full admission machines where tip clearance and incidence dominate \cite{glassmanTurbineDesignApplication1994}, and those losses are largely absent here by architecture, since the blades are shrouded and the velocity triangles are matched at the design point. Whether the Weiss prediction is actually trustworthy is checked against measured data from a machine of the same architecture in \cref{sec:results}.
 
-\todo{FUCKS SAKE LMAO, look at comment}
+% \todo{FUCKS SAKE LMAO, look at comment}
 % Weiss says this: There are somewell-known turbine loss models in literaturee.g. by Refs. [39e41] etc. All of them are mainly developed for and based on the data from subsonic MW-class multistage steam and gas turbines working with full admission. 
 % 39 - Traupel W Thermische, 40 - Craig HRM, 41 - Kacker SC
 
@@ -524,7 +527,7 @@ The choice of Weiss's model over the classical decompositions is a regime match 
 \subsubsection{Method of Characteristics Blade Design}
 \label{subsec:method_of_characteristics}
 
-The design so far is based on 1D mean line theory. The design of the actual blade profile which will turn the supersonic flow in the desired direction is often accomplished using an application of the Method of Characteristics to transition a uniform flow field into vortex flow. \todo{add some history here, iirc sp290 has some stuff on why vortex flow, but here needs some stuff about how vortex flow was proven to be able to turn flows, and method of characteristics is used to turn the flow into such vortex flow, so obviously some explanation of vortex flow is required}. 
+The design so far is based on 1D mean line theory. The design of the actual blade profile which will turn the supersonic flow in the desired direction is often accomplished using an application of the Method of Characteristics to transition a uniform flow field into vortex flow. %\todo{add some history here, iirc sp290 has some stuff on why vortex flow, but here needs some stuff about how vortex flow was proven to be able to turn flows, and method of characteristics is used to turn the flow into such vortex flow, so obviously some explanation of vortex flow is required}. 
 
 \paragraph{Blade terminology and vortex flow}
 
