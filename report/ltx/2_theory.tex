@@ -527,29 +527,30 @@ Finally, \cref{eq:weiss_ventilation} captures the losses due to partial admissio
 \subsubsection{Method of Characteristics Blade Design}
 \label{subsec:method_of_characteristics}
 
-The design so far is based on 1D mean line theory. The design of the actual blade profile which will turn the supersonic flow in the desired direction is often accomplished using an application of the Method of Characteristics to transition a uniform flow field into vortex flow. %\todo{add some history here, iirc sp290 has some stuff on why vortex flow, but here needs some stuff about how vortex flow was proven to be able to turn flows, and method of characteristics is used to turn the flow into such vortex flow, so obviously some explanation of vortex flow is required}. 
+The design so far is based on 1D mean line theory. The design of the actual blade profile is what will guide the supersonic flow from the inlet direction to the outlet direction to maximize $c_{3u}-c_{4u}$. The basis of supersonic impulse blade profiling is often accomplished using an application of the Method of Characteristics (MOC) to transition a uniform flow field into vortex flow. Vortex flow is a special type of supersonic flow in which every streamline follows a concentric path around a central point. This flow field was first discovered by A. Busemann \cite{colcloughDesignTurbineBlades1966}, achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. Boxer then first developed the method to transition uniform flow into vortex flow with MOC \cite{boxerApplicationSupersonicVortexflow1952}. This method generates the profile for an inlet Mach number, turning angle and the mach numbers on the blade surfaces. Later analysis will need to be required to choose these desired Mach numbers.
 
-\paragraph{Blade terminology and vortex flow}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{moc_goldman.png}
+    \caption{Typical MOC blade terminology.}
+    \label{fig:turbine-blade-terminology}
+\end{figure}
 
-Geometry is separated into the turbine blade, and the passage between the flow. Two surfaces are separately designed, and it is common to refer to the top surface as the convex, and the bottom surface as the concave one. This is in relation to the solid blades themselves as opposed to an alternate designation by the top and bottom of the blade passage.
-
-Vortex flow is a special type of supersonic flow in which flow follows a theoretical perfect arc around a central point. This is a very special type of flow field that is achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. MOC generates the profile for desired mach numbers. Later analysis will need to be required to choose these desired Mach numbers.
-
-A special condition of vortex flow satisfies the equation
+Turbine blade terminology is based on the blade's upper and lower surfaces as shown in Figure \ref{fig:turbine-blade-terminology}. The top surface is the convex one, and the bottom surface as the concave one. This is in relation to the solid blades themselves as opposed to an alternate designation by the top and bottom of the blade passage. Supersonic vortex flow satisfies the equation:
 
 \begin{equation}
-    \frac{c}{r} = \textrm{constant}
+    cr = \textrm{constant}
     \label{eq:vortex_condition}
 \end{equation}
 
-Boxer and Goldman nondimensionalizes this equation using the critical velocity $M^{*}=c/a^*$ where $a^*=\sqrt{\gamma R T^*}$ is the speed of sound at the sonic point. As $a^*$ only depends on stagnation temperature, it is constant along any streamline of fixed stagnation enthalpy. Then, a nondimensional radius $r^*$ is introduced as the sonic velocity streamline in the vortex field, giving the following condition:
+Boxer \cite{boxerApplicationSupersonicVortexflow1952} and Goldman \cite{goldmanAnalyticalInvestigationSupersonic1968} nondimensionalizes \cref{eq:vortex_condition} using the critical velocity $M^{*}=c/a^*$ where $a^*=\sqrt{\gamma R T^*}$ is the speed of sound at the sonic point. As $a^*$ only depends on stagnation temperature, it is constant along any streamline of fixed stagnation enthalpy. Then, a nondimensional radius $r^*$ is introduced as the sonic velocity streamline in the vortex field, giving the following condition:
 
 \begin{equation}
-    \frac{M^*}{r^*} = 1
+    M^* r^* = 1
     \label{eq:vortex_condition_nondim}
 \end{equation}
 
-The Prantdl-Meyer angle can be defined from the critical mach number $M^*$ as:
+Goldman gives an equation \cite{goldmanAnalyticalInvestigationSupersonic1968} to find the Prandtl-Meyer angle from the critical mach number $M^*$ as:
 
 \begin{equation}
 \nu(M) = \frac{\pi}{4}\left(\sqrt{\frac{\gamma+1}{\gamma-1}} - 1\right) + \frac{1}{2}\left(\sqrt{\frac{\gamma+1}{\gamma-1}} \arcsin\left[(\gamma-1)M^{*2} - \gamma\right] + \arcsin\left(\frac{\gamma+1}{M^{*2}} - \gamma\right)\right)
@@ -563,67 +564,71 @@ M^* = \sqrt{\frac{(\gamma+1)M^2/2}{1 + (\gamma-1)M^2/2}}
 \label{eq:mach_to_critical_mach}
 \end{equation}
 
-Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} can be used to derive the nondimensional radius of the upper and lower surfaces of the blade. The end points of this circular arc is exactly the angle by which the inlet flow has to be turned to achieve the surface mach number. 
+Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} can be used to derive the nondimensional radius of the upper and lower surfaces of the blade. The rest of the methodology to design the blade profile can be found in Goldman's paper \cite{goldmanAnalyticalInvestigationSupersonic1968} and will not be repeated here. 
 
-\begin{equation}
-\begin{aligned}
-    \alpha_{l-i} & = \beta_1 - (\nu_i - \nu_l) \\
-    \alpha_{u-i} & = \beta_1 + (\nu_i - \nu_u)
-\end{aligned}
-\label{eq:inlet_flow_turning_angle}
-\end{equation}
+%To summarize the methodology, 
 
-The equations for the outlet are the same as in \cref{eq:inlet_flow_turning_angle}.
 
-\paragraph{Transition arcs}
+% The end points of this circular arc shown by \cref{fig:turbine-blade-terminology} is exactly the angle by which the inlet flow has to be turned to achieve the surface mach number. The equations for the outlet are the same as in \cref{eq:inlet_flow_turning_angle}.
 
-To transition from the uniform inlet flow to the vortex flow, method of characteristics is used to generate the blade profile to achieve this in a shockless manner. 
+% \begin{equation}
+% \begin{aligned}
+%     \alpha_{l-i} & = \beta_1 - (\nu_i - \nu_l) \\
+%     \alpha_{u-i} & = \beta_1 + (\nu_i - \nu_u)
+% \end{aligned}
+% \label{eq:inlet_flow_turning_angle}
+% \end{equation}
 
-\todo{explain new axis}
 
-To achieve this, the flow angles from $\beta_i$ to $\alpha_i$ is discretized into $k$ interval of $\phi_0$ to $\phi_k$. It is shown by \todo{find the ref from goldman 1968 ref 2} that the flow angle and dimensionless radius $R^*$ is related along its characteristic line with:
+% \paragraph{Transition arcs}
 
-\begin{equation}
-    \phi = \pm \frac{1}{2}f(R^*) + \textrm{constant}
-    \label{eq:characteristic_line_equation}
-\end{equation}
+% To transition from the uniform inlet flow to the vortex flow, method of characteristics is used to generate the blade profile to achieve this in a shockless manner. 
 
-The positive gives the expansion line and the negative gives the compression line. Where $f(R^*)$ is:
+% \todo{decide to delete this or not}
 
-\begin{equation}
-    f(R^*) = \sqrt{\frac{\gamma + 1}{\gamma - 1}}\arcsin\left(\frac{\gamma-1}{R^{*2}} - \gamma\right) + \arcsin\left(\left(\gamma+1\right)R^{*2} - \gamma\right)
-    \label{eq:f_R_star}
-\end{equation}
+% To achieve this, the flow angles from $\beta_i$ to $\alpha_i$ is discretized into $k$ interval of $\phi_0$ to $\phi_k$. It is shown by \todo{find the ref from goldman 1968 ref 2} that the flow angle and dimensionless radius $R^*$ is related along its characteristic line with:
 
-$f(R^*)$ for a given flow angle can be calculated with:
+% \begin{equation}
+%     \phi = \pm \frac{1}{2}f(R^*) + \textrm{constant}
+%     \label{eq:characteristic_line_equation}
+% \end{equation}
 
-\begin{equation}
-    f(R^*_k) = 2\nu_i - \frac{\pi}{2}\left(\sqrt{\frac{\gamma+1}{\gamma-1}} - 1\right) - 2k\Delta\nu
-    \label{eq:f_R_star_k}
-\end{equation}
+% The positive gives the expansion line and the negative gives the compression line. Where $f(R^*)$ is:
 
-The result of \cref{eq:f_R_star_k} can be used to numerically solve for $R^*_k$ with \cref{eq:f_R_star}, and points corresponding to each flow angle along the major expansion characteristic line can be calculated with:
-\begin{equation}
-    \begin{aligned}
-    x^*_{k} & = -R^*_k \sin(\phi_k) \\
-    y^*_{k} & = R^*_k \cos(\phi_k)
-    \end{aligned}
-\end{equation}
+% \begin{equation}
+%     f(R^*) = \sqrt{\frac{\gamma + 1}{\gamma - 1}}\arcsin\left(\frac{\gamma-1}{R^{*2}} - \gamma\right) + \arcsin\left(\left(\gamma+1\right)R^{*2} - \gamma\right)
+%     \label{eq:f_R_star}
+% \end{equation}
 
-The wall segments are generated by starting from the end point of the circular arc, then finding the intersection of the previous wall segment and the mach line from this point. The slope of the mach line with respect to to the $x^*$ axis is given by:
+% $f(R^*)$ for a given flow angle can be calculated with:
 
-\begin{equation}
-    m_k = \tan\left(\frac{\phi_k+\phi_{k-1}}{2}+\frac{\mu_k+\mu_{k-1}}{2}\right)
-\end{equation}
+% \begin{equation}
+%     f(R^*_k) = 2\nu_i - \frac{\pi}{2}\left(\sqrt{\frac{\gamma+1}{\gamma-1}} - 1\right) - 2k\Delta\nu
+%     \label{eq:f_R_star_k}
+% \end{equation}
 
-Where
-\begin{equation}
-    \mu_k = -\arcsin\left(\frac{1}{M_k}\right) = -\arcsin\left(\sqrt{\left(\frac{\gamma+1}{2}\right)R^{*2}_k - \frac{\gamma-1}{2}}\right)
-\end{equation}
+% The result of \cref{eq:f_R_star_k} can be used to numerically solve for $R^*_k$ with \cref{eq:f_R_star}, and points corresponding to each flow angle along the major expansion characteristic line can be calculated with:
+% \begin{equation}
+%     \begin{aligned}
+%     x^*_{k} & = -R^*_k \sin(\phi_k) \\
+%     y^*_{k} & = R^*_k \cos(\phi_k)
+%     \end{aligned}
+% \end{equation}
 
-By iterating through the flow angles for both the upper and lower surfaces for the inlet and outlet, the full theoretical MOC blade profile can be generated.
+% The wall segments are generated by starting from the end point of the circular arc, then finding the intersection of the previous wall segment and the mach line from this point. The slope of the mach line with respect to to the $x^*$ axis is given by:
 
-\todo{add "i" to the variables to define inlet}
+% \begin{equation}
+%     m_k = \tan\left(\frac{\phi_k+\phi_{k-1}}{2}+\frac{\mu_k+\mu_{k-1}}{2}\right)
+% \end{equation}
+
+% Where
+% \begin{equation}
+%     \mu_k = -\arcsin\left(\frac{1}{M_k}\right) = -\arcsin\left(\sqrt{\left(\frac{\gamma+1}{2}\right)R^{*2}_k - \frac{\gamma-1}{2}}\right)
+% \end{equation}
+
+% By iterating through the flow angles for both the upper and lower surfaces for the inlet and outlet, the full theoretical MOC blade profile can be generated.
+
+% \todo{add "i" to the variables to define inlet}
 
 \subsubsection{Surface Mach Number Selection}
 
