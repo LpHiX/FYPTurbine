@@ -9,23 +9,89 @@ Much of the supersonic blading design methodology dates from the 1950s and 60s \
 
 \subsection{Pump Theory}
 
-\subsubsection{Losses at Low Specific Speed}
+% \subsubsection{Pump geometry and }
 
-\todo{I just realized I don't have the numbers to back me up that disc friction is better. I will waffle, then fill with literature and numbers later on.}
+\todo{maybe triangles here?}
+\subsubsection{Non-dimensional Performance and Scaling}
+\label{sec:theory_nondim}
 
-The main loss that becomes significant in low specific speed centrifugal pumps is the disc friction losses. When a rotor object rotates in a fluid, the shear stresses in the fluid cause a drag torque on the object. In most centrifugal pumps the impeller is disc shaped, and the loss is called disc friction loss. \todo{gulich pdf pg 144 says axial case cleareance only has a very small effect on disc friction. It also says that due to leakage flow, partload recirculation and exchange of momentum, tolerance of calculated disc friction loss can be at least +/-25\%, also, somehow head coefficient is related to disc friction? it says to maximize it for low specific speed}. With low specific speed pumps, disk frction is the main source of loss. The disc friction power of a rotating disc scales as
+Understanding the theoretical reason why low specific speed pumps have lower efficiency and their design challenges require the understanding of the main non-dimensional pump parameters so they are defined first. The main parameters, head and flow are non-dimensionalised to their velocity triangles following Gülich \cite{gulichCentrifugalPumps2020}:
+
+\begin{equation}
+    \psi = \frac{2gH}{u_2^2}, \qquad
+    \phi = \frac{c_{m2}}{u_2} = \frac{Q}{\pi d_2 b_2 u_2}
+    \label{eq:psi_phi}
+\end{equation}
+
+In the ideal case, the work done and thus the head generated is proportional to the square of the circumferential speed $u_2$ and so is nondimensionalized by it with the head coefficient $\psi$. The flow rate is proportional to the meridonal speed $c_{m2}$, defining the flow coefficient $\phi$. These two flow coefficients fix the velocity triangles. For a fixed geometry, dimensional analysis of $(Q, H, n, d_2, \rho, \mu)$ reduces the pump behaviour to $\psi = f(\phi, Re)$ with the tip Reynolds number
+
+\begin{equation}
+    Re_u = \frac{u_2\, r_2}{\nu}
+    \label{eq:re_u}
+\end{equation}
+
+Because pump head is Reynolds insensitive to first order, all speeds should collapse onto a single $\psi(\phi)$ curve. Holding $\psi$ and $\phi$ constant between two speeds gives the affinity laws,
+
+\begin{equation}
+    Q \propto n, \qquad H \propto n^2, \qquad P \propto n^3
+    \label{eq:affinity}
+\end{equation}
+
+which are the licence for any extrapolation across speed. The losses are not Reynolds insensitive, which is why the efficiency does not collapse the way the head does, and the loss scaling is treated empirically through a loss ratio of the form $(1-\eta) \propto Re^{-a}$.
+
+For cavitation, the suction state is expressed as the net positive suction head,
+
+\begin{equation}
+    \textrm{NPSH}_a = \frac{p_{in} - p_{vap}}{\rho g} + \frac{v_{in}^2}{2g}
+    \label{eq:npsha}
+\end{equation}
+
+the absolute margin of the inlet head above vapour pressure. The standard performance criterion is NPSH$_3$, the available NPSH at which the developed head has dropped 3\% below its fully wetted value at constant speed and flow \cite{gulichCentrifugalPumps2020}. Suction capability is compared across machines through the suction specific speed, defined like \cref{eq:specific_speed} but with NPSH$_3$ in place of head.
+
+\subsubsection{Why Efficiency Collapses at Low Specific Speed}
+
+The introduction established that this duty sits at low specific speed and that the partial emission pump is the efficiency optimum there. This section explains where that efficiency ceiling comes from, since identifying and measuring the dominant loss is one of the aims of this work.
+
+The loss that runs the show at low specific speed is disc friction. When a rotor spins in a fluid, the shear stress in the fluid acts on the rotor faces as a drag torque. In most centrifugal pumps the impeller is broadly disc shaped, so this is called disc friction loss, and the power it burns scales as
 
 \begin{equation}
     P_{RR} \approx k_{RR}\, \rho\, \omega^3 r_2^5
     \label{eq:disc_friction_scaling} % eq 3.6.2 and 3.6.3, simplified
 \end{equation}
 
-% discussion on disc friction gulich page 102, including the 30% example thing
-where $k_{RR}$ is a friction coefficient that falls slowly with Reynolds number \cite{gulichCentrifugalPumps2020}. At $n_q=10$, $\psi_{\textrm{opt}=1}$ and $\mathrm{Re}=10^7$, the disc friction is approxiomately $30\%$ of the useful power of the impeller \cite{gulichCentrifugalPumps2020}. Gulich suggests that a high head coefficient \todo{high head coeffient not defined yet, need to rethink how to structure this explanation, how low specific speed leads to this.} reduces the diameter and consequently less disc friction since $P_{RR}\sim D^5$. The high disc friction loss is the reason why low specific speed centrifugal pumps physically cannot achieve the same high efficiencies as higher specific speed pumps.
+where $k_{RR}$ is a friction coefficient that falls slowly with Reynolds number \cite{gulichCentrifugalPumps2020}. The important property of \cref{eq:disc_friction_scaling} is that it has no flow rate in it. The disc burns this power whether the pump is delivering flow or is deadheaded against a closed valve. The useful hydraulic power on the other hand is $P_{hyd}=\rho g Q H$, which goes to zero as the flow goes to zero. So the relative size of the disc friction loss is set by how these two compare, and that ratio is where the specific speed enters.
 
-\todo{gulich page 429 says impeller losses are low at low specific speeds, referencing fig 3.33. Oop, fig3.33 shows the disc friction loss i think?}On the other hand, at low specific speeds, impeller losses are low as shown by \cref{fig3.33gulich}. \todo{explain this graph} Conversely, collector losses become dominant. \todo{need to explain what a collector is} Gulich explains \cite{gulich7.12} that for $n_q<12$ even higher efficiencies are expected than with volutes. This simplifies the design and manufacturing of the pump, which is a significant advantage at small scales where tight tolerances are hard to hold. \todo{need to explain what a volute is} This is important as the high fluid velocity at the peripheri makes the surface finish of the annular casing of primary importance for pump efficiency \cite{lockdesignfeatures}.
+Taking the ratio and substituting the head coefficient $H=\psi u_2^2/2g$ with $u_2=\omega r_2$ gives
+
+\begin{equation}
+    \frac{P_{RR}}{P_{hyd}} = \frac{k_{RR}\,\rho\,\omega^3 r_2^5}{\rho g Q H} = \frac{2 k_{RR}}{\psi\,\phi_D}, \qquad \phi_D \equiv \frac{Q}{\omega r_2^3}
+    \label{eq:disc_loss_fraction}
+\end{equation}
+
+where $\phi_D$ is a capacity coefficient based on the impeller diameter, used here only for this scaling argument and not to be confused with the width based flow coefficient $\phi$ of \cref{eq:psi_phi}. Both the density and the speed cancel out, so the disc friction fraction is set purely by the head coefficient and by how much flow the machine passes for its size. This ties straight back to specific speed. Since $n_q\propto n\sqrt{Q}/H^{3/4}$ and $H\propto\psi\,\omega^2 r_2^2$, a few lines of substitution give $n_q\propto\sqrt{\phi_D}/\psi^{3/4}$, so that $\phi_D\propto n_q^2\,\psi^{3/2}$. Putting this back into \cref{eq:disc_loss_fraction},
+
+\begin{equation}
+    \frac{P_{RR}}{P_{hyd}} \propto \frac{k_{RR}}{n_q^{2}\,\psi^{5/2}}
+    \label{eq:disc_loss_specific_speed}
+\end{equation}
+
+This is the reason low specific speed pumps cannot reach high efficiency, and it drops out of first principles rather than being asserted. The relative disc friction scales as $1/n_q^2$, so halving the specific speed quadruples the share of the input power lost to the disc. The disc loss itself does not grow, the useful power shrinks out from under it as the flow drops. As a calibration point on the size of this, Gülich gives the disc friction as roughly $30\%$ of the useful power of the impeller at $n_q=10$, $\psi\approx1$ and $\mathrm{Re}=10^7$ \cite{gulichCentrifugalPumps2020}.
+
+\cref{eq:disc_loss_specific_speed} also hands over the two levers a designer has at a fixed specific speed, both sitting in the denominator. The first is the head coefficient, which enters as $\psi^{5/2}$. A high head coefficient means a smaller tip speed, and so a smaller diameter, delivers the required head, and since $P_{RR}\sim r_2^5$ shrinking the diameter collapses the disc friction. This is why Gülich recommends maximising the head coefficient at low specific speed, and it is exactly what the forced vortex Barske impeller does, reaching $\psi\approx1$ and being pushed a little above it by diffuser recovery. The second lever is to not let the flow coefficient collapse to nothing, which for a conventional impeller means keeping a sensible impeller exit width $b_2$. The difficulty is that holding the duty at low $n_q$ in a conventional blade guided design drives $b_2$ towards zero anyway, and that geometric failure is the subject of \cref{subsec:barske}.
+
+Disc friction is the dominant loss but not the only one that shifts with specific speed. \cref{fig3.33gulich} shows the loss breakdown against specific speed. At low specific speed the impeller blade losses are small, because the velocities of the flow relative to the blades are low, while the disc friction dominates and the collector losses become the next largest term. The collector is the stationary passage that catches the flow leaving the impeller, which in a Barske pump is the annular casing and the diffuser. Because the fluid leaves the impeller at high velocity and the collector has to handle all of it, the surface finish of the annular casing becomes a primary concern for efficiency at this scale \cite{lockdesignfeatures}. Gülich also notes that for $n_q<12$ an annular casing can reach higher efficiencies than a volute, the spiral collector of a conventional pump \cite{gulich7.12}, which has the side benefit of being far simpler to manufacture, a real advantage at small scale where tight tolerances are hard to hold.
+
+The theory here only claims that disc friction should dominate. Whether it actually does, and by how much, is measured directly in \cref{sec:results}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{placeholder.png}
+    \caption{Breakdown of pump losses against specific speed, after Gülich. At low specific speed the disc friction dominates while the impeller (blade) losses are small.} % PLACEHOLDER IMAGE: Gulich Fig 3.33 reproduction
+    \label{fig3.33gulich}
+\end{figure}
 
 \subsubsection{The Barske Partial-Emission Pump}
+\label{subsec:barske}
 
 \begin{figure}[H]
     \centering
@@ -44,13 +110,6 @@ where $k_{RR}$ is a friction coefficient that falls slowly with Reynolds number 
     \end{subfigure}
     \caption{Comparison of the conventional and Barske pump architectures. The Barske impeller is open, has straight radial blades, and discharges into an annular casing with a single tangential diffuser.}
     \label{fig:impeller-comparison}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.55\textwidth]{placeholder.png}
-    \caption{Breakdown of pump losses against specific speed, after Gülich. At low specific speed the disc friction dominates while the impeller (blade) losses are small.} % PLACEHOLDER IMAGE: Gulich Fig 3.33 reproduction
-    \label{fig3.33gulich}
 \end{figure}
 
 The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications became one of the highest efficiency designs at this specific speed. \todo{i might want a section on explaining basic pump and turbine geometry and terminology before this.} The barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{something}. The barske impeller is instead designed to induced almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barskeunconventionalpaper}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses. 
@@ -137,6 +196,9 @@ Then, the kinetic energy increase assuming negligible inlet prerotation is:
     \Delta p = \Delta p_{st} + k_d\, q=\frac{1}{2}\rho\left((1+k_d) u_2^2 - u_1^2\right)
     \label{eq:barske_pressure_rise}
 \end{equation}
+
+\todo{include this nondimen stuff?}
+%It is particularly meaningful for this pump: a pure forced vortex delivers $\Delta p = \tfrac{1}{2}\rho u_2^2$, which is exactly $\psi = 1$, so the measured $\psi$ directly tests whether the forced vortex is achieved
 
 This forms a simple basic model for barske pump performance. 
 
@@ -250,44 +312,6 @@ Then solving for the $Q$ at which $H_3$ is equal to vapor pressure head $H_{vap}
 
 This cutoff mechanism is the key difference between the two pump models used in this thesis. The Euler and Barske models of \cref{eq:pressure_rise_negligible_w_prerotation} predict a flat head curve with no flow dependence at all. Lock's model predicts a drooping head curve, and on top of that it predicts that the curve ends at a maximum flow rate where the static head at the diffuser throat reaches vapour pressure and the throat cavitates. Both predictions are directly testable, and the comparison of the measured head curve against both models is one of the main results of \cref{sec:results}. Two limitations that Lock states himself should be kept in mind when his model is compared to data later. He notes that rounding of the blade leading edges reduces the effective head, and that disc friction is treated as a mechanical loss, so it does not affect the head equations and only enters the efficiency \cite{lockForcedVortexPump1966}. These acknowledged but unmodelled effects matter when the model constants are fitted to data in \cref{sec:results}.
 
-
-\subsubsection{Non-dimensional Performance and Scaling}
-\label{sec:theory_nondim}
-
-The measured performance in \cref{sec:results} is presented in non-dimensional form, so the coefficients are defined here. Following Gülich \cite{gulichCentrifugalPumps2020}, the head and flow coefficients are
-
-\begin{equation}
-    \psi = \frac{2gH}{u_2^2}, \qquad
-    \phi = \frac{Q}{\pi d_2 b_2 u_2}
-    \label{eq:psi_phi}
-\end{equation}
-
-The head coefficient measures how much of the natural pressure scale of the rotor, the dynamic head of its tip speed, the machine converts. It is particularly meaningful for this pump: a pure forced vortex delivers $\Delta p = \tfrac{1}{2}\rho u_2^2$, which is exactly $\psi = 1$, so the measured $\psi$ directly tests whether the forced vortex is achieved. The flow coefficient fixes the shape of the velocity triangles, so two operating points with the same $\phi$ have the same flow physics regardless of speed.
-
-For a fixed geometry, dimensional analysis of $(Q, H, n, d_2, \rho, \mu)$ reduces the pump behaviour to $\psi = f(\phi, Re)$ with the tip Reynolds number
-
-\begin{equation}
-    Re_u = \frac{u_2\, r_2}{\nu}
-    \label{eq:re_u}
-\end{equation}
-
-Because pump head is Reynolds insensitive to first order, all speeds should collapse onto a single $\psi(\phi)$ curve. Holding $\psi$ and $\phi$ constant between two speeds gives the affinity laws,
-
-\begin{equation}
-    Q \propto n, \qquad H \propto n^2, \qquad P \propto n^3
-    \label{eq:affinity}
-\end{equation}
-
-which are the licence for any extrapolation across speed. The losses are not Reynolds insensitive, which is why the efficiency does not collapse the way the head does, and the loss scaling is treated empirically through a loss ratio of the form $(1-\eta) \propto Re^{-a}$.
-
-For cavitation, the suction state is expressed as the net positive suction head,
-
-\begin{equation}
-    \textrm{NPSH}_a = \frac{p_{in} - p_{vap}}{\rho g} + \frac{v_{in}^2}{2g}
-    \label{eq:npsha}
-\end{equation}
-
-the absolute margin of the inlet head above vapour pressure. The standard performance criterion is NPSH$_3$, the available NPSH at which the developed head has dropped 3\% below its fully wetted value at constant speed and flow \cite{gulichCentrifugalPumps2020}. Suction capability is compared across machines through the suction specific speed, defined like \cref{eq:specific_speed} but with NPSH$_3$ in place of head.
 
 \subsection{Turbine Theory}
 
