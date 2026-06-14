@@ -460,7 +460,7 @@ Another problem with designing small turbines is with the low blade height requi
     \label{eq:turbine_blade_height_full_admission}
 \end{equation}
 
-Where $\rho_3$ is the density of the turbine gas at the turbine inlet calculated using isentropic gas relations. Using the example turbine above (a 2 kW stage with $\dot{m}=\valTurbexMdot$ at $\rho_3=\valTurbexRhoThree$), the required full admission blade height would be \valTurbexHeightFull, which is far too small to manufacture or to run without the wall boundary layers swallowing the whole passage. Blade height as small as 1.25mm on a turbine diameter of 50 mm has been reported to work in practice by \cite{weissCustomizedORCMicro2020}. This is in line with their internal design rules, where a blade height to mean diameter of $h/d_{\textrm{mean}}$ from 0.025 to 0.10 is recommended. However, NASA's SP-8107 recommeneds a minimum height of 3.8 mm \cite{TurbopumpSystemsLiquid1974} for.  By introducing partial admission, the mass flow through the turbine can be restricted to a smaller arc around the annulus at a slight cost to efficiency. The partial admission ratio $\zeta$ can be included into the blade height formula as so:
+Where $\rho_3$ is the density of the turbine gas at the turbine inlet calculated using isentropic gas relations. Using the example turbine above (a 2 kW stage with $\dot{m}=\valTurbexMdot$ at $\rho_3=\valTurbexRhoThree$), the required full admission blade height would be \valTurbexHeightFull, which is far too small to manufacture or to run without the wall boundary layers swallowing the whole passage. Blade height as small as 1.25 mm on a turbine diameter of 50 mm has been reported to work in practice by \cite{weissCustomizedORCMicro2020}. This is in line with their internal design rules, where a blade height to mean diameter of $h/d_{\textrm{mean}}$ from 0.025 to 0.10 is recommended. However, NASA's SP-8107 recommeneds a minimum height of 3.8 mm \cite{TurbopumpSystemsLiquid1974}.  By introducing partial admission, the mass flow through the turbine can be restricted to a smaller arc around the annulus at a slight cost to efficiency. The partial admission ratio $\zeta$ can be included into the blade height formula as so:
 
 \begin{equation}
     H = \frac{\dot{m}}{\zeta \rho_3 c_{3m} d_{\textrm{mean}}}
@@ -564,7 +564,7 @@ M^* = \sqrt{\frac{(\gamma+1)M^2/2}{1 + (\gamma-1)M^2/2}}
 \label{eq:mach_to_critical_mach}
 \end{equation}
 
-Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} can be used to derive the nondimensional radius of the upper and lower surfaces of the blade. The rest of the methodology to design the blade profile can be found in Goldman's paper \cite{goldmanAnalyticalInvestigationSupersonic1968} and will not be repeated here. 
+The rest of the methodology to design the blade profile can be found in Goldman's paper \cite{goldmanAnalyticalInvestigationSupersonic1968} and will not be repeated here. Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} are highlighted as they can be used to derive the nondimensional radius of the upper and lower surfaces of the blade, which will be important in the following discussion on surface Mach number selection.
 
 %To summarize the methodology, 
 
@@ -634,129 +634,109 @@ Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} 
 
 There are two main factors to consider when choosing the inlet, outlet and surface mach numbers. One is to prevent flow separation, and the other is to ensure that supersonic flow within the blade passage can "start".
 
-\paragraph{Flow separation}
+\subsubsection{Flow Separation}
 
-Separation occurs in high adverse pressure gradients. In supersonic flow, this happens whenever the flow is decelerating along the surface.  There are two main regions on the blade surfaces which separation can occur. At the upper surface, the inlet transition arc accelerates the flow from the inlet velocity until the vortex flow, then decelerates the flow until the outlet. At the lower surface, the inlet transition arc decelerates the flow from the inlet velocity until the vortex flow, then accelerates the flow until the outlet. 
-
-\todo{add a figure, question: literature figure or my figure? probably both is best}
-
-Goldman believes that separation on the lower surface is probably not as important as the flow would tend to reattach shortly as the pressure gradient becomes favourable again \cite{goldman1970}. Goldman uses the value of the incompressible form factor $H_i$ along the blade surface to predict separation, where  Schlichting found \todo{find goldman ref 12} that separation usually occurs in the range of $H_i$ from 1.8 to 2.4.
-
-To find $H_i$ along both surfaces, Sasman and Cresci \cite{sasmancresci} provides a method to calculate the compressible turbulent integral boundary layer with two ODEs. 
-
-Once a MOC blade profile is generated and the mach number at every point along the blade is known, the momentum-integral equation and shape-factor equation can be solved as an initial value problem starting from the leading edge goverened by the following equations:
-
-\begin{equation}
-    \frac{df}{d(s/c)} = 1.268\left[-\frac{f}{M_e}\frac{dM_e}{d(s/c)}\left(1 + g_w H_i\right) + A\,c\right]
-\end{equation}
-
-\begin{equation}
-    A\,c = 0.123\,e^{-1.561 H_i}\, M_e\, \mathrm{Re}_0\, \frac{T_e}{T_0}\left(\frac{\bar\mu}{\mu_0}\right)^{0.268}
-\end{equation}
-
-\begin{equation}
-\frac{dH_i}{d(s/c)} = \underbrace{-\frac{1}{2M_e}\frac{dM_e}{d(s/c)}\,H_i(H_i+1)^2(H_i-1)\left[1 + (g_w-1)\frac{H_i^2+4H_i-1}{(H_i+1)(H_i+3)}\right]}_{\text{pressure-gradient term: deceleration drives } H_i \text{ up}} \\ + \underbrace{\frac{H_i^2-1}{f}\,A\,c\left[H_i - \frac{0.011\,(H_i+1)(H_i-1)^2}{H_i^2\,(C_f/2)}\frac{T_e}{\bar T}\right]}_{\text{shear term: wall friction relaxes } H_i \text{ back toward equilibrium}}
-\end{equation}
-
-With initial conditions of a flat-plate $\frac{\theta_0}{c} = 0.036\,\frac{s_0}{c}\,\mathrm{Re}_{s_0}^{-1/5}$. \todo{cite this}
-% i found delta = 0.37x/(Re to 1/5) from anderson 19.1 page 1052, prandtl u/U = (y/delta) to 1/7 then shoving into the equation of momentum thickness gives 7/72 delta, which is 0.0359722222, done.
-
-The initial condition for the shape factor is chosen so that it matches closely to the rapidly converging value $ H_{i,0} = 1.67$. \todo{make this more rigorous}
-
-It is important to note that Goldman provides equations in his NASA TN D-4421 1968 paper that has been shown to not be conservative enough, with tests by Erikson saying that his criteria is a little too optimistic. The method described here is from Goldman's NASA TM X-2095 paper.
-
-Two limitations of the method should be stated, both flagged by Goldman himself \cite{goldmanAnalyticalInvestigationBlade1970}. The $H_i$ threshold band of 1.8 to 2.4 is rooted in incompressible data, and the method assumes a turbulent boundary layer at a chord Reynolds number of $3.5\times10^4$ in his reference case, where laminar flow is plausible. The flight programme experience supports running the check on both surfaces, as the HM60 supersonic stage found boundary layer growth considerable with separation starting at around 25\% chord on the convex side, which forced a rotor redesign \cite{erikssonDevelopmentSupersonicTurbine}.
-
-\todo{reorganize here}
-
-\todo{should I remove these?}
-%  it took me a while to understand, but I think I finally understand it. Sasman and cresci developed a way to transform (stretch) the surface arc coordinates from compressible to incompressible coordinates, somehow deriving their eq 18, 19, 20 which can be solved as an IVP with initial conditions in 
+Separation occurs in high adverse pressure gradients. In supersonic flow, this happens whenever the flow is decelerating along the surface.  There are two main regions on the blade surfaces which separation can occur. At the upper surface, the inlet transition arc accelerates the flow from the inlet velocity until the vortex flow, then decelerates the flow until the outlet. At the lower surface, the inlet transition arc decelerates the flow from the inlet velocity until the vortex flow, then accelerates the flow until the outlet.  Goldman believes that separation on the lower surface is probably not as important as the flow would tend to reattach shortly as the pressure gradient becomes favourable again \cite{goldmanAnalyticalInvestigationBlade1970}. Goldman uses the value of the incompressible form factor $H_i$ along the blade surface to predict separation, where Schlichting \cite{schlichtingBoundaryLayerTheory2017} found that separation usually occurs in the range of $H_i$ from 1.8 to 2.4. The variation of $H_i$ along the blade surface can be seen in \cref{fig:goldman-hi-paper}.
 
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{goldman_paper_fig4.png}
-        \caption{Goldman's published distribution \cite{goldmanAnalyticalInvestigationBlade1970}}
-        \label{fig:goldman-mach-paper}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{goldman_validation_mach.pdf}
-        \caption{This work's implementation}
-        \label{fig:goldman-mach-ours}
-    \end{subfigure}
-    \caption{Validation of the MoC implementation against Goldman's typical design case ($M_{in}=2.5$, $\beta=70^\circ$). The surface Mach plateaus reproduce to within 1\% (2.96 and 1.84 against Goldman's 2.97 and 1.85).}
-    \label{fig:goldman-validation-mach}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{goldman_paper_fig5.png}
-        \caption{Goldman's published form factor \cite{goldmanAnalyticalInvestigationBlade1970}}
+        \caption{Incompressible form factor $H_i$ along the blade surfaces}
         \label{fig:goldman-hi-paper}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{goldman_validation_hi.pdf}
-        \caption{This work's implementation}
-        \label{fig:goldman-hi-ours}
+        \includegraphics[width=\textwidth]{goldman_paper_fig5.png}
+        \caption{Distribution of Mach number along the blade surfaces}
+        \label{fig:goldman-mach-paper}
     \end{subfigure}
-    \caption{Validation of the Sasman and Cresci boundary layer solver against the same Goldman case. The input Mach distribution was reconstructed from the published design parameters. The peak $H_i$ location and the separation verdict reproduce, while the peak magnitude overshoots (2.6 against Goldman's 2.2 at the same chord position).}
-    \label{fig:goldman-validation-hi}
+    \caption{Goldman's published figures describing the distribution of Mach number and incompressible form factor $H_i$ along the blade surfaces. \cite{goldmanAnalyticalInvestigationBlade1970}}
+    \label{fig:goldman-bl-figures}
 \end{figure}
 
-\paragraph{Starting}
+Sasman and Cresci \cite{sasmanCompressibleTurbulentBoundary1966} provides a method to compute the development of the compressible turbulent boundary layer and thus find the incompressible form factor $H_i$ along both surfaces. In this method, the edge Mach number distribution was taken from the MOC blade solution and fed into the their compressible integral method. The boundary layer was started as a turbulent flat plate with $\theta_0/c = 0.036\,\mathrm{Re}_{s_0}^{-1/5}$, using the prandtl $u/U=(y/\delta)^{1/7}$ and $\delta/c = 0.37 \mathrm{Re}^{-1/5}$ \cite{andersonFundamentalsAerodynamics2017}. The Reynolds number $\mathrm{Re}_{s_0}$ is calculated with the blade inlet density $\rho_3$, relative velocity $w_3$ and the chord length $c$. The shape factor $H_{i,0}$ is chosen to the value which the integration relaxes to within the first few percent of chord regardless of the start value. Once this calculation is done, the incompressible form factor $H_i$ can then be used to evaluate if generated blade profile, and thus the chosen surface Mach numbers will lead to separation and where and feed into the design loop. 
+
+%Once a MOC blade profile is generated and the mach number at every point along the blade is known, a modified momentum-integral equation \cref{eq:modified-momentum-integral} and shape-factor equation can be solved as an initial value problem starting from the leading edge goverened by the following equations:
+
+% \begin{equation}
+%     \frac{df}{d(s/c)} = 1.268\left[-\frac{f}{M_e}\frac{dM_e}{d(s/c)}\left(1 + g_w H_i\right) + A\,c\right]
+%     \cref{eq:modified-momentum-integral}
+% \end{equation}
+
+% \begin{equation}
+%     A\,c = 0.123\,e^{-1.561 H_i}\, M_e\, \mathrm{Re}_0\, \frac{T_e}{T_0}\left(\frac{\bar\mu}{\mu_0}\right)^{0.268}
+% \end{equation}
+
+% \begin{equation}
+% \frac{dH_i}{d(s/c)} = \underbrace{-\frac{1}{2M_e}\frac{dM_e}{d(s/c)}\,H_i(H_i+1)^2(H_i-1)\left[1 + (g_w-1)\frac{H_i^2+4H_i-1}{(H_i+1)(H_i+3)}\right]}_{\text{pressure-gradient term: deceleration drives } H_i \text{ up}} \\ + \underbrace{\frac{H_i^2-1}{f}\,A\,c\left[H_i - \frac{0.011\,(H_i+1)(H_i-1)^2}{H_i^2\,(C_f/2)}\frac{T_e}{\bar T}\right]}_{\text{shear term: wall friction relaxes } H_i \text{ back toward equilibrium}}
+% \end{equation}
+
+% With initial conditions of a flat-plate $\frac{\theta_0}{c} = 0.036\,\frac{s_0}{c}\,\mathrm{Re}_{s_0}^{-1/5}$. \todo{cite this}
+% % i found delta = 0.37x/(Re to 1/5) from anderson 19.1 page 1052, prandtl u/U = (y/delta) to 1/7 then shoving into the equation of momentum thickness gives 7/72 delta, which is 0.0359722222, done.
+
+% The initial condition for the shape factor is chosen so that it matches closely to the rapidly converging value $ H_{i,0} = 1.67$. \todo{make this more rigorous}
+
+It is important to note that Goldman provides another set of equations in his NASA TN D-4421 1968 paper \cite{goldmanAnalyticalInvestigationSupersonic1968} that has been shown to not be conservative enough, with tests by Erikson on the development of the HM60 engine saying that his criteria is a little too optimistic \cite{erikssonDevelopmentSupersonicTurbine}. The Sasman method described here is from Goldman's NASA TM X-2095 paper \cite{goldmanAnalyticalInvestigationBlade1970}.
+
+% Two limitations of the method should be stated, both flagged by Goldman himself \cite{goldmanAnalyticalInvestigationBlade1970}. The $H_i$ threshold band of 1.8 to 2.4 is rooted in incompressible data, and the method assumes a turbulent boundary layer at a chord Reynolds number of $3.5\times10^4$ in his reference case, where laminar flow is plausible. The flight programme experience supports running the check on both surfaces, as the HM60 supersonic stage found boundary layer growth considerable with separation starting at around 25\% chord on the convex side, which forced a rotor redesign \cite{erikssonDevelopmentSupersonicTurbine}.
+
+% \todo{reorganize here}
+
+% \todo{should I remove these?}
+%  it took me a while to understand, but I think I finally understand it. Sasman and cresci developed a way to transform (stretch) the surface arc coordinates from compressible to incompressible coordinates, somehow deriving their eq 18, 19, 20 which can be solved as an IVP with initial conditions in 
+
+
+
+\subsubsection{Supersonic Starting}
 
 On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passsage must be able to "swallow" this shock, allowing the shock to move through the whole passage. \todo{make sure this explains at standstill}
 
-To do so, the post shock flow with a reduced total pressure must have enough of a flow area pass the required mass flow similar to the choked flow condition. A similar condition is the unstart of a supersonic wind tunnel or a supersonic internal intake. However, Boxer notes that due to the large velocity gradient between the channel walls due to tue turning, the flow cannot be assumed one directional as in the previous examples. Goldman in 1968 provides the condition accounting for the "reduction of mass flow due to curvilinear flow" to calculate the maximum inlet design mach number to ensure starting as:
+To do so, the post shock flow with a reduced total pressure must have enough of a flow area pass the required mass flow similar to the choked flow condition. A similar condition is the unstart of a supersonic wind tunnel or a supersonic internal intake. However, Boxer notes that due to the large velocity gradient between the channel walls due to tue turning, the flow cannot be assumed one directional as are the case in the provided examples. Goldman provides the condition \cite{goldmanAnalyticalInvestigationSupersonic1968} accounting for the "reduction of mass flow due to curvilinear flow" to calculate the maximum inlet design mach number to ensure starting as:
 
 \begin{equation}
 \frac{p_{02}}{p_{01}}(M_i) \;\geq\; \frac{Q}{1-C}
 \label{eq:goldman_starting}
 \end{equation}
 
-\todo{what the fuck is this section}
+% \todo{what the fuck is this section}
 
-Each term carries real content, so they are written out in full here because the off-design version of this inequality is what explains the coupled test in \cref{sec:results}. The left side is the total pressure recovery across the detached normal shock at the inlet design Mach number $M_i$, given by the Rankine and Hugoniot relation 
+% Each term carries real content, so they are written out in full here because the off-design version of this inequality is what explains the coupled test in \cref{sec:results}. The left side is the total pressure recovery across the detached normal shock at the inlet design Mach number $M_i$, given by the Rankine and Hugoniot relation 
 
-\begin{equation}
-\frac{p_{02}}{p_{01}}(M_i) = \left[\frac{(\gamma+1)M_i^2}{(\gamma-1)M_i^2+2}\right]^{\frac{\gamma}{\gamma-1}}
-\left[\frac{\gamma+1}{2\gamma M_i^2 - (\gamma-1)}\right]^{\frac{1}{\gamma-1}}
-\label{eq:normal_shock_p0}
-\end{equation}
+% \begin{equation}
+% \frac{p_{02}}{p_{01}}(M_i) = \left[\frac{(\gamma+1)M_i^2}{(\gamma-1)M_i^2+2}\right]^{\frac{\gamma}{\gamma-1}}
+% \left[\frac{\gamma+1}{2\gamma M_i^2 - (\gamma-1)}\right]^{\frac{1}{\gamma-1}}
+% \label{eq:normal_shock_p0}
+% \end{equation}
 
-which falls steeply as $M_i$ rises, so a higher inlet Mach number leaves less recovered pressure to push the swallowed shock through. The right side is the post shock area demand. $Q$ is the vortex flow parameter, the weight flow the curved passage would pass relative to a straight channel, written over the passage bounded by the lower and upper surface critical Mach numbers $M^*_l$ and $M^*_u$ (related to the true Mach numbers by \cref{eq:mach_to_critical_mach}) as
+% which falls steeply as $M_i$ rises, so a higher inlet Mach number leaves less recovered pressure to push the swallowed shock through. The right side is the post shock area demand. $Q$ is the vortex flow parameter, the weight flow the curved passage would pass relative to a straight channel, written over the passage bounded by the lower and upper surface critical Mach numbers $M^*_l$ and $M^*_u$ (related to the true Mach numbers by \cref{eq:mach_to_critical_mach}) as
 
-\begin{equation}
-Q = \frac{M^*_l\, M^*_u}{M^*_u - M^*_l}
-\int_{M^*_l}^{M^*_u}\!\left(\frac{\gamma+1}{2} - \frac{\gamma-1}{2}M^{*2}\right)^{\frac{1}{\gamma-1}}\frac{dM^*}{M^*}
-\label{eq:vortex_parameter}
-\end{equation}
+% \begin{equation}
+% Q = \frac{M^*_l\, M^*_u}{M^*_u - M^*_l}
+% \int_{M^*_l}^{M^*_u}\!\left(\frac{\gamma+1}{2} - \frac{\gamma-1}{2}M^{*2}\right)^{\frac{1}{\gamma-1}}\frac{dM^*}{M^*}
+% \label{eq:vortex_parameter}
+% \end{equation}
 
-and $C$ is the reduction in passable mass flow caused by the two dimensional velocity gradient across the passage that Boxer identified,
+% and $C$ is the reduction in passable mass flow caused by the two dimensional velocity gradient across the passage that Boxer identified,
 
-\begin{equation}
-C = 1 - \sqrt{\frac{\gamma+1}{\gamma-1}}\left(\frac{\gamma+1}{2}\right)^{\frac{1}{\gamma-1}}
-\frac{K^*_{max}\, M^*_u}{M^*_u - M^*_l}\, I_R, \qquad
-I_R = \left(1 - K^{*2}_{max}\right)^{\frac{1}{\gamma-1}} - \left[1 - K^{*2}_{max}\!\left(\frac{M^*_u}{M^*_l}\right)^2\right]^{\frac{1}{\gamma-1}}
-\label{eq:twod_reduction}
-\end{equation}
+% \begin{equation}
+% C = 1 - \sqrt{\frac{\gamma+1}{\gamma-1}}\left(\frac{\gamma+1}{2}\right)^{\frac{1}{\gamma-1}}
+% \frac{K^*_{max}\, M^*_u}{M^*_u - M^*_l}\, I_R, \qquad
+% I_R = \left(1 - K^{*2}_{max}\right)^{\frac{1}{\gamma-1}} - \left[1 - K^{*2}_{max}\!\left(\frac{M^*_u}{M^*_l}\right)^2\right]^{\frac{1}{\gamma-1}}
+% \label{eq:twod_reduction}
+% \end{equation}
 
-where $K^*_{max}$ is the value that maximises the swallowed weight flow, found by solving the weight flow identity
+% where $K^*_{max}$ is the value that maximises the swallowed weight flow, found by solving the weight flow identity
 
-\begin{equation}
-\int_{M^*_l}^{M^*_u}\!\left[1 - \left(\frac{K^*_{max}}{M^*_l}\right)^2 M^{*2}\right]^{\frac{1}{\gamma-1}}\frac{dM^*}{M^*}
-= \left(1 - K^{*2}_{max}\right)^{\frac{1}{\gamma-1}} - \left[1 - K^{*2}_{max}\!\left(\frac{M^*_u}{M^*_l}\right)^2\right]^{\frac{1}{\gamma-1}}
-\label{eq:kstar_max}
-\end{equation}
+% \begin{equation}
+% \int_{M^*_l}^{M^*_u}\!\left[1 - \left(\frac{K^*_{max}}{M^*_l}\right)^2 M^{*2}\right]^{\frac{1}{\gamma-1}}\frac{dM^*}{M^*}
+% = \left(1 - K^{*2}_{max}\right)^{\frac{1}{\gamma-1}} - \left[1 - K^{*2}_{max}\!\left(\frac{M^*_u}{M^*_l}\right)^2\right]^{\frac{1}{\gamma-1}}
+% \label{eq:kstar_max}
+% \end{equation}
 
-Solving \cref{eq:goldman_starting} as an equality for $M_i$ gives the maximum inlet design Mach number that will still start, which is the limit applied in the blade design of \cref{sec:design}. The two integrals \cref{eq:vortex_parameter,eq:kstar_max} have no closed form and are evaluated numerically. The physical reading is the one used later: the limit is set by the surface Mach pair $(M^*_l, M^*_u)$, so the same passage that is opened up for efficiency by spreading the surface Mach numbers is simultaneously pushed towards the starting limit, and at low blade speed the rising relative inlet Mach number crosses it. \todo{perhaps put in the starting graph, showing starting limit as a function of inlet and surface mach numbers?}
+% Solving \cref{eq:goldman_starting} as an equality for $M_i$ gives the maximum inlet design Mach number that will still start, which is the limit applied in the blade design of \cref{sec:design}. The two integrals \cref{eq:vortex_parameter,eq:kstar_max} have no closed form and are evaluated numerically. The physical reading is the one used later: the limit is set by the surface Mach pair $(M^*_l, M^*_u)$, so the same passage that is opened up for efficiency by spreading the surface Mach numbers is simultaneously pushed towards the starting limit, and at low blade speed the rising relative inlet Mach number crosses it. \todo{perhaps put in the starting graph, showing starting limit as a function of inlet and surface mach numbers?}
 
 Historically, starting was a major problem for supersonic turbines. Before the theory was established, Colclough had to build a special jig in which every blade could be pivoted to vary the contraction until the blade started.
 
