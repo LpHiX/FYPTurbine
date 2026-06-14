@@ -402,7 +402,7 @@ Dividing the work \cref{eq:impulse_work} by the kinetic energy $c_3^2/2$ the noz
     \label{eq:impulse_ideal_efficiency}
 \end{equation}
 
-The efficiency depends only on the blade to jet speed ratio $u/c_3$ and the nozzle angle. By taking the derivative of \cref{eq:impulse_ideal_efficiency} and setting it to zero, the optimum sits at $u/c_3 = \cos\beta_3/2$.
+The efficiency depends only on the blade to jet speed ratio $u/c_3$ and the nozzle angle. By taking the derivative of \cref{eq:impulse_ideal_efficiency} and setting it to zero, the optimum sits at $u/c_3 = \cos\beta_3/2$. For most turbines with a low $\beta_3$ the optimum is around $u/c_3\approx0.5$.
 
 
 % , where the exit swirl is zero and the efficiency peaks at $\cos^2\beta_3$. The same expression with the Weiss loss coefficients of \cref{subsec:weissloss} attached becomes $\eta_h = 2k_N^2\,(u/c_3)\left(\cos\beta_3 - u/c_3\right)(1+k_R)$, which reduces to \cref{eq:impulse_ideal_efficiency} when the nozzle and rotor are loss free ($k_N = k_R = 1$); this lossy form is the solid curve in \cref{fig:turbine-eta-uc}.
@@ -416,19 +416,40 @@ The efficiency depends only on the blade to jet speed ratio $u/c_3$ and the nozz
 
 
 % In my notes, this can be found "SP-8110.md" file and "Supersonic Turbine Blade Pitch and Height.md"
-The jet velocity $c_s$ used in this ratio is the spouting velocity, the velocity reached by an ideal isentropic expansion of the gas over the full stage pressure ratio,
+The jet spouting velocity $c_3$ used in this ratio is the spouting velocity, the velocity reached by an ideal isentropic expansion of the ideal gas over the full stage pressure ratio,
 
 \begin{equation}
-    c_s = \sqrt{2\,\Delta h_s}
-    = \sqrt{2\, c_p T_{01} \left[1 - \left(\frac{p_e}{p_{01}}\right)^{\frac{\gamma-1}{\gamma}}\right]}
+    c_3 = \sqrt{2\,\Delta h_{1\rightarrow 3}}
+    = \sqrt{2\, c_p T_{01} \left[1 - \left(\frac{p_3}{p_{01}}\right)^{\frac{\gamma-1}{\gamma}}\right]}
     \label{eq:spouting_velocity}
 \end{equation}
 
-It links the available inlet pressure directly to the achievable jet velocity, and it is what makes the blade speed problem concrete. A small turbine on a 20,000 RPM shaft has a blade speed of around 100 m/s, while the spouting velocity of even a moderate pressure ratio gas generator is several hundred m/s, so $u/c_s$ is forced far below the optimum of around 0.5.
+For 300 K air with a pressure ratio of 5, $c_3 \approx 470$. A 100 mm diameter turbine on a 20,000 RPM shaft has a blade speed of around 100 m/s, leading to a $u/c_3$ of 0.2. The spouting velocity of even a moderate pressure ratio gas generator at a higher outlet temperature can quickly reach up to velocities $c_3$ from 800 m/s upwards, so $u/c_3$ is forced far below the optimum of around 0.5. This is a fundamental limitation of small diameter turbines.
 
-NASA special publication 8110 shows that for low $u/c_s$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency, just not at the low $u/c_s$ regime. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. \todo{need to explain what reaction and impulse turbines are, maybe with a diagram?}
+\subsubsection{Impulse vs Reaction Turbines}
 
+NASA published \cref{fig:eff_vs_uc} in its SP-8110 showing that for low $u/c_3$ turbines, impulse turbines are more efficient, even if reaction turbines can have a higher overall efficiency. In addition, the same conclusion is drawn by comparing the influence of tip clearance on the two types, where impulse turbines are more robust to tip clearance as shown by \cref{fig:eff_vs_tip_clearance}. This is especially important for small scale turbines where manufacturing tolerances are more difficult to achieve and contribute to more significant losses \cite{NASASP8110}. 
 
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{uc_vs_eff.png}
+        \caption{Turbine efficiency vs $u/c_3$} % from SP8110 fig 13
+        \label{fig:eff_vs_uc}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{tip_clearance.png}
+        \caption{Effect of tip clearance on turbine efficiency} % from SP8110 fig 29
+        \label{fig:eff_vs_tip_clearance}
+    \end{subfigure}
+    \caption{Comparison of efficiency between impulse and reaction turbines against $u/c_3$ and tip clearance.}
+    \label{fig:turbine-efficiency-comparison}
+\end{figure}
+
+% fig 13 sp8110 - eff vs u/c0, fig 29 eff vs tip clearance 
 
 \subsubsection{Blade Height and Partial Admission}
 
@@ -439,7 +460,7 @@ Another problem with designing small turbines is with the low blade height requi
     \label{eq:turbine_blade_height_full_admission}
 \end{equation}
 
-Where $\rho_3$ is the density of the turbine gas at the turbine inlet. Using the example turbine above, the required blade height would be \todo{addvalue}. By introducing partial admission, the mass flow through the turbine can be restricted to a smaller arc around the annulus at a slight cost to efficiency. The partial admission ratio $\zeta$ can be included into the blade height formula as so:
+Where $\rho_3$ is the density of the turbine gas at the turbine inlet calculated using isentropic gas relations. Using the example turbine above, the required blade height would be \todo{addvalue}. By introducing partial admission, the mass flow through the turbine can be restricted to a smaller arc around the annulus at a slight cost to efficiency. The partial admission ratio $\zeta$ can be included into the blade height formula as so:
 
 \begin{equation}
     H_3 = \frac{\dot{m}}{\zeta \rho_3 c_{3m} d_{\textrm{mean}}}
