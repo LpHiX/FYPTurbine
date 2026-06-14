@@ -15,7 +15,7 @@ Much of the supersonic blading design methodology dates from the 1950s and 60s \
 \subsubsection{Non-dimensional Performance and Scaling}
 \label{sec:theory_nondim}
 
-Understanding the theoretical reason why low specific speed pumps have lower efficiency and their design challenges require the understanding of the main non-dimensional pump parameters so they are defined first. The main parameters, head and flow are non-dimensionalised to their velocity triangles following Gülich \cite{gulichCentrifugalPumps2020}:
+Understanding why low specific speed pumps are less efficient, and the design choices that follow from it, comes down to a few non-dimensional parameters so they are defined first. A pump adds energy to the fluid by spinning it up towards the speed of the impeller rim, $u_2$. The work it does per unit mass is the rim speed times the swirl velocity it adds to the fluid, $u_2 c_{2u}$, and that swirl is proportional to the rim speed, so the head a pump can generate scales with $u_2^2$. The flow rate meanwhile leaves the impeller radially through the exit area $\pi d_2 b_2$ at the meridional velocity $c_{m2}$, so $Q = \pi d_2 b_2\, c_{m2}$. Measuring the head against the rim-speed head $u_2^2$, and the radial velocity against the rim speed $u_2$, gives the head and flow coefficients, following Gülich \cite{gulichCentrifugalPumps2020}:
 
 \begin{equation}
     \psi = \frac{2gH}{u_2^2}, \qquad
@@ -23,48 +23,50 @@ Understanding the theoretical reason why low specific speed pumps have lower eff
     \label{eq:psi_phi}
 \end{equation}
 
-In the ideal case, the work done and thus the head generated is proportional to the square of the circumferential speed $u_2$ and so is nondimensionalized by it with the head coefficient $\psi$. The flow rate is proportional to the meridonal speed $c_{m2}$, defining the flow coefficient $\phi$. These two flow coefficients fix the velocity triangles. For a fixed geometry, dimensional analysis of $(Q, H, n, d_2, \rho, \mu)$ reduces the pump behaviour to $\psi = f(\phi, Re)$ with the tip Reynolds number
+So $\psi$ is the fraction of the achievable rim-speed head that the machine actually delivers, and $\phi$ is how fast the fluid moves out radially compared to how fast the rim turns. Between them $\psi$ and $\phi$ set the tangential and radial sides of the exit velocity triangle relative to $u_2$, so two operating points at the same $\phi$ have the same triangle shape and the same flow physics whatever the size or the speed.
 
-\begin{equation}
-    Re_u = \frac{u_2\, r_2}{\nu}
-    \label{eq:re_u}
-\end{equation}
+% The head is set by these velocity triangles, which is an inviscid result, so viscosity barely affects it and shows up only later in the friction losses. To first order the head therefore depends only on the shape of the triangle, that is $\psi$ depends only on $\phi$, and every test speed should fall on a single $\psi(\phi)$ curve. Putting this on a formal footing, the six quantities $(Q, H, n, d_2, \rho, \mu)$ carry three independent dimensions and so reduce to three dimensionless groups, $\psi = f(\phi, Re)$, where the weak third parameter is the tip Reynolds number
 
-Because pump head is Reynolds insensitive to first order, all speeds should collapse onto a single $\psi(\phi)$ curve. Holding $\psi$ and $\phi$ constant between two speeds gives the affinity laws,
+% \begin{equation}
+%     Re_u = \frac{u_2\, r_2}{\nu}
+%     \label{eq:re_u}
+% \end{equation}
 
-\begin{equation}
-    Q \propto n, \qquad H \propto n^2, \qquad P \propto n^3
-    \label{eq:affinity}
-\end{equation}
+% which the losses, and not the head, depend on. Holding $\psi$ and $\phi$ fixed between two speeds, which is the same as keeping the same velocity triangle, collapses the definitions above into the affinity laws,
 
-which are the licence for any extrapolation across speed. The losses are not Reynolds insensitive, which is why the efficiency does not collapse the way the head does, and the loss scaling is treated empirically through a loss ratio of the form $(1-\eta) \propto Re^{-a}$.
+% \begin{equation}
+%     Q \propto n, \qquad H \propto n^2, \qquad P \propto n^3
+%     \label{eq:affinity}
+% \end{equation}
 
-For cavitation, the suction state is expressed as the net positive suction head,
+% which are what licence any extrapolation from the tested speeds up to the design speed. The efficiency does not collapse in the same way, and the reason is exactly that the losses do depend on Reynolds number, a dependence carried empirically as a loss ratio of the form $(1-\eta) \propto Re^{-a}$.
 
-\begin{equation}
-    \textrm{NPSH}_a = \frac{p_{in} - p_{vap}}{\rho g} + \frac{v_{in}^2}{2g}
-    \label{eq:npsha}
-\end{equation}
+% For cavitation, the suction state is expressed as the net positive suction head,
 
-the absolute margin of the inlet head above vapour pressure. The standard performance criterion is NPSH$_3$, the available NPSH at which the developed head has dropped 3\% below its fully wetted value at constant speed and flow \cite{gulichCentrifugalPumps2020}. Suction capability is compared across machines through the suction specific speed, defined like \cref{eq:specific_speed} but with NPSH$_3$ in place of head.
+% \begin{equation}
+%     \textrm{NPSH}_a = \frac{p_{in} - p_{vap}}{\rho g} + \frac{v_{in}^2}{2g}
+%     \label{eq:npsha}
+% \end{equation}
+
+% the absolute margin of the inlet head above vapour pressure. The standard performance criterion is NPSH$_3$, the available NPSH at which the developed head has dropped 3\% below its fully wetted value at constant speed and flow \cite{gulichCentrifugalPumps2020}. Suction capability is compared across machines through the suction specific speed, defined like \cref{eq:specific_speed} but with NPSH$_3$ in place of head.
 
 \subsubsection{Why Efficiency Collapses at Low Specific Speed}
 
-The introduction established that this duty sits at low specific speed and that the partial emission pump is the efficiency optimum there. This section explains where that efficiency ceiling comes from, since identifying and measuring the dominant loss is one of the aims of this work.
+% The introduction established that this duty sits at low specific speed and that the partial emission pump is the efficiency optimum there. This section explains where that efficiency ceiling comes from, since identifying and measuring the dominant loss is one of the aims of this work.
 
-The loss that runs the show at low specific speed is disc friction. When a rotor spins in a fluid, the shear stress in the fluid acts on the rotor faces as a drag torque. In most centrifugal pumps the impeller is broadly disc shaped, so this is called disc friction loss, and the power it burns scales as
+The main loss at low specific speed is disc friction. When a rotor spins in a fluid, the shear stress in the fluid acts on the rotor faces as a drag torque. In most centrifugal pumps the impeller is broadly disc shaped, so this is called disc friction loss. Taking the main parameters of the equation from Gulich \cite{gulichCentrifugalPumps2020}, the power lost to disc friction scales as
 
 \begin{equation}
     P_{RR} \approx k_{RR}\, \rho\, \omega^3 r_2^5
     \label{eq:disc_friction_scaling} % eq 3.6.2 and 3.6.3, simplified
 \end{equation}
 
-where $k_{RR}$ is a friction coefficient that falls slowly with Reynolds number \cite{gulichCentrifugalPumps2020}. The important property of \cref{eq:disc_friction_scaling} is that it has no flow rate in it. The disc burns this power whether the pump is delivering flow or is deadheaded against a closed valve. The useful hydraulic power on the other hand is $P_{hyd}=\rho g Q H$, which goes to zero as the flow goes to zero. So the relative size of the disc friction loss is set by how these two compare, and that ratio is where the specific speed enters.
+where $k_{RR}$ is a friction coefficient that falls slowly with Reynolds number. By dividing this by the useful power $P_{hyd}=\rho g Q H$ and substituting the head coefficient $H=\psi u_2^2/2g$ with $u_2=\omega r_2$ gives:
 
-Taking the ratio and substituting the head coefficient $H=\psi u_2^2/2g$ with $u_2=\omega r_2$ gives
+%The important property of \cref{eq:disc_friction_scaling} is that it has no flow rate in it. The disc burns this power whether the pump is delivering flow or is deadheaded against a closed valve. The useful hydraulic power on the other hand is $P_{hyd}=\rho g Q H$, which goes to zero as the flow goes to zero. So the relative size of the disc friction loss is set by how these two compare, and that ratio is where the specific speed enters.
 
 \begin{equation}
-    \frac{P_{RR}}{P_{hyd}} = \frac{k_{RR}\,\rho\,\omega^3 r_2^5}{\rho g Q H} = \frac{2 k_{RR}}{\psi\,\phi_D}, \qquad \phi_D \equiv \frac{Q}{\omega r_2^3}
+    \frac{P_{RR}}{P_{hyd}} \approx \frac{k_{RR}\,\rho\,\omega^3 r_2^5}{\rho g Q H} \approx \frac{2 k_{RR}}{\psi\,\phi_D}, \qquad \phi_D \equiv \frac{Q}{\omega r_2^3}
     \label{eq:disc_loss_fraction}
 \end{equation}
 
