@@ -564,7 +564,7 @@ M^* = \sqrt{\frac{(\gamma+1)M^2/2}{1 + (\gamma-1)M^2/2}}
 \label{eq:mach_to_critical_mach}
 \end{equation}
 
-The rest of the methodology to design the blade profile can be found in Goldman's paper \cite{goldmanAnalyticalInvestigationSupersonic1968} and will not be repeated here. Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} are highlighted as they can be used to derive the nondimensional radius of the upper and lower surfaces of the blade, which will be important in the following discussion on surface Mach number selection.
+The rest of the methodology to design the blade profile can be found in Goldman's paper \cite{goldmanAnalyticalInvestigationSupersonic1968} and will not be repeated here. Equations \cref{eq:vortex_condition_nondim} and \cref{eq:mach_to_critical_mach} are highlighted as they can be used to derive the nondimensional radius of the upper and lower surfaces of the blade, which will be important in the following discussion on surface Mach number selection. It is important to note that the inlet mach number for starting here is computed not with the absolute velocity $c_3$ but with the relative velocity $w_3$, as the flow will be turning inside the rotating frame of the turbine blade. This distinction is made as the relative velocity is dependent on the rotational speed of the turbine, meaning that this blade profiling is optimized for only the design point of the turbine.
 
 %To summarize the methodology, 
 
@@ -701,6 +701,11 @@ To do so, the post shock flow with a reduced total pressure must have enough of 
 \label{eq:goldman_starting}
 \end{equation}
 
+Where $p_{02}/p_{01}$ is the total pressure loss across the normal shock, which is a function of $M_i$, the inlet design mach number. The right side of equation \eqref{eq:goldman_starting} involves nondimensional parameters $Q$ and $C$ which can be solved for through equation 27, 34a and 34b as a function of the surface mach numbers $M^*_l$ and $M^*_u$. $Q$ is named the vortex parameter \cite{sudhofDevelopmentTechniquesSupersonic2020} and $C$ is the reduction in mass flow due to two-dimensional flow. Solving this equation for $M_i$ gives the maximum inlet design mach number to ensure starting. Once again, this maximum inlet mach number is not based on absolute velocity $c_3$ but on the relative velocity $w_3$. The relative inlet mach number at the design point is lower than at startup, as $w_{3u}=c_{3u}-u$ following the velocity triangle shown in \cref{fig:turbine-velocity-triangles}. The starting condition at \cref{eq:goldman_starting} should be more conservatively evaluated at standstill to ensure that the turbine will start at all rotational speeds.
+
+% \todo{perhaps put in the starting graph, showing starting limit as a function of inlet and surface mach numbers?}
+
+
 % \todo{what the fuck is this section}
 
 % Each term carries real content, so they are written out in full here because the off-design version of this inequality is what explains the coupled test in \cref{sec:results}. The left side is the total pressure recovery across the detached normal shock at the inlet design Mach number $M_i$, given by the Rankine and Hugoniot relation 
@@ -738,9 +743,9 @@ To do so, the post shock flow with a reduced total pressure must have enough of 
 
 % Solving \cref{eq:goldman_starting} as an equality for $M_i$ gives the maximum inlet design Mach number that will still start, which is the limit applied in the blade design of \cref{sec:design}. The two integrals \cref{eq:vortex_parameter,eq:kstar_max} have no closed form and are evaluated numerically. The physical reading is the one used later: the limit is set by the surface Mach pair $(M^*_l, M^*_u)$, so the same passage that is opened up for efficiency by spreading the surface Mach numbers is simultaneously pushed towards the starting limit, and at low blade speed the rising relative inlet Mach number crosses it. \todo{perhaps put in the starting graph, showing starting limit as a function of inlet and surface mach numbers?}
 
-Historically, starting was a major problem for supersonic turbines. Before the theory was established, Colclough had to build a special jig in which every blade could be pivoted to vary the contraction until the blade started.
+Historically, starting was a major problem for supersonic turbines. Before the theory was established, Colclough had to build a special jig in which every blade could be pivoted to vary the contraction until the blade started \cite{colcloughDesignTurbineBlades1966}.
 
-Colclough's cascade tests also produced something the inviscid theory cannot, an empirical derating of the starting limit that accounts for boundary layer blockage. His measured startable contraction is $k = A_{min}/A_2 = 1.029 - 0.163(M_2 - 1)$, valid for $1.0 < M_2 < 1.4$ \cite{colcloughDesignTurbineBlades1966}. This is applied on top of the Goldman limit in the design of \cref{sec:design}, and the design inlet relative Mach number of this turbine sits inside its validity range.
+%Colclough's cascade tests also produced something the inviscid theory cannot, an empirical derating of the starting limit that accounts for boundary layer blockage. His measured startable contraction is $k = A_{min}/A_2 = 1.029 - 0.163(M_2 - 1)$, valid for $1.0 < M_2 < 1.4$ \cite{colcloughDesignTurbineBlades1966}. This is applied on top of the Goldman limit in the design of \cref{sec:design}, and the design inlet relative Mach number of this turbine sits inside its validity range.
 
 \paragraph{The efficiency trade}
 
