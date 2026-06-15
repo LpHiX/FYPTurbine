@@ -19,8 +19,8 @@ Following the global design point parameteres, the pump was sized using the Bars
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{barske_geometry.pdf}
-    \caption{The sized pump geometry, drawn to scale from the sizing code output, with the meridional section (left) and end view (right) sharing the radial axis. The meridional section shows the open tapered blades, the conical front casing maintaining the axial clearance $s_{ax}$, and the annular casing of width $b_c$ and depth $h_c$. The end view shows the six radial blades and the single tangential conical diffuser with throat $d_3$ and exit $d_4$. Values are listed in \cref{tab:pump_design}.}
+    \includegraphics[width=0.7\textwidth]{barske_geometry.pdf}
+    \caption{The sized pump geometry drawn to scale. The meridional section (left) and plan view (right).}
     \label{fig:barske-geometry}
 \end{figure}
 
@@ -46,14 +46,16 @@ Barske comments that the number of impeller blades does not seem to be critical,
 \subsubsection{Mechanical Design}
 \label{subsubsec:pump_mech_design}
 
-After the theoretical Barske pump geometry has been sized to deliver the design head at a desired flow rate, it has to then be translated into a manufacturable assembly that satisfies additional practical requirements. The mechanical design has to survive loading conditions such as high rotational speeds and pressures. Then, it also has to be leak tight, manufacturable and assemblable. A CAD model of the pump assembly that satisfies these requirements is shown in \cref{fig:pump-cad-section}.
-
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{pump_mech.png}
+    \includegraphics[width=0.8\textwidth]{pump_mech.png}
     \caption{Labeled CAD isotropic and section view of the pump assembly} % PLACEHOLDER IMAGE: Fusion export
     \label{fig:pump-cad-section}
 \end{figure}
+
+After the theoretical Barske pump geometry has been sized to deliver the design head at a desired flow rate, it has to then be translated into a manufacturable assembly that satisfies additional practical requirements. The mechanical design has to survive loading conditions such as high rotational speeds and pressures. Then, it also has to be leak tight, manufacturable and assemblable. A CAD model of the pump assembly that satisfies these requirements is shown in \cref{fig:pump-cad-section}.
+
+
 
 % The front casing and the diffuser were printed in clear resin and polished. This was a deliberate design decision, enabled by the low test pressures, so that cavitation could be observed directly through the casing wall. The payoff of this decision is the cavitation visualisation in \cref{sec:results}, which turned out to be one of the most valuable measurements of the project.
 
@@ -69,6 +71,13 @@ After the theoretical Barske pump geometry has been sized to deliver the design 
     \label{eq:seal_heat}
 \end{equation}
 
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.38\textwidth]{mech_seal.png}
+    \caption{Geometric dimensions of an OD pressurized the mechanical seal by Karrasik \cite{kackerMeanLinePrediction1982}.} % PLACEHOLDER IMAGE: Fusion export
+    \label{fig:mech-seal}
+\end{wrapfigure}
+
 where $B_r$ is the seal balance ratio built from the mechanical seal face outer and inner diameters $d_o$, $d_i$ and the balance diameter $d_b$ as shown in \cref{fig:mech-seal}, $k \approx 0.5$ is the pressure profile factor for the fluid film between the faces assuming a linear pressure distribution, and $p_{sp}$ is the spring force over the face area and $\Delta p$ is the pressure differential across the seal face \cite{gulichCentrifugalPumps2020}. % [VERIFY] cite: balance-ratio formulation is standard seal practice (Karassik/Mayer); swap citation if Gulich lacks it
 
 \begin{equation}
@@ -77,12 +86,7 @@ where $B_r$ is the seal balance ratio built from the mechanical seal face outer 
     \label{eq:seal_balance}
 \end{equation}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{mech_seal.png}
-    \caption{Geometric dimensions of an OD pressurized the mechanical seal by Karrasik \cite{kackerMeanLinePrediction1982}.} % PLACEHOLDER IMAGE: Fusion export
-    \label{fig:mech-seal}
-\end{figure}
+
 
 In conventional shrouded impellers, the back face of the impeller is exposed to the the full pressure rise of the pump, contributing to a higher pressure $\Delta p$ that needs to be sealed across the shaft, leading to higher mechanical seal friction. The Barske impeller is open and the back face is exposed to the suction pressure, which reduces the pressure differential across the seal and therefore the friction.
 
@@ -358,7 +362,7 @@ The shaft, bearing and bracket arrangement is designed with the exact same princ
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{turbine_mech.png}
+    \includegraphics[width=0.8\textwidth]{turbine_mech.png}
     \caption{Labeled CAD isotropic and section view of the turbine assembly} % PLACEHOLDER IMAGE: Fusion export
     \label{fig:turbine-cad-section}
 \end{figure}

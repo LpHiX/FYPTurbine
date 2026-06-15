@@ -16,6 +16,7 @@ Much of the supersonic blading design methodology dates from the 1950s and 60s \
     \includegraphics[width=0.4\textwidth]{veltriangles.png}
     \caption{Velocity triangles in a conventional pump, adapted from Gulich} % from gulich fig 3.2, adapted to remove some symbols
     \label{fig:conv-velocity-triangle}
+    \vspace{2cm}
 \end{wrapfigure}
 
 The working principles for pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation shown in \cref{eq:euler_turbine_equation}, where $c$ is velocity in the inertial frame, $w$ is in the rotatating frame and $u$ is the local circumferential velocity as shown in \cref{fig:conv-velocity-triangle}.
@@ -116,7 +117,7 @@ Then, by substituting the head coefficient into specific speed and rearranging f
 = \frac{\sqrt{Q}}{\psi^{3/4}\,\omega^{1/2} r_2^{3/2}}
 \Rightarrow\quad n_q^2 \propto \frac{Q}{\psi^{3/2}\,\omega\, r_2^3}
 \qquad\Longrightarrow\qquad 
-Q \propto n_q^2\,\psi^{3/2}\,\omega\, r_2^3 \\[8pt]
+Q \propto n_q^2\,\psi^{3/2}\,\omega\, r_2^3 
 \end{equation}
 
 Back into the ratio:
@@ -214,6 +215,7 @@ Another difference between conventional impellers and the barske impeller is the
 \includegraphics[width=0.5\textwidth]{forced_vortex_triangles}
 \caption{Velocity triangles in a forced vortex pump}
 \label{fig:pump-velocity-triangle}
+\vspace{2 cm}
 \end{wrapfigure}
 
 To predict the performance of a Barske pump, Barske starts by assuming that the flow is nearly a pure forced vortex as shown in \cref{fig:pump-velocity-triangle}. He also assumes the relative velocity $w$ is assumed to be negligable. This turns \cref{eq:pressure_rise} into \cref{eq:pressure_rise_negligible_w}, which is the theoretical static pressure rise of a Barske impeller.
@@ -360,12 +362,12 @@ Turbines work with the same Euler turbine equation. In the supersonic impulse tu
     \label{eq:turbine_specific_work}
 \end{equation}
 
-\begin{figure}[H]
+\begin{wrapfigure}{r}{0.6\textwidth}
     \centering
-    \includegraphics[width=0.6\textwidth]{turbine_cantilever.pdf}
-    \caption{Impulse turbine velocity triangle nomenclature at the rotor inlet (station 3) and exit (station 4). The design point triangles with actual values are shown in \cref{fig:turbine-triangles-design}.} % PLACEHOLDER IMAGE: generic labelled triangles, or merge with fig:turbine-triangles-design
+    \includegraphics[width=0.58\textwidth]{turbine_cantilever.pdf}
+    \caption{Impulse turbine velocity triangle nomenclature at the rotor inlet (station 3) and exit (station 4).} % PLACEHOLDER IMAGE: generic labelled triangles, or merge with fig:turbine-triangles-design
     \label{fig:turbine-velocity-triangles}
-\end{figure}
+\end{wrapfigure}
 
 This following derivation follows from Sudhof's \cite{sudhofDevelopmentTechniquesSupersonic2020}.From \cref{eq:turbine_specific_work}, it is understood that a higher flow velocity difference $c_{3u}-c_{4u}$ per unit mass will lead to a higher specific work $\Delta h_{use}$ according to equation \cref{eq:euler_specific_work}. Maximizing $c_{3u}-c_{4u}$ as visualized by \cref{fig:turbine-velocity-triangles} is done by maximizing the absolute velocity and as close to $180^\circ$ of turning as possible. For this reason, gas generator cycle turbines tend to take advantage of the high pressure ratios and thus supersonic velocities. The amount of flow turning is usually limited by geometrical and mechanical design reasons.
 
@@ -536,12 +538,12 @@ The design so far is based on 1D mean line theory. The design of the actual blad
 \subsubsection{Method of Characteristics for Supersonic Impulse Blade Design}
 \label{subsec:method_of_characteristics}
 
-\begin{wrapfigure}{r}{0.6\textwidth}
+\begin{wrapfigure}{r}{0.55\textwidth}
     \centering
     \includegraphics[width=0.55\textwidth]{moc_goldman.png}
     \caption{Typical MOC blade terminology.}
     \label{fig:turbine-blade-terminology}
-\end{figure}
+\end{wrapfigure}
 
  Vortex flow is a special type of supersonic flow in which every streamline follows a concentric path around a central point. This flow field was first discovered by A. Busemann \cite{colcloughDesignTurbineBlades1966}, achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. Boxer then first developed the method to transition uniform flow into vortex flow with MOC \cite{boxerApplicationSupersonicVortexflow1952}. This method generates the profile for an inlet Mach number, turning angle and the mach numbers on the blade surfaces. Later analysis will need to be required to choose these desired Mach numbers.
 
@@ -807,6 +809,13 @@ Boxer \cite{boxerApplicationSupersonicVortexflow1952} describes a few finite lea
 
 \subsubsection{Nozzle Design}
 
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.5\textwidth]{nozzle_eff.png}
+    \caption{Calculated efficiency of a conical nozzle as a function of area ratio from NASA SP-8120 \cite{LiquidRocketEngine1976}}
+    \label{fig:conical-nozzle-loss}
+\end{wrapfigure}
+
 The nozzle is sized with the isentropic choked mass flow equation \cref{eq:choked_massflow}.
 
 \begin{equation}
@@ -826,14 +835,11 @@ While the throat sets the mass flow, the ratio of the exit area to the throat ar
 
 % There is no closed form for $M_3$, so \cref{eq:area_mach} is inverted numerically for the supersonic root given the design area ratio. This relation is what links the nozzle geometry to the velocity triangle: the exit Mach number it returns must match the $M_3$ demanded by the inlet swirl of \cref{eq:triangle_inversion,eq:sizing_exit_state}, and the same relation is solved again when the design is re-evaluated for a different working gas, since the area ratio is fixed by the printed hardware but the Mach number and exit velocity are not.
 
+
+
 Historically, the optimal nozzle design for a ideal inviscid gas was designed with the Method of Characteristics as well. Rao provides a method to achieve this \cite{raoExhaustNozzleContour1958}. NASA special pubplication 8120 explains that a single canted parabola closely approximates the ideal nozzle contour and should be used for high performance nozzles \cite{LiquidRocketEngine1976}. In this thesis, the nozzle was designed as a simple conical nozzle with a $7^\circ$ degree half angle. It can be seen from \cref{fig:conical-nozzle-loss} that the performance of a conical nozzle for low area ratios lead to a efficiency loss below 2\%.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.55\textwidth]{nozzle_eff.png}
-    \caption{Calculated efficiency of a conical nozzle as a function of area ratio from NASA SP-8120 \cite{LiquidRocketEngine1976}}
-    \label{fig:conical-nozzle-loss}
-\end{figure}
+
 
 \todo{maybe talk about weiss nozzle accounting}
 

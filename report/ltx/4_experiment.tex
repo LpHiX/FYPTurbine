@@ -112,6 +112,13 @@ Valve capacity is expressed throughout with the flow coefficient $K_v$, defined 
 
 where $SG$ is the specific gravity of the fluid, 1 for water. Measuring the flow rate and the pressure drop across a valve at a known opening angle therefore measures its $K_v$ directly, which is how the characterisation below was done.
 
+    \begin{wrapfigure}{r}{0.42\textwidth}
+        \centering
+        \includegraphics[width=0.4\textwidth]{setup_valve_kv.pdf}
+        \caption{Extrapolated against measured valve capacity}
+        \label{fig:valve-kv-test}
+    \end{wrapfigure}
+
 The main requirement for both valves were so that the range of required flow rates and pressure drop through each valve corresponded to a large range in valve opening angles. For the inlet valve, fully open must have a large margin to the cavitation limit of the pump, ideally, cavitation would start at around 50\% valve opening and could be further reduced until the valve is closed. For the outlet valve, fully open must be at least 1.5 times the cut-off flow rate of the pump.
 
 
@@ -123,12 +130,7 @@ The main requirement for both valves were so that the range of required flow rat
 
 This requirement is further driven by the $1-3^\circ$ resolution of the servo motors available in the department. Data for Kv against opening angle were extrapolated from online data \todo{add citation}  from 1/8" in to 3/4" in were studied. However, as the data was extrapolated from data of ball valves with larger diameters, they had to be experimentally validated. The flow through a ball valve is also highly dependent on inlet and oulet conditions such as contraction or expansion of pipe diameter at the ports \cite{swagelokMS-06-84}. The size of my pipes were limited to what I could find in spare drawers, adding to the uncertainty.
 
-    \begin{wrapfigure}{r}{0.42\textwidth}
-        \centering
-        \includegraphics[width=0.4\textwidth]{setup_valve_kv.pdf}
-        \caption{Extrapolated against measured valve capacity}
-        \label{fig:valve-kv-test}
-    \end{wrapfigure}
+
 
 \cref{fig:valve-kv-test} shows the experimentally measured Kv against opening angle values were lower than expected. However, this worked in my favour as it actually increased the range of useful valve opening angles.
 
@@ -136,7 +138,7 @@ The location chosen for the experiment required a safe test area and a control r
 
 \subsection{Air supply}
 
-\begin{wrapfigure}{R}{0.5\textwidth}
+\begin{wrapfigure}{r}{0.5\textwidth}
     \centering
     \includegraphics[width=0.46\textwidth]{turbine_pid.png}
     \caption{P\&ID of the water and air circuit for the turbopump configuration.} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
@@ -167,9 +169,16 @@ For cost and time reasons, a custom data acquisition and control system was desi
     \label{fig:electric-map}
 \end{figure}
 
-For safety reasons, the electronics were enclosed in a plastic box placed in the test room, controlled by a LAN cable fed under the wall between the test room and the control room into my laptop.
+The electronics system was designed to be enclosed in a plastic box placed in the test room, controlled by a LAN cable fed under the wall between the test room and the control room into my laptop. The main system architecture is shown in \cref{fig:electric-map}. 
 
-The main main computer inside this box was a Raspberry Pi 5 running a backend written in Python. The Raspberry Pi communicated with 3 ESP32S3 microcontrollers over a UART serial connection at 921600 baud. One ESP32S3 was used as the actuator controller, one was used as a ADC and flowmeter DAQ, and one was used as a thermocouple DAQ. Breadboards would require too many wires to maintain and unstable, while there was not enough time to make custom PCBs. Soldered perfboard was used to connect the components. The Raspberry Pi communicates through the LAN cable through UDP to a laptop in the control room, allowing for live data readout and control of the test rig with a GUI written in Python and Qt.
+\begin{wrapfigure}{r}{0.48\textwidth}
+    \centering
+    \includegraphics[width=0.46\textwidth]{electric_box.jpg}
+    \caption{The electronics box with the Raspberry Pi, ESP32S3s and power supply.} % PLACEHOLDER IMAGE: photo of the electronics box
+    \label{fig:daq-box}
+\end{wrapfigure}
+
+\cref{fig:daq-box} shows the physical electronics box described by \cref{fig:electric-map}. The main computer inside this box was a Raspberry Pi 5 running a backend written in Python. The Raspberry Pi communicated with 3 ESP32S3 microcontrollers over a UART serial connection at 921600 baud. One ESP32S3 was used as the actuator controller, one was used as a ADC and flowmeter DAQ, and one was used as a thermocouple DAQ. Breadboards would require too many wires to maintain and unstable, while there was not enough time to make custom PCBs. Soldered perfboard was used to connect the components. The Raspberry Pi communicates through the LAN cable through UDP to a laptop in the control room, allowing for live data readout and control of the test rig with a GUI written in Python and Qt.
 
 % \begin{figure}[H]
 %     \centering
@@ -178,39 +187,44 @@ The main main computer inside this box was a Raspberry Pi 5 running a backend wr
 %     \label{fig:gui-readout}
 % \end{figure}
 
-\begin{figure}[H]
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{electric_box.jpg}
-        \caption{The electronics box with the Raspberry Pi, ESP32S3s and power supply.} % PLACEHOLDER IMAGE: photo of the electronics box
-        \label{fig:daq-box}
-    \end{subfigure}
-    \hfill % Adds flexible space between figures
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{electric_safety.png}
-        \caption{The interior of the electronics box showing the ESP32S3s and perfboard.} % PLACEHOLDER IMAGE: photo of the electronics box interior
-        \label{fig:daq-box-interior}
-    \end{subfigure}
-\end{figure}
+% \begin{figure}[H]
+
+    % \hfill % Adds flexible space between figures
+% \end{figure}
 \subsubsection{Power Architecture and Custom Boards}
 
-The whole test cell runs from a single 24 V supply. This was a deliberate choice so there is only one thing to switch off and so the highest voltage anywhere in the cell stays low. Everything else is derived from the 24 V on the boards. A set of buck converters steps it down to the 5 V logic rail for the microcontrollers and to the minus 9 V and plus 9 V rails the torque op-amp needs. A separate LT3042 linear regulator then generates the quiet 5.11 V rail that acts as both the ADC reference and the pressure transducer excitation, kept off the switching converters so it stays clean. The reason that one rail feeds both the reference and the excitation is the ratiometric cancellation explained in the next section.
+Power in this electrical system is separated into logic and actuation power as shown in \cref{fig:electric-map}. Logic power is designed to be always powered on to allow the operator to have live readout of the system at all times, while actuation power is designed to be switched on only during a test for safety reasons with a dual redundant emergency shutdown (E-Stop) system.% The actuation power is the 24 V supply to the servo motors and the solenoid valves, while the logic power is the 5 V supply to the microcontrollers and sensors.
 
-The electronics were not bought as modules, they were designed from scratch in KiCAD as a set of small boards that each do one job. There is the reference and ADC board carrying the LT3042 and the MCP3208, the torque conditioning board carrying the OPA2134 and its level shift, the current and voltage sensing for the motor with the WCS1600 hall sensor and a divider on the 24 V ESC supply, and the thermocouple front end built around the MAX31855 breakouts. Level shifting between the 3.3 V logic of the ESP32 and the 5 V SPI bus is done with a TXS0108E translator, with its weak internal pull ups disabled so the SPI edges stay clean. Because there was no time to have proper PCBs made, the boards were built on soldered perfboard, which is reliable enough as long as the layout keeps the noisy switching sections away from the quiet analog ones. The one real interference problem was the buck converters coupling magnetically into the signal lines, which was fixed by physically separating them from the analog boards and twisting the supply pairs.
+Most components in the electronics system were powered by a DC 24 V 1.2 kW power supply. The high power supply was chosen as it was a simple way to power the electric motor without the use of batteries. 
+
+\subsubsection{Electronics Safety Design}
+
+\begin{wrapfigure}{r}{0.35\textwidth}
+        \centering
+        \includegraphics[width=0.32\textwidth]{electric_safety.png}
+        \caption{The interior of the electronics box showing the ESP32S3s and perfboard.} % PLACEHOLDER IMAGE: photo of the electronics box interior
+        \label{fig:daq-box-interior}
+\end{wrapfigure}
+
+Safety was the top priority in the design of the electronic systsem, and all safety design relies hardware implementation instead of software. The core component is a PILZ PNOZ X3 safety relay wired as a dual channel redundant switch. The control room E-stop button is dual-channel, and the safety relay is designed to be fail safe against relay contact welding. An overspeed trip alarm by the DSP6001 is wired to open one of the two channels if the overspeed is detected. Once tripped, the relay then cuts the supply to every actuator. These include solenoid valves, electric motors, servo valves and the supply pump.
+
+
+%This was a deliberate choice so there is only one thing to switch off and so the highest voltage anywhere in the cell stays low. Everything else is derived from the 24 V on the boards. A set of buck converters steps it down to the 5 V logic rail for the microcontrollers and to the minus 9 V and plus 9 V rails the torque op-amp needs. A separate LT3042 linear regulator then generates the quiet 5.11 V rail that acts as both the ADC reference and the pressure transducer excitation, kept off the switching converters so it stays clean. The reason that one rail feeds both the reference and the excitation is the ratiometric cancellation explained in the next section.
+
+% The electronics were not bought as modules, they were designed from scratch in KiCAD as a set of small boards that each do one job. There is the reference and ADC board carrying the LT3042 and the MCP3208, the torque conditioning board carrying the OPA2134 and its level shift, the current and voltage sensing for the motor with the WCS1600 hall sensor and a divider on the 24 V ESC supply, and the thermocouple front end built around the MAX31855 breakouts. Level shifting between the 3.3 V logic of the ESP32 and the 5 V SPI bus is done with a TXS0108E translator, with its weak internal pull ups disabled so the SPI edges stay clean. Because there was no time to have proper PCBs made, the boards were built on soldered perfboard, which is reliable enough as long as the layout keeps the noisy switching sections away from the quiet analog ones. The one real interference problem was the buck converters coupling magnetically into the signal lines, which was fixed by physically separating them from the analog boards and twisting the supply pairs.
 
 \subsubsection{ADC Measurements}
 
 Pressure, torque, RPM, voltage and current were measured with a MCP3208 8 channel 12-bit ADC connected to the ESP32S3. The MCP3208 was powered by a LT3042 LDO at 5.11V to reduce noise. This 5.11V was also used to power the pressure sensors. As the pressure transducers were ratiometric, both the ADC and the pressure transducers track bacck to the same voltage reference, reducing drift and noise.
 
-The custom backend could only send UART signals back and forth to the ESPs at a 50 Hz loop. The MCP3208 was capable of sampling up to 100 ksps, so the ESP32 was programmed to collect 32 samples and average them per channel before sending the averaged data back to the Raspberry Pi. High frequency data couldn't be collected due to the UART connection being the bottleneck, but this averaging allowed for measurement of voltage at a resolution higher than 12-bits. For uncorrelated noise the averaging reduces the standard deviation of each logged point by
+The custom backend could only send UART signals back and forth to the ESPs at a 50 Hz loop. The MCP3208 was capable of sampling up to 100 ksps, so the ESP32 was programmed to collect 32 samples and average them per channel before sending the averaged data back to the Raspberry Pi. High frequency data couldn't be collected due to the UART connection being the bottleneck, but this averaging allowed for measurement of voltage at a resolution higher than 12-bits. For uncorrelated noise the averaging reduces the standard deviation of each logged point by \cref{eq:oversampling}, which is a factor of about 5.7.
 
 \begin{equation}
     \sigma_{avg} = \frac{\sigma}{\sqrt{N}} = \frac{\sigma}{\sqrt{32}}
     \label{eq:oversampling}
 \end{equation}
 
-which is a factor of about 5.7, and is why the per bin scatter in the results is small.
+
 
 % The ratiometric arrangement deserves one line of algebra, because it deletes a systematic error term by design. The transducer output is proportional to its excitation voltage, $V_s = k\, p\, V_{exc}$, and the ADC reports the ratio of its input to its reference, $D = V_s / V_{ref}$. With both supplied from the same LT3042 rail, $V_{exc} = V_{ref}$, so
 
@@ -223,16 +237,16 @@ which is a factor of about 5.7, and is why the per bin scatter in the results is
 
 Originally, a separate computer running Magtrol's M-Test software was planned to be used to read the torque and RPM from the DSP6001. However, by connecting the DSP6001's analog output for torque and RPM to the MCP3208, the torque and RPM data could be integrated into the same DAQ system as the pressure sensors, allowing for time-exact data synchronisation and simpler data collection.
 
-To measure the torque and RPM, the TM306 torquemeter was connected to the Magtrol DSP6001 dynamometer controller. The DSP6001 outputs a -10V to 10V analog signal for torque, and 0 to 10V for RPM. The DSP6001 was set to output 1V per 0.25 Nm and 1V per 5000 RPM. Because the MCP3208 could only measure positive voltages, an OPA2134 op-amp was used to shift the expected -5V to 5V torque signal to 0V to 5V. As the op-amp was not rail-to-rail, a buck converter was used to generate a -9V and 9V supply for the op-amp.
+To measure the torque and RPM, the TM306 torquemeter was connected to the Magtrol DSP6001 dynamometer controller. The DSP6001 outputs a -10V to 10V analog signal for torque, and 0 to 10V for RPM. The DSP6001 was set to output 1V per 0.25 Nm and 1V per 5000 RPM. Because the MCP3208 could only measure positive voltages, an OPA2134 op-amp was used to shift the expected -5V to 5V torque signal to 0V to 5V. As the op-amp was not rail-to-rail, a buck converter was used to generate a -9 V and +9 V supply for the op-amp.
 
 The motor's voltage and current were also measured by the ADC. The 24V supply to the motor ESC was measured with a voltage divider, and the current was measured with a WCS1600 DC hall effect current sensor.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{ADC and signal conditioning schematic: the LT3042 reference powering both the MCP3208 and the ratiometric pressure transducers, and the op-amp level shift for the torque signal.} % PLACEHOLDER IMAGE: KiCAD export
-    \label{fig:adc-schematic}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{placeholder.png}
+%     \caption{ADC and signal conditioning schematic: the LT3042 reference powering both the MCP3208 and the ratiometric pressure transducers, and the op-amp level shift for the torque signal.} % PLACEHOLDER IMAGE: KiCAD export
+%     \label{fig:adc-schematic}
+% \end{figure}
 
 \subsubsection{Other sensors}
 
@@ -246,17 +260,45 @@ One ESP32 is dedicated to actuation so the sensing loop is never held up by driv
 
 \subsubsection{Cavitation Imaging}
 
-The transparent front casing and diffuser turn the pump into its own instrument, but only if the bubbles can actually be seen on camera. Cavitation bubbles are transparent; what a camera records is light scattered at the bubble interfaces, so the imaging arrangement matters as much as the casing. The casing was lit obliquely with a high intensity lamp placed off the camera axis, so that bubble interfaces scatter light toward the camera while the bulk water stays dark, and the polished resin surface was angled to keep the specular reflection of the lamp out of frame. % [VERIFY] exact lamp type and placement; add a photo of the arrangement
-Video was recorded through the polycarbonate shield with a consumer camera. % [VERIFY] camera model and frame rate
-
-Two limitations of this arrangement should be stated. The frame rate is orders of magnitude below the blade passing frequency, so each frame is a time averaged record of the cavity envelope, not a snapshot of individual bubble dynamics, and the consumer camera's rolling shutter means different image rows sample different instants, geometrically distorting fast moving structures. Individual bubbles are still resolved in some frames where the motion is slow enough. These limits are acceptable for what the video is used for in \cref{sec:results}, identifying where cavitation occurs, when it onsets, and when the throat clears, all of which are envelope level questions. Bubble tracking or cavity dynamics would need a global shutter camera with a synchronised strobe, which is noted as future work.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{placeholder.png}
-    \caption{The cavitation imaging arrangement: oblique illumination of the transparent casing with the camera viewing through the blast shield.} % PLACEHOLDER IMAGE: photo of lamp + camera + pump
+\begin{figure}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{rolling_shutter.jpg}
+        \label{fig:rolling-shutter}
+        \caption{Attempt at freezing bubble motion with a short exposure time, but the rolling shutter distorts the image.}
+    \end{subfigure}
+    \hfill % Adds flexible space between figures
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{dark_field.jpg}
+        \label{fig:dark-field}
+        \caption{Lighting placement for dark field illumination, enhancing bubble visibility.}
+    \end{subfigure}
+    \hfill % Adds flexible space between figures
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{digit_display.png}
+        \label{fig:digit-display}
+        \caption{Synchronized timestamp display for video-data alignment.}
+    \end{subfigure}
+    \caption{Cavitation imaging arrangement}
     \label{fig:cav-imaging-setup}
 \end{figure}
+
+The transparent front casing and diffuser allow cavitation to be observed under certain conditions. As bubbles are transparent, the imaging and lighting arrangement is crucial to cavitation visibility and quality. The casing was lit 90 degrees to the camera axis with a high intensity 70W LED as shown in \cref{fig:dark-field}, so that bubble interfaces scatter light toward the camera while the bulk water and background remain dark. The color of the PLA behind the impeller was deliberately printed in black so that it absorbs the light, letting only the bubbles scatter it back to the camera. 
+
+The bright LED was used so that the camera could be set to a very short exposure time and attempt to freeze the motion of the bubbles. However, it was found during testing that the consumer phone camera that was used had a rolling shutter sensor. This means that even with the tested short exposure time of 1/19500s, each row of the camera's sensor is exposed at a slightly different time, so fast moving structures appear geometrically distorted as shown in \cref{fig:rolling-shutter}. There are two ways to improve this. The first is to use a global shutter camera, which exposes the entire sensor at once. The second is to use the LED in a strobe mode, flashing the light for microseconds with the camera's exposure time set to a longer value. This way, the camera sees only the strobe flash and the motion is frozen. This could haev been possible by using the mosfet controllers on the actuator board to drive the LED in strobe mode. However, due to time constraints this was not implemented and is left as a possible future improvement to the experimental setup.
+
+The setup was still useful for the purpose of identifying where and when cavitation occurs, which is arguably more important than getting a perfect image of the bubbles. To synchronize the video with the data, a 12 digit 7-segment display was placed in the camera's field of view, showing the backend's internal experimental timestamp as shown in \cref{fig:digit-display}.
+
+%The frame rate is orders of magnitude below the blade passing frequency, so each frame is a time averaged record of the cavity envelope, not a snapshot of individual bubble dynamics, and the consumer camera's rolling shutter means different image rows sample different instants, geometrically distorting fast moving structures. Individual bubbles are still resolved in some frames where the motion is slow enough. These limits are acceptable for what the video is used for in \cref{sec:results}, identifying where cavitation occurs, when it onsets, and when the throat clears, all of which are envelope level questions. Bubble tracking or cavity dynamics would need a global shutter camera with a synchronised strobe, which is noted as future work.
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{placeholder.png}
+%     \caption{The cavitation imaging arrangement: oblique illumination of the transparent casing with the camera viewing through the blast shield.} % PLACEHOLDER IMAGE: photo of lamp + camera + pump
+%     \label{fig:cav-imaging-setup}
+% \end{figure}
 
 \subsubsection{Instrument Uncertainty}
 
@@ -371,12 +413,10 @@ The thermocouple is the one channel I could not recover. Its calibration drifted
 
 % This is an unachievable worst case and still sits well below the 3 Nm rating of the shaft train.
 
-\subsubsection{Protection System Electronics}
+% The safety relay is a certified device whose failure modes are themselves controlled, which is the reason for using one instead of a software interlock through the Raspberry Pi: the software stack is involved in detecting the overspeed, but once the trip fires, no software is in the loop between the relay and the valves. % [VERIFY] overspeed detection path (backend threshold -> relay input) and reset procedure
+%The pneumatic actuators are spring return, chosen so that the de-energised state is the safe state: on any loss of actuation power, including a tripped relay, a cut LAN cable or a power failure, the main air valve drives closed and the vent valve opens the manifold to atmosphere. The 20 ms figure used in the runaway analysis below is the relay contact response; the valve travel times dominate the rest of the shutdown timeline.
 
-The protection logic that the next section's transient analysis relies on is implemented in hardware, not software. The core is a PILZ PNOZ X3 safety relay wired as a dual channel emergency stop chain: the control room E-stop button and the overspeed trip both open the chain, and the relay then cuts the supply to every actuator solenoid through its force guided contacts. The safety relay is a certified device whose failure modes are themselves controlled, which is the reason for using one instead of a software interlock through the Raspberry Pi: the software stack is involved in detecting the overspeed, but once the trip fires, no software is in the loop between the relay and the valves. % [VERIFY] overspeed detection path (backend threshold -> relay input) and reset procedure
-The pneumatic actuators are spring return, chosen so that the de-energised state is the safe state: on any loss of actuation power, including a tripped relay, a cut LAN cable or a power failure, the main air valve drives closed and the vent valve opens the manifold to atmosphere. The 20 ms figure used in the runaway analysis below is the relay contact response; the valve travel times dominate the rest of the shutdown timeline.
-
-The electrical system itself is low risk by construction: everything in the test cell runs at 24 V DC or below from a single supply, the electronics live in an enclosed plastic box protecting them from spray, and the only conductor crossing the test cell boundary is the LAN cable to the control room, which carries no power. The motor ESC and its 24 V supply are the highest energy electrical components, and they are inside the same enclosure boundary with the rotating hardware, behind the shield. % [VERIFY] supply details (single 24V rail assumption) against the as-built electronics
+%The electrical system itself is low risk by construction: everything in the test cell runs at 24 V DC or below from a single supply, the electronics live in an enclosed plastic box protecting them from spray, and the only conductor crossing the test cell boundary is the LAN cable to the control room, which carries no power. The motor ESC and its 24 V supply are the highest energy electrical components, and they are inside the same enclosure boundary with the rotating hardware, behind the shield. % [VERIFY] supply details (single 24V rail assumption) against the as-built electronics
 
 % \subsubsection{Overspeed Runaway Transient}
 
@@ -395,3 +435,20 @@ The electrical system itself is low risk by construction: everything in the test
 % \end{equation}
 
 % for the measured manifold volume. The protection sequence is: overspeed detected at $t=0$, all actuation power cut by the hardware relay at 20 ms, main valve fully closed at 170 ms, manifold vented by around 200 ms. Holding the maximum torque over the full 200 ms overestimates the excursion and still bounds it at 6,260 RPM, so an overspeed tripped at 17,000 RPM peaks below 23,300 RPM, briefly exceeding the 20,000 RPM dynamometer rating within the manufacturer's stated tolerance for transient overuse. Cavitation testing was further speed limited so that the same worst case stays below 19,000 RPM. The venting noise and reaction force calculations that complete the safety case are in \cref{sec:appendix_safety}.
+
+
+\subsubsection{Electric Motor Drive and Control}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.46\textwidth]{motor_esc.jpeg}
+    \caption{The electric motor and ESC mounted to the test rig.} % PLACEHOLDER IMAGE: photo of the motor and ESC
+    \label{fig:motor-esc}
+\end{wrapfigure}
+A hobby 4 pole 4092 800 Kv brushless DC motor was used to drive the pump. The motor was controlled by a spare unbranded 80 A 6S electronic speed controler (ESC). To mount this motor to test rig, a single piece PLA 3D printed bracket was designed to hold and align the motor to the torquemeter's shaft in the same way as the pump and turbine mounts. Both the motor and the ESC can be seen in the left of the \cref{fig:motor-esc}. Both the ESC and motor consume a lot of power, so cooling solutions were used for both of them. The motor was equipped with a water cooling jacket fed by the water circuit, while the ESC had a fan mounted to the top of its radiator.
+
+The ESC was powered by the 24 V supply from the electronics box through a contactor driven by a mosfet on the actuator board connected to the safety relay. The system was sized to allow motor driven testing up to 1.2 kW, the maximum power the power supply could deliver. However, during testing it was found that the ESC could not deliver more than 0.45 Nm of torque to the motor, which limited the maximum speed during motor driven pump testing to 9000 RPM at zero flow, which is the lowest torque condition of a pump. During useful experimental testing requiring flow, the maximum characterised pump speed where the ESC did not repeatedly fail was capped at 7500 RPM.
+
+The plan was to use this cheap ESC to test the low power and low speed operation of the pump, and then to upgrade to a more expensive and robust ESC driven by batteries as batteries can deliver more current than the power supply. The cheap ESC had a very low $\approx60\%$ electrical to mechanical power conversion efficiency as measured by voltage and current against the torque and speed. All of these limitations meant that a maximum of 600 W of electrical power was delivered to the ESC during testing, and a maximum of 400 W of mechanical power was delivered to the pump, which is well below the 1.2 kW that the system was sized for. 
+
+A replacement ESC was purchased and installed onto the test rig, however it unfortunately arrived defunct before experimental time ran out and thus the motor driven pump testing was limited to 7500 RPM. 
