@@ -44,6 +44,7 @@ The diffuser is a single conical passage placed tangentially on the annular casi
 Barske comments that the number of impeller blades does not seem to be critical, with 3-6 being operated successfully. However, altering the number of blades can be used to elminite fluid vibrations \cite{barskeDesignOpenImpeller}. Lock provides corrections for blades from 1 to 16 \cite{lockForcedVortexPump1966}.
 
 \subsubsection{Mechanical Design}
+\label{subsubsec:pump_mech_design}
 
 After the theoretical Barske pump geometry has been sized to deliver the design head at a desired flow rate, it has to then be translated into a manufacturable assembly that satisfies additional practical requirements. The mechanical design has to survive loading conditions such as high rotational speeds and pressures. Then, it also has to be leak tight, manufacturable and assemblable. A CAD model of the pump assembly that satisfies these requirements is shown in \cref{fig:pump-cad-section}.
 
@@ -347,6 +348,19 @@ Bringing the MoC geometry designed for axial flow into radial flow in CAD led to
 %     \label{fig:turbine-campbell}
 % \end{figure}
 
-\subsubsection{Manufacturing}
+\subsubsection{Mechanical Design}
 
-The rotor and the stator nozzle block were printed by SLA in Tough 2000 resin, washed in IPA, UV cured, and the mating faces sanded flat. Printed resin turbomachinery at this power level is published practice rather than an improvisation, as Weiss cites both an experimental kW scale SLA resin air turbine and SLA diffuser vanes in operation \cite{weissCustomizedORCMicro2020}.
+Weiss cites both an experimental kW scale SLA resin air turbine and SLA diffuser vanes in operation \cite{weissCustomizedORCMicro2020}, demonstrating that the material is suitable for this application. This was the chosen material in this thesis due to cost and manufacturing simplicity.
+
+The shaft, bearing and bracket arrangement is designed with the exact same principles used in the pump mechanical design as discussed in \cref{subsubsec:pump_mech_design}. The new component is the turbine blisk and the stator as shown in \cref{fig:turbine-cad-section}. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{turbine_mech.png}
+    \caption{Labeled CAD isotropic and section view of the turbine assembly} % PLACEHOLDER IMAGE: Fusion export
+    \label{fig:turbine-cad-section}
+\end{figure}
+
+Due to being manufactured through SLA printing in Formlabs Tough 2000 resin, the turbine blisk was low in stiffness and the cantilevered blades were prone to deflection. To mitigate this, an integrated shroud was placed above as a ring to stiffen the blades and reduce tip deflection. FEA also showed that the deflection would bend the turbine disc and cause the blades to contact the stator, so counterweight blocks were added to the other side of the disc to balance this and reduce the bending.
+
+The stator was designed in two halves so that it could be manufactured traditionally using 2.5D CNC milling. This necessitated a seal between the two halves. A 0.5 mm thick silicone gasket lasercut to be compressed between the two halves was used to seal the stator. The stator halves were then bolted by 8 M6 screws and 2 M4 screws to provide enough clamping force to compress the gasket and seal the stator against the design supply pressure of \valTurbPZeroOneDesign. The bolts had to be distributed evenly around the stator to avoid gasket gapping and prevent leakage.
