@@ -60,6 +60,31 @@ After the theoretical Barske pump geometry has been sized to deliver the design 
 
 \paragraph{Sealing} Most rotary seals did not work for this application. A lip seal wears out fast at this surface speed and holds very little pressure, a labyrinth seal could not be reliably used with plastic parts due to printing tolerances, and packing has too high friction. This led to the choice of using a mechanical seal. Mechanical seals consist of a spring loaded rotating face running against a stationary face with the only leak path a thin liquid film between two lapped surfaces. The liquid film greatly reduces the friction between the two faces. A John Crane 59U-14 mechanical seal was used. Mechanical seals operate by pressing a rotating face against a stationary face with a thin liquid film in between \cite{karassikPumpHandbook2008}. For the static seals, two O-rings sized with the \cite{ParkerORingHandbook} were used to seal the inlet against the casing and the casing to the bearing housing. The seal between the inlet and the casing was a piston seal, while the seal between the casing and the bearing housing was a face seal.
 
+\paragraph{Mechanical Losses} The mechanical losses of this pump assembly come from the bearings and the mechanical seal. The bearings were 61900 series stainless steel ball bearings chosen for their water resistance and cost. In this design, one bearing is submerged in water, increasing the drag loss. The power loss of the bearing was estimated by SKF's frictional moment model \cite{skfRollingBearings}. Karrasik gives a formula for mechanical seal friction \cite{karassikPumpHandbook2008} with \cref{eq:seal_heat}.
+
+\begin{equation}
+    \tau_{seal} = p_f\, A_f\, r_m\, f, \qquad
+    P_{seal} = \tau_{seal}\, \omega
+    \label{eq:seal_heat}
+\end{equation}
+
+where $B_r$ is the seal balance ratio built from the mechanical seal face outer and inner diameters $d_o$, $d_i$ and the balance diameter $d_b$ as shown in \cref{fig:mech-seal}, $k \approx 0.5$ is the pressure profile factor for the fluid film between the faces assuming a linear pressure distribution, and $p_{sp}$ is the spring force over the face area and $\Delta p$ is the pressure differential across the seal face \cite{gulichCentrifugalPumps2020}. % [VERIFY] cite: balance-ratio formulation is standard seal practice (Karassik/Mayer); swap citation if Gulich lacks it
+
+\begin{equation}
+    p_f = \Delta p \left(B_r - k\right) + p_{sp}, \qquad
+    B_r = \frac{d_o^2 - d_b^2}{d_o^2 - d_i^2}
+    \label{eq:seal_balance}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{mech_seal.png}
+    \caption{Geometric dimensions of an OD pressurized the mechanical seal by Karrasik \cite{kackerMeanLinePrediction1982}.} % PLACEHOLDER IMAGE: Fusion export
+    \label{fig:mech-seal}
+\end{figure}
+
+In conventional shrouded impellers, the back face of the impeller is exposed to the the full pressure rise of the pump, contributing to a higher pressure $\Delta p$ that needs to be sealed across the shaft, leading to higher mechanical seal friction. The Barske impeller is open and the back face is exposed to the suction pressure, which reduces the pressure differential across the seal and therefore the friction.
+
 \paragraph{Concentricity} Concentricity is of great importance in high speed rotating machinery. The design takes advantages of shoulders and press fits to ensure the concentricity between every interfacing part as shown in \cref{fig:pump-cad-section}. 
 
 % The dominant mechanical load is not torque but radial thrust. Because the pump is partial emission, the pressure field around the impeller is asymmetric, and the net radial force this produces governs the shaft and bearing design rather than efficiency considerations. The radial thrust is estimated with the standard projected area form
@@ -76,20 +101,7 @@ After the theoretical Barske pump geometry has been sized to deliver the design 
 
 % The mechanical seal sets its own requirement, and its friction was modelled rather than guessed because it sits between the torquemeter and the impeller, inside every torque measurement of \cref{sec:results}. The net closing pressure on the seal faces is the sealed pressure acting on the hydraulic unbalance of the face, plus the spring:
 
-% \begin{equation}
-%     p_f = \Delta p \left(B_r - k\right) + p_{sp}, \qquad
-%     B_r = \frac{d_o^2 - d_b^2}{d_o^2 - d_i^2}
-%     \label{eq:seal_balance}
-% \end{equation}
 
-% where $B_r$ is the seal balance ratio built from the face outer and inner diameters $d_o$, $d_i$ and the balance diameter $d_b$, $k \approx 0.5$ is the pressure profile factor for the fluid film between the faces, and $p_{sp}$ is the spring force over the face area \cite{gulichCentrifugalPumps2020}. % [VERIFY] cite: balance-ratio formulation is standard seal practice (Karassik/Mayer); swap citation if Gulich lacks it
-% The friction torque and heat follow as
-
-% \begin{equation}
-%     \tau_{seal} = p_f\, A_f\, r_m\, f, \qquad
-%     P_{seal} = \tau_{seal}\, \omega
-%     \label{eq:seal_heat}
-% \end{equation}
 
 % with $A_f$ the face contact area, $r_m$ the mean face radius and $f$ the face friction coefficient. With the dry running textbook coefficient $f = 0.07$, the model predicts about 0.4 Nm and 860 W of face heating at the 20 bar, 20,000 RPM design point, and about 0.08 Nm and 60 W at the achieved test conditions. The design point heat flux would flash the water film at the faces to steam without an active flush, so the seal is flushed by the pumped water itself. Two parts of this model are tested against data later: the static starting torque, quoted by Karassik at 3 to 5 times the running torque, is compared against the measured stiction band in \cref{sec:results}, and the friction coefficient itself is fitted from the measured loss budget, which returns $f$ well below the dry value because the faces run on a water film.
 
@@ -106,28 +118,28 @@ After the theoretical Barske pump geometry has been sized to deliver the design 
 
 
 
-The pump shaft critical speed was bounded with the same overhung rotor estimate used for the turbine shaft, \cref{eq:overhung_critical}. Treating the 10 mm stainless shaft ($E = 193$ GPa, $I = \pi d^4/64 = 4.9\times10^{-10}$ m$^4$) as a cantilever from the bearing with the impeller mass at the overhang, the first bending speed stays above approximately 45,000 RPM for any plausible combination of overhang length up to 50 mm and impeller mass up to 100 g, a margin of better than 2.2 over the design speed. % [VERIFY] as-built overhang length and impeller mass; tighten the bound with the real values
-The bound is deliberately conservative, since the short stub geometry was chosen exactly to keep this margin large, as discussed in \cref{sec:experiment}.
+% \paragraph{Rotordynamics} The pump shaft critical speed was bounded with the same overhung rotor estimate used for the turbine shaft, \cref{eq:overhung_critical}. Treating the 10 mm stainless shaft ($E = 193$ GPa, $I = \pi d^4/64 = 4.9\times10^{-10}$ m$^4$) as a cantilever from the bearing with the impeller mass at the overhang, the first bending speed stays above approximately 45,000 RPM for any plausible combination of overhang length up to 50 mm and impeller mass up to 100 g, a margin of better than 2.2 over the design speed. % [VERIFY] as-built overhang length and impeller mass; tighten the bound with the real values
+% The bound is deliberately conservative, since the short stub geometry was chosen exactly to keep this margin large, as discussed in \cref{sec:experiment}.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{placeholder.png}
-    \caption{Static FEA of the impeller and shaft at \valPumpRpmDesign{} showing peak stress and deflection.} % PLACEHOLDER IMAGE: Fusion 360 study; state mesh + BCs + hand-calc cross-check in text
-    \label{fig:pump-fea}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{placeholder.png}
+%     \caption{Static FEA of the impeller and shaft at \valPumpRpmDesign{} showing peak stress and deflection.} % PLACEHOLDER IMAGE: Fusion 360 study; state mesh + BCs + hand-calc cross-check in text
+%     \label{fig:pump-fea}
+% \end{figure}
 
 % \subsubsection{Cavitation Prediction}
 
 % At the design flow rate, the predicted NPSH required is \valPumpNpshrDesign. Compared against the NPSH available from the pressurised supply, this leaves a positive but not generous margin, which is one of the reasons the cavitation behaviour was made a primary measurement objective. The full NPSH against flow rate characterisation, and the visual confirmation of where cavitation actually occurs, are presented in \cref{sec:results}.
 
-\subsubsection{Manufacturing and As-Built}
+% \subsubsection{Manufacturing and As-Built}
 
-The impeller, casing and diffuser were printed by SLA. Additive manufacturing is acceptable for this pump precisely because of the forced vortex operation described in \cref{sec:theory}. With the fluid rotating as a solid body, the relative velocity over the blade surfaces is low, so blade surface finish has little effect on performance and the print finish is sufficient. Two tolerances dominate performance and were flagged for inspection: the axial clearance $s_{ax}$ between the blades and the casing, and the diffuser throat diameter. The as-built throat turned out to matter a great deal, as the true minimum area was found to be the \valPumpThroat{} semicircular passage into the annular casing rather than the \valPumpThroatCutwater{} cone cutwater downstream, and this distinction becomes central to the cavitation analysis in \cref{sec:results}. Full as-built deviation tables are in the appendix.
+% The impeller, casing and diffuser were printed by SLA. Additive manufacturing is acceptable for this pump precisely because of the forced vortex operation described in \cref{sec:theory}. With the fluid rotating as a solid body, the relative velocity over the blade surfaces is low, so blade surface finish has little effect on performance and the print finish is sufficient. Two tolerances dominate performance and were flagged for inspection: the axial clearance $s_{ax}$ between the blades and the casing, and the diffuser throat diameter. The as-built throat turned out to matter a great deal, as the true minimum area was found to be the \valPumpThroat{} semicircular passage into the annular casing rather than the \valPumpThroatCutwater{} cone cutwater downstream, and this distinction becomes central to the cavitation analysis in \cref{sec:results}. Full as-built deviation tables are in the appendix.
 
 
-\subsubsection{Comparison to Conventional Design}
+% \subsubsection{Comparison to Conventional Design}
 
-Before committing to the Barske architecture, a conventional shrouded impeller was carried through a full Kaplan method blade construction at this duty point. The attempt is documented in \cref{sec:appendix_conventional} and its conclusion is what justifies the architecture choice. The design correlations repeatedly broke down outside their validity ranges, and the geometry that emerged had twisted multi streamline blades with sub millimetre closed channel widths, which is not manufacturable at this scale with any process available to this project. This matches the published conventional design at the same specific speed \cite{kimDevelopmentUltraLowSpecific2022}. The quantitative comparison of the two architectures against literature is made with the measured data in \cref{sec:results}.
+% Before committing to the Barske architecture, a conventional shrouded impeller was carried through a full Kaplan method blade construction at this duty point. The attempt is documented in \cref{sec:appendix_conventional} and its conclusion is what justifies the architecture choice. The design correlations repeatedly broke down outside their validity ranges, and the geometry that emerged had twisted multi streamline blades with sub millimetre closed channel widths, which is not manufacturable at this scale with any process available to this project. This matches the published conventional design at the same specific speed \cite{kimDevelopmentUltraLowSpecific2022}. The quantitative comparison of the two architectures against literature is made with the measured data in \cref{sec:results}.
 
 % ==================================================================
 \subsection{Turbine Design}
