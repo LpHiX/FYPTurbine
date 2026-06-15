@@ -271,14 +271,16 @@ Applying the Weiss loss model of \cref{subsec:weissloss} at the design point giv
 
 \subsubsection{Blade Geometry Details}
 
-Bringing the MoC geometry designed for axial flow into radial flow in CAD led to a few geometric compromises. First of all, the upper and lower surfaces had to be angled by the pitch angle to keep the MoC passage geometry conserved. Due to this, the recommendations by Boxer described in \cref{subsec:finite_leading_edge} could not be followed geometrically. The final profile that was designed in CAD and tested is shown in \cref{fig:turbine-blade-cad}. As can be seen, the rotation of the blade surfaces led to thin inlet as compared to the outlet. The minimum thickness was 0.35 mm to keep the blade manufacturable by SLA printing, and both edges were rounded with a 0.2 mm radius to enhance its strength.
-
-\begin{figure}[H]
+\begin{wrapfigure}{r}{0.4\textwidth}
     \centering
-    \includegraphics[width=0.6\textwidth]{blade_cad.png}
+    \includegraphics[width=0.38\textwidth]{blade_cad.png}
     \caption{CAD Blade profile}
     \label{fig:turbine-blade-cad}
-\end{figure}
+\end{wrapfigure}
+
+Bringing the MoC geometry designed for axial flow into radial flow in CAD led to a few geometric compromises. First of all, the upper and lower surfaces had to be angled by the pitch angle to keep the MoC passage geometry conserved. Due to this, the recommendations by Boxer described in \cref{subsec:finite_leading_edge} could not be followed geometrically. The final profile that was designed in CAD and tested is shown in \cref{fig:turbine-blade-cad}. As can be seen, the rotation of the blade surfaces led to thin inlet as compared to the outlet. The minimum thickness was 0.35 mm to keep the blade manufacturable by SLA printing, and both edges were rounded with a 0.2 mm radius to enhance its strength.
+
+
 
 % Three geometry details depart from the ideal MoC contour. First, the leading edge. The MoC construction produces a zero thickness leading edge, which cannot be printed. A finite wedge of about 5 degrees was added on the pressure surface following the approach in \cref{sec:theory}. The shock detachment angle at the design relative Mach number of about 1.3 is around 6.5 degrees, so a 5 degree wedge keeps the oblique shock attached. Second, the trailing edge is truncated to a flat of about 0.8 mm so it survives both the shock loading and embrittlement, since the expansion cools the air to around $-88\,^\circ$C at the exit. Third, balance holes are drilled through the disc web to equalise the pressure across the rotor and remove around 400 N of parasitic axial thrust. Balance holes and pistons are standard rocket pump practice \cite{kawasakiUnsteadyResponseFlow2013}, and a CFD study of a Barske type pump in the same regime showed balance holes reducing the axial force from 17 kN to 350 N, the same order of effect as needed here \cite{knyazevaDesignFluidDynamics2021}. Finally, the blades are shrouded, which reduces the blade tip deflection by a factor of around 48 and removes tip leakage as a loss mechanism.
 

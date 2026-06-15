@@ -7,23 +7,23 @@ The experimental setup was designed for three specific configurations: Electric 
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.32\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{placeholder.png}
+        \includegraphics[width=\textwidth]{motor-pump.png}
         \caption{Motor driven pump} % PLACEHOLDER IMAGE
         \label{fig:electric-pump-config}
     \end{subfigure}
     \hfill % Adds flexible space between figures
-    \begin{subfigure}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.32\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{placeholder.png}
+        \includegraphics[width=\textwidth]{turbine-brake.png}
         \caption{Turbine against brake} % PLACEHOLDER IMAGE
         \label{fig:turbine-brake-config}
     \end{subfigure}
     \hfill % Adds flexible space between figures
-    \begin{subfigure}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.32\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{placeholder.png}
+        \includegraphics[width=\textwidth]{turbine-pump.png}
         \caption{Coupled turbopump} % PLACEHOLDER IMAGE
         \label{fig:turbopump-config}
     \end{subfigure}
@@ -36,20 +36,20 @@ In all three configurations, there is a driving component, the torquemter and a 
 %torqumeter accuracy chain: dsp6001 0.05% VDC accuracy, input from tm306 at 0.02% accuracy, from <0.1% accuracy in tm306 itself. 
 \subsection{Mechanical Layout and Shaft Train}
 
-At the design 20,000 RPM for the rig, shaft alignment, rigidity and maintainability were the main drivers. At 20,000 RPM, available shaft couplers had barely any tolerance for misalignment. The Magtrol MIC-5-2470 couplers had a maximum 0.8mm axial, 0.36mm radial and$0.7^\circ$ angular misalignment tolerance at 35,000 RPM. Shaft couplers had to be used to connect rotary components to the transducers, a requirement that doesn't have to be satisfied by turbopump units as the shaft can be machined as a single piece.
+At the design 20,000 RPM for the rig, shaft alignment, rigidity and maintainability were the main drivers. At 20,000 RPM, available shaft couplers had barely any tolerance for misalignment. The Magtrol MIC-5-2470 couplers had a maximum 0.8mm axial, 0.36mm radial and $0.7^\circ$ angular misalignment tolerance at 35,000 RPM. Shaft couplers had to be used to connect rotary components to the transducers, a requirement that doesn't have to be satisfied by turbopump units as the shaft can be machined as a single piece.
 
-The central component of each configuration in \cref{fig:test-configs} is the Magtrol's TM306 inline torquemeter as it allows the stated <0.1\% torque measurement accuracy. As the torquemeter was designed to be mounted onto a base plate, a base plate design was chosen instead of an integrated assembly like a normal turbopump.
+The central component of each configuration in \cref{fig:test-configs} is the Magtrol's TM306 inline torquemeter as it allows the stated $<0.1 \%$ torque measurement accuracy. As the torquemeter was designed to be mounted onto a base plate, a base plate design was chosen instead of an integrated assembly like a normal turbopump.
 
 The base plate is a \valRigBaseplateThk plywood with a laminate on both sides to be semi-waterproof, to have a flat surface for mounting, rigid but also cheap. M6 and M8 Countersunk holes were drilled into the base plate with a CNC router to allow for precise mounting of the components.
 
 Each rotating component sits on its own mount bolted down to this baseplate. The mounts were 3D printed with a flat rectangular base and the same 80.00 mm shaft height as the torquemeter, so that bolting a mount flat to the baseplate already puts its shaft on the torquemeter centreline in the vertical direction without any shimming. The mounts also carry the alignment reference faces described below. The whole turbomachinery stand is then surrounded by a blast shield, a frame of aluminium extrusion carrying a 20 mm Dyneema panel on the faces looking at the rotating parts and a 15 mm polycarbonate window where the test has to be watched. The frame is bolted to the bench rather than to the baseplate, so that a failure of the rig does not feed straight into the shield through the same structure. The sizing of these panels is the subject of the protection system design later in this chapter.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{The assembled test rig with the major components labelled: motor, couplers, torquemeter, pump, turbine and the throttle valves on the CNC drilled baseplate.} % PLACEHOLDER IMAGE: labelled photo
-    \label{fig:rig-labelled}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{placeholder.png}
+%     \caption{The assembled test rig with the major components labelled: motor, couplers, torquemeter, pump, turbine and the throttle valves on the CNC drilled baseplate.} % PLACEHOLDER IMAGE: labelled photo
+%     \label{fig:rig-labelled}
+% \end{figure}
 
 \subsubsection{Shaft alignment}
 
@@ -59,24 +59,23 @@ The alignment of each component to the torquemeter had many challenges. Mounting
 
 The shaft couplers were also single piece, so the shaft couplers which do not have a edge true to the shaft axis. This meant that the shaft couplers could not be installed after the shafts were aligned, as the couplers would have to be installed before the shafts were aligned. The space the shaft couplers took up meant it was even more difficult to use the shaft stubs for alignment.
 
-It was decided to use the flat faces of the torquemeter base as the reference for alignment. By designing the pump and turbine mounts to have a similar rectangular base and assuming that each shaft was true to the rectangular base, alignment was finally possible. Angular alignment was achieved by 3D printing a spacer with two parallel edges for the pump or turbine to sit flat against onto the torquemeter. Then, radial misalignment was achieved by designing the face parallel to the shaft to be the parallel to the torquemeter face. A straight edge could then be used as a guide to align the shaft while tightening the mounting bolts. This procedure is shown in \cref{fig:shaft-alignment}.
+It was decided to use the flat faces of the torquemeter base as the reference for alignment. By designing the pump and turbine mounts to have a similar rectangular base and assuming that each shaft was true to the rectangular base, alignment was finally possible. Angular alignment was achieved by 3D printing a spacer with two parallel edges for the pump or turbine to sit flat against onto the torquemeter. Then, radial misalignment was achieved by designing the face parallel to the shaft to be the parallel to the torquemeter face. A straight edge could then be used as a guide to align the shaft while tightening the mounting bolts. The usage of this alignment block is shown in \cref{fig:shaft-alignment}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{placeholder.png}
-    \caption{Shaft alignment procedure using the flat faces of the component mounts and precision square blocks as references.} % PLACEHOLDER IMAGE: photo or diagram
+    \includegraphics[width=0.5\textwidth]{shaft_alignment.jpg}
+    \caption{Shaft alignment procedure using the flat faces of the component mounts.} % PLACEHOLDER IMAGE: photo or diagram
     \label{fig:shaft-alignment}
 \end{figure}
 
-As the TM306 torquemeter's shaft with the base plate was machined to be preciscely 80.00 mm from the base plate, this same height was built into the pump and turbine mounts to achieve radial aligment in the vertical direction.
-
+As the TM306 torquemeter's shaft with its riser was machined to be preciscely 80.00 mm from the base plate, this same height was built into the pump and turbine mounts to achieve radial aligment in the vertical direction.
 
 \subsection{Water Circuit}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{P\&ID of the water circuit. The tank feeds the supply pump, then the inlet throttle valve, the experimental pump, the outlet throttle valve and the return line. Pressure is measured at the supply (pt\textsubscript{pump}), the pump inlet (pt\textsubscript{in}) and the pump outlet (pt\textsubscript{out}), and flow in the inlet line (fm0).} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
+    \includegraphics[width=0.8\textwidth]{water_pid.png}
+    \caption{P\&ID of the water circuit for the electric motor driven pump test configuration.} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
     \label{fig:water-pid}
 \end{figure}
 
@@ -111,7 +110,7 @@ This requirement is further driven by the $1-3^\circ$ resolution of the servo mo
     \centering
     \begin{subfigure}[b]{0.42\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{placeholder.png}
+        \includegraphics[width=\textwidth]{servo_valves.jpg}
         \caption{Servo driven throttle valve assembly} % PLACEHOLDER IMAGE: photo/CAD of the 3D printed servo housings
         \label{fig:servo-valves}
     \end{subfigure}
@@ -134,13 +133,19 @@ The location chosen for the experiment required a safe test area and a control r
 
 Originally, a 100 bar compressed air supply was designed and parts readied to be used to drive the turbine. Unfortunately due to time constraints, the shop air supply within the hypersonics lab was used instead. Details of the 100 bar compressed air supply can be found in \todo{add appendix reference}. The shop air which was limited to 7 barg was connected to partially assembled parts of original feed system. The shop air was connected to a GRT20s-280N100-SSKN-L 0-280 to 0-100 bar regulator with a Kv of 1.5. This regulator fed into the the main 1" valve, teed into a 1/2" vent valve and finally into the turbine inlet.
 
-Both valves were Swagelok pneumatically actuated spring return ball valves. The main valve was the  SS-65TS16-35C with a Cv of 40 and the vent valve was SS-45S8-33C with a Cv of 12. These valves were driven by 2 5/2 solenoid valves connected to the shop air supply.
+Both valves were Swagelok pneumatically actuated spring return ball valves. The main valve was the  SS-65TS16-35C with a Cv of 40 and the vent valve was SS-45S8-33C with a Cv of 12. These valves were driven by 2 5/2 solenoid valves connected to the shop air supply. Due to droop in the shop air regulator, maximum turbine inlet pressure at max flow was measured to be 3.1 bara. There was no budget for an air flowmeter. A P\&ID of the combined air supply and water circuit is shown in \cref{fig:combined-pid}.
 
-Due to droop in the shop air regulator, maximum turbine inlet pressure at max flow was measured to be 3.1 bara. There was no budget for an air flowmeter.
 
-The supply droop deserves a proper explanation because it directly sets the coupled test conditions in \cref{sec:results}. The shop air behaves as a regulated blowdown with a finite supply. When the turbine valve opens, the regulator cannot hold its set pressure at the demanded flow, so the stator pressure sags well below the static setting, and the achievable turbine inlet pressure under flow is roughly 38\% of the design supply. This is a property of the rig, not of the turbine, but it has to be characterised because the turbine match point depends on it.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{turbine_pid.png}
+    \caption{P\&ID of the water and air circuit for the turbopump configuration.} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
+    \label{fig:combined-pid}
+\end{figure}
 
-To verify the original 100 bar feed system before it was descoped, a transient flow network simulation was written from scratch. The model solves the tank blowdown as a system of differential equations, with each component represented by its flow coefficient, tube friction from roughness and bends, a regulator model holding its set pressure within a control band, and the choked stator as the terminating element. This was admittedly an overkill way to answer the question of whether two 3.8 litre tanks held enough gas for a full test, but it gave the test durations and the pressure transients at every node of the feed system, and the same component models were reused to size the valve Kv requirements. The simulation code is part of the project's analysis repository.
+% The supply droop deserves a proper explanation because it directly sets the coupled test conditions in \cref{sec:results}. The shop air behaves as a regulated blowdown with a finite supply. When the turbine valve opens, the regulator cannot hold its set pressure at the demanded flow, so the stator pressure sags well below the static setting, and the achievable turbine inlet pressure under flow is roughly 38\% of the design supply. This is a property of the rig, not of the turbine, but it has to be characterised because the turbine match point depends on it.
+
+% To verify the original 100 bar feed system before it was descoped, a transient flow network simulation was written from scratch. The model solves the tank blowdown as a system of differential equations, with each component represented by its flow coefficient, tube friction from roughness and bends, a regulator model holding its set pressure within a control band, and the choked stator as the terminating element. This was admittedly an overkill way to answer the question of whether two 3.8 litre tanks held enough gas for a full test, but it gave the test durations and the pressure transients at every node of the feed system, and the same component models were reused to size the valve Kv requirements. The simulation code is part of the project's analysis repository.
 
 \subsection{Instrumentation and Data Acquisition}
 
@@ -150,22 +155,37 @@ For cost and time reasons, a custom data acquisition and control system was desi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{placeholder.png}
-    \caption{Data acquisition architecture. Sensors and the DSP6001 analog outputs feed the MCP3208 ADC, read by an ESP32-S3 over SPI, streamed to the Raspberry Pi 5 over UART, logged to HDF5 and forwarded to the control room GUI over the network.} % PLACEHOLDER IMAGE: block diagram
-    \label{fig:daq-block}
+    \includegraphics[width=0.8\textwidth]{electric_map.png}
+    \caption{Block diagram of full electronics system including safety, data acquisition, and control components.} % PLACEHOLDER IMAGE: block diagram
+    \label{fig:electric-map}
 \end{figure}
 
 For safety reasons, the electronics were enclosed in a plastic box placed in the test room, controlled by a LAN cable fed under the wall between the test room and the control room into my laptop.
 
 The main main computer inside this box was a Raspberry Pi 5 running a backend written in Python. The Raspberry Pi communicated with 3 ESP32S3 microcontrollers over a UART serial connection at 921600 baud. One ESP32S3 was used as the actuator controller, one was used as a ADC and flowmeter DAQ, and one was used as a thermocouple DAQ. Breadboards would require too many wires to maintain and unstable, while there was not enough time to make custom PCBs. Soldered perfboard was used to connect the components. The Raspberry Pi communicates through the LAN cable through UDP to a laptop in the control room, allowing for live data readout and control of the test rig with a GUI written in Python and Qt.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{placeholder.png}
-    \caption{The control room GUI during a test: live channel readouts, strip charts of pressure, torque and speed, valve angle controls, and the test sequencing and logging controls. Every quantity shown is logged to HDF5 at the full 50 Hz loop rate, so the analysis of \cref{sec:results} works from exactly what the operator saw.} % PLACEHOLDER IMAGE: GUI screenshot during a run (pick a frame with the pump near BEP)
-    \label{fig:gui-readout}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.85\textwidth]{placeholder.png}
+%     \caption{The control room GUI during a test: live channel readouts, strip charts of pressure, torque and speed, valve angle controls, and the test sequencing and logging controls. Every quantity shown is logged to HDF5 at the full 50 Hz loop rate, so the analysis of \cref{sec:results} works from exactly what the operator saw.} % PLACEHOLDER IMAGE: GUI screenshot during a run (pick a frame with the pump near BEP)
+%     \label{fig:gui-readout}
+% \end{figure}
 
+\begin{figure}[H]
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{electric_box.jpg}
+        \caption{The electronics box with the Raspberry Pi, ESP32S3s and power supply.} % PLACEHOLDER IMAGE: photo of the electronics box
+        \label{fig:daq-box}
+    \end{subfigure}
+    \hfill % Adds flexible space between figures
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{electric_safety.png}
+        \caption{The interior of the electronics box showing the ESP32S3s and perfboard.} % PLACEHOLDER IMAGE: photo of the electronics box interior
+        \label{fig:daq-box-interior}
+    \end{subfigure}
+\end{figure}
 \subsubsection{Power Architecture and Custom Boards}
 
 The whole test cell runs from a single 24 V supply. This was a deliberate choice so there is only one thing to switch off and so the highest voltage anywhere in the cell stays low. Everything else is derived from the 24 V on the boards. A set of buck converters steps it down to the 5 V logic rail for the microcontrollers and to the minus 9 V and plus 9 V rails the torque op-amp needs. A separate LT3042 linear regulator then generates the quiet 5.11 V rail that acts as both the ADC reference and the pressure transducer excitation, kept off the switching converters so it stays clean. The reason that one rail feeds both the reference and the excitation is the ratiometric cancellation explained in the next section.
