@@ -527,7 +527,7 @@ def fig_npshr_vs_q():
     if vid:
         q, n, _ = zip(*vid)
         ax.plot(q, n, "x", ms=6, color="k", label="video: throat inception")
-    qth = np.linspace(1e-5, 0.45e-3, 80)
+    qth = np.linspace(1e-5, 0.30e-3, 80)   # clip to design flow; curve is ~Q^2
     lk = lock(qth, exp_runs()["50%"]["N"], K_FIT, ETAL_FIT)
     plot_theory(ax, qth * 1000, lk["NPSHr_throat"], color="k",
                 label="Lock throat NPSHr (high-flow cutoff)")

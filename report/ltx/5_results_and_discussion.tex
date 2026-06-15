@@ -206,33 +206,22 @@ Cavitation behaviour matters a lot for a rocket pump, since the whole point of t
 
 The suction test is run by holding the speed and the flow rate, then closing the inlet throttle to walk the inlet pressure down. \cref{fig:cav-suction} shows the result, one curve per held flow rate, head normalised by the nominal operating head against the NPSH available. Each curve holds its reference head over most of the suction range and then falls off a cliff. The 3\% head drop criterion picks the breakdown point off each curve, and because the cliff is steep the choice of criterion barely changes the result. %The head loses around 60\% over a range comparable to the binning noise, so the knee and the 3\% line land in effectively the same place.
 
+The low flow curves do this cleanly, holding their reference head over most of the suction range and then falling off a cliff. The high flow curves instead climb as the inlet pressure comes down, the highest flow run reaching about 2.4 times its reference head before the same cliff. That climb is an artifact of the test setup. As closing the inlet throttle also lowers the flow rate, there is around a 34\% drop over a sweep in the higher flows. As seen in \cref{dim-eq}, decreasing flow rate near the cutoff point leads to a higher head, so each curve is the head flow characteristic walked backwards as the valve shuts. A standard suction test would hold the flow fixed and RPM fixed and lower only the inlet pressure, which this single inlet valve cannot do. To remove this effect from the data, each each point will have to be normalized against the non cavitating head at its own flow taken from the measured head flow curve. Or, closed loop control to hold a steady flow rate while lowering the inlet pressure would be needed, which is left as future work.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{results_cav_suction.pdf}
-    \caption{Suction test curves at constant speed: normalised head against NPSH available, one curve per held flow rate, by successive reduction of the inlet pressure. The horizontal line is the 3\% head-drop criterion used for \cref{fig:npshr}.}
+    \caption{Suction test curves at constant speed: normalised head against NPSH available, one curve per held flow rate, by successive reduction of the inlet pressure. The lines are smoothing splines fitted through them to show the trend. The horizontal line is the 3\% head-drop criterion used for \cref{fig:npshr}.}
     \label{fig:cav-suction}
 \end{figure}
 
-Reading the breakdown point off every curve gives the NPSH required as a function of flow rate, shown in \cref{fig:npshr}. The dashed line is the theoretical cutoff from solving \cref{eq:lock_diffuser_throat} for the flow rate at which the head at the diffuser throat drops to the vapor pressure head. The measured 3\% breakdown points sit close to this Lock throat curve, so the throat is setting the limit, not the inlet.
+Reading the breakdown point off every curve gives the NPSH required as a function of flow rate, shown in \cref{fig:npshr}. The dashed line is the theoretical cutoff from solving \cref{eq:lock_diffuser_throat} for the flow rate at which the head at the diffuser throat drops to the vapor pressure head. The measured 3\% breakdown points sit close to this Lock throat curve.%, so the throat is setting the limit, not the inlet.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{results_npshr_vs_q.pdf}
-    \caption{NPSH at 3\% head breakdown against flow rate, with the visually observed throat cavitation onsets and the Lock throat cutoff curve. Error bars as in \cref{fig:dim-hq}.}
-    \label{fig:npshr}
-\end{figure}
+\subsection{Pump: Video Observations of Cavitation}
 
-The part that makes this more than a standard suction test is where the breakdown actually happens, and two independent methods agree on it. The 3\% breakdown taken from the pressure data coincides with the visually observed throat cavitation to around 0.1 m of NPSH. Cavitation at the impeller eye, on the other hand, appears far earlier in the test and does nothing measurable to the head. So the naive picture of pump cavitation, bubbles forming at the inlet eye and killing the head, is just wrong for this machine. The eye cavitates benignly and it is the diffuser throat that drives the breakdown. This is Lock's diffuser limited claim, confirmed here and this time directly visualised through the casing.
+Video footage of the 45 and 50 percent ESC throttle were the only ones with quality enough to see the cavitation through the transparent front casing due to an encoding issue with the earlier recordings. The good footage however showed very interesting results. The footage was frame perfect and synchronised to the backend clock to within plus or minus 0.03 seconds. I verified the synchronisation independently by matching the RPM start and stop transitions in the video against the logged data. Both the suction bubble formation and the throat onset can be tracked to frame accurate timing on these two runs. The 40 percent run was already degraded and most of its onset times had to be estimated, and everything below 40 percent was too poor in quality to read, so the analysis rests on the 45 and 50 percent runs with the lower throttles treated as supporting.
 
-One caveat on the method. The inlet throttle drops the flow rate as well as the suction pressure as it closes, so strictly the breakdown point is the knee of the cliff rather than a fixed reference percentage. Here the difference is small because the cliff is steep enough that the two definitions land in the same place.
-
-Packaged as a single number that the literature can be compared against, the suction specific speed at breakdown is around 75 in metric form. That is close to the cavitation onset value of around 64 reported for a Barske type impeller in the same regime \cite{knyazevaDesignFluidDynamics2021}, and far below the industrial figure of around 200. The reason it is so low is the same finding as above: the throat sets breakdown, not the eye, so the usual eye-limited suction specific speed does not apply.
-
-The throat sizing itself also lands somewhere interesting against the literature. The throat to tip diameter ratio of this pump is about 0.051, which follows the classical Barske and Balje guidance directly. That is the same starting point Danieli used for his partial emission rocket pump, whose initial throat ratio of 0.064 failed his head requirement, and his CFD optimisation only recovered the head and efficiency by opening the throat ratio out to 0.18 to 0.28 \cite{danieliConceptualDesignElectric2023}. That independently corroborates the finding here that the classical throat under delivers and limits the runout, and it hands the design a clear future work item: enlarge the throat, traded off against the suction margin that partial emission buys. His flow rate is 2.7 times larger and his study is CFD only, so it is the trend being cited here, not the numbers.
-
-
-\todo{add picture of no cavitation, cavitation of throat only, cavitation of inlet, and both}
-\todo{3\% vs full cavitation?}
+%Watching the impeller eye, the cavity is not a single boundary but three concentric zones, read from the centre outward. There is a full air core in the middle, then a layer of bubbles, then an outer bubble edge that forms within milliseconds and marks the boundary against fully wetted water. The state at the eye moves through a clear sequence as suction pressure is lowered: nominal, with all water and no bubbles; onset, where a small bubble first appears against otherwise solid water; an intermediate state, where moving outward from the centre you pass from full air, through bubbles, to water; and full cavitation, where the centre is full air and the remaining annulus is only bubbles. Lowering the inlet pressure grows the cavity, so a lower inlet pressure corresponds directly to a larger bubble radius.
 
 \begin{figure}[H]
     \centering
@@ -266,6 +255,29 @@ The throat sizing itself also lands somewhere interesting against the literature
     \caption{Stills through the transparent front casing at descending NPSH. The eye cavitates first with no measurable head effect, while the appearance of throat cavitation coincides with the head breakdown. Frame timestamps are synchronised to the logged data.} % stills from cav_video.py + cav_annotations/
     \label{fig:cav-stills}
 \end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results_npshr_vs_q.pdf}
+    \caption{NPSH at 3\% head breakdown against flow rate, with the visually observed throat cavitation onsets and the Lock throat cutoff curve. Error bars as in \cref{fig:dim-hq}.}
+    \label{fig:npshr}
+\end{figure}
+
+The 3\% breakdown taken from the pressure data coincides with the visually observed throat cavitation to around 0.1 m of NPSH. From video footage, cavitation at the impeller eye appears far earlier in the test and does nothing measurable to the head.
+
+The part that makes this more than a standard suction test is where the breakdown actually happens, and two independent methods agree on it.  So the naive picture of pump cavitation, bubbles forming at the inlet eye and killing the head, is just wrong for this machine. The eye cavitates benignly and it is the diffuser throat that drives the breakdown. This is Lock's diffuser limited claim, confirmed here and this time directly visualised through the casing.
+
+One caveat on the method. The inlet throttle drops the flow rate as well as the suction pressure as it closes, so strictly the breakdown point is the knee of the cliff rather than a fixed reference percentage. Here the difference is small because the cliff is steep enough that the two definitions land in the same place.
+
+Packaged as a single number that the literature can be compared against, the suction specific speed at breakdown is around 75 in metric form. That is close to the cavitation onset value of around 64 reported for a Barske type impeller in the same regime \cite{knyazevaDesignFluidDynamics2021}, and far below the industrial figure of around 200. The reason it is so low is the same finding as above: the throat sets breakdown, not the eye, so the usual eye-limited suction specific speed does not apply.
+
+The throat sizing itself also lands somewhere interesting against the literature. The throat to tip diameter ratio of this pump is about 0.051, which follows the classical Barske and Balje guidance directly. That is the same starting point Danieli used for his partial emission rocket pump, whose initial throat ratio of 0.064 failed his head requirement, and his CFD optimisation only recovered the head and efficiency by opening the throat ratio out to 0.18 to 0.28 \cite{danieliConceptualDesignElectric2023}. That independently corroborates the finding here that the classical throat under delivers and limits the runout, and it hands the design a clear future work item: enlarge the throat, traded off against the suction margin that partial emission buys. His flow rate is 2.7 times larger and his study is CFD only, so it is the trend being cited here, not the numbers.
+
+
+% \todo{add picture of no cavitation, cavitation of throat only, cavitation of inlet, and both}
+% \todo{3\% vs full cavitation?}
+
 
 \subsection{Coupled Turbopump}
 
