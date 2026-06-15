@@ -223,6 +223,10 @@ Video footage of the 45 and 50 percent ESC throttle were the only ones with qual
 
 %Watching the impeller eye, the cavity is not a single boundary but three concentric zones, read from the centre outward. There is a full air core in the middle, then a layer of bubbles, then an outer bubble edge that forms within milliseconds and marks the boundary against fully wetted water. The state at the eye moves through a clear sequence as suction pressure is lowered: nominal, with all water and no bubbles; onset, where a small bubble first appears against otherwise solid water; an intermediate state, where moving outward from the centre you pass from full air, through bubbles, to water; and full cavitation, where the centre is full air and the remaining annulus is only bubbles. Lowering the inlet pressure grows the cavity, so a lower inlet pressure corresponds directly to a larger bubble radius.
 
+There are two distinct cavitation sites, the impeller suction eye as shown in \cref{fig:cav-eye} and the diffuser throat as shown in \cref{fig:cav-throat} and they behave differently. At high flow, meaning the outlet valve more open, the throat is permanently cavitating: across the runs the throat never clears up to an outlet angle of $50^\circ$. Beyond that point, at lower flow, the throat only begins to cavitate some time after the eye cavity has fully grown, so there seems to be a crossover near an outlet setting of $50^\circ$ between a regime where the throat cavitation is always present and a regime where it onsets within the suction sweep.
+
+The most important thing the video shows is that eye cavitation happens earlier than throat cavitation at low flow, but it does not affect the head the pump produces. A large amount of cavitation can develop in the inlet while the developed head stays flat. The head only collapses once the throat goes. This is the visual confirmation of Lock's claim that a Barske pump is diffuser limited rather than eye limited, and it is something an opaque pump with only a pressure curve could never attribute, because the breakdown and the visible eye cavity are decoupled. A further detail from the same runs is that the developed head actually rises slightly as inlet pressure is lowered, right up until cavitation breaks it.
+
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
@@ -264,15 +268,20 @@ Video footage of the 45 and 50 percent ESC throttle were the only ones with qual
     \label{fig:npshr}
 \end{figure}
 
-The 3\% breakdown taken from the pressure data coincides with the visually observed throat cavitation to around 0.1 m of NPSH. From video footage, cavitation at the impeller eye appears far earlier in the test and does nothing measurable to the head.
+The video and data both show independently show that the breakdown is not caused by eye cavitation, but by throat cavitation, agreeing with Lock's and Barske's claims.
 
-The part that makes this more than a standard suction test is where the breakdown actually happens, and two independent methods agree on it.  So the naive picture of pump cavitation, bubbles forming at the inlet eye and killing the head, is just wrong for this machine. The eye cavitates benignly and it is the diffuser throat that drives the breakdown. This is Lock's diffuser limited claim, confirmed here and this time directly visualised through the casing.
+%One caveat on the method. The inlet throttle drops the flow rate as well as the suction pressure as it closes, so strictly the breakdown point is the knee of the cliff rather than a fixed reference percentage. Here the difference is small because the cliff is steep enough that the two definitions land in the same place.
 
-One caveat on the method. The inlet throttle drops the flow rate as well as the suction pressure as it closes, so strictly the breakdown point is the knee of the cliff rather than a fixed reference percentage. Here the difference is small because the cliff is steep enough that the two definitions land in the same place.
+This NPSHR can be converted into suction specific speed with the \cref{eq:sss}:
 
-Packaged as a single number that the literature can be compared against, the suction specific speed at breakdown is around 75 in metric form. That is close to the cavitation onset value of around 64 reported for a Barske type impeller in the same regime \cite{knyazevaDesignFluidDynamics2021}, and far below the industrial figure of around 200. The reason it is so low is the same finding as above: the throat sets breakdown, not the eye, so the usual eye-limited suction specific speed does not apply.
+\begin{equation}
+    N_{ss} = \frac{n \sqrt{Q}}{(g H_{s})^{3/4}}
+    \label{eq:sss}
+\end{equation}
 
-The throat sizing itself also lands somewhere interesting against the literature. The throat to tip diameter ratio of this pump is about 0.051, which follows the classical Barske and Balje guidance directly. That is the same starting point Danieli used for his partial emission rocket pump, whose initial throat ratio of 0.064 failed his head requirement, and his CFD optimisation only recovered the head and efficiency by opening the throat ratio out to 0.18 to 0.28 \cite{danieliConceptualDesignElectric2023}. That independently corroborates the finding here that the classical throat under delivers and limits the runout, and it hands the design a clear future work item: enlarge the throat, traded off against the suction margin that partial emission buys. His flow rate is 2.7 times larger and his study is CFD only, so it is the trend being cited here, not the numbers.
+the suction specific speed at breakdown from \cref{fig:npshr} is found to be between 45 to 109. That is close to the cavitation onset value of around 64 reported for a Barske type impeller in the same regime \cite{knyazevaDesignFluidDynamics2021}, and far below the industrial figure of around 200. %The reason it is so low is the same finding as above: the throat sets breakdown, not the eye, so the usual eye-limited suction specific speed does not apply.
+
+The throat sizing for this pump is about 0.051, which follows the classical Barske and Balje guidance directly. That is the same starting point Danieli used for his partial emission rocket pump, whose initial throat ratio of 0.064 failed his head requirement, and his CFD optimisation only recovered the head and efficiency by opening the throat ratio out to 0.18 to 0.28 \cite{danieliConceptualDesignElectric2023}. Leading to the idea of future experimental test to study the effect of enlarging the throat. However, it has to be noted that his flow rate is 2.7 times larger and his study is CFD only, so the comparison is not direct.
 
 
 % \todo{add picture of no cavitation, cavitation of throat only, cavitation of inlet, and both}
@@ -281,7 +290,7 @@ The throat sizing itself also lands somewhere interesting against the literature
 
 \subsection{Coupled Turbopump}
 
-The integrated test is the proof of concept of the whole project. With the turbine driving the pump on shop air, the shaft settled at around \valCoupledRpm{} RPM, the pump produced a measurable head rise, and the assembly survived repeated runs. The settling itself is a result: the speed approached the match point monotonically and held it without any active control, which is the self regulating behaviour predicted by the torque matching argument of \cref{sec:theory}. The operating point is deep off design, with the stator pressure at roughly 38\% of the design supply and a blade to jet speed ratio of around 0.06 against the design 0.2. \cref{fig:coupled-hq} shows the coupled pump data landing on the motor driven curves, which is the cross validation between the two test configurations.
+The integrated test is the proof of concept of the whole project. With the turbine driving the pump on shop air, the shaft settled at around \valCoupledRpm{} RPM, the pump produced a measurable head rise, and the assembly survived repeated runs. However, the operating point is deep off design, with the stator pressure at roughly 38\% of the design supply and a blade to jet speed ratio of around 0.06 against the design 0.2. \cref{fig:coupled-hq} shows the coupled pump data landing on the motor driven curves, which is the cross validation between the two test configurations.
 
 \begin{figure}[H]
     \centering
@@ -290,7 +299,9 @@ The integrated test is the proof of concept of the whole project. With the turbi
     \label{fig:coupled-hq}
 \end{figure}
 
-The turbine side needs more care, because the rig has no air mass flow meter. Without a measured mass flow, a single forward efficiency number for the turbine would be under determined: a choked mass flow with a weak jet and a reduced mass flow with a near design jet both fit the same measured torque. Quoting one number would be misleading, so this thesis does not.
+%The turbine side needs more care, because the rig has no air mass flow meter. Without a measured mass flow, a single forward efficiency number for the turbine would be under determined: a choked mass flow with a weak jet and a reduced mass flow with a near design jet both fit the same measured torque. Quoting one number would be misleading, so this thesis does not.
+
+However, at the measured stator inlet pressure of 3.1
 
 The torque models compared against the data in \cref{fig:coupled-torque} are built from the Euler equation with the choked mass flow of \cref{eq:choked_massflow}, which remains valid regardless of the rotor state. For a rotor receiving an effective tangential jet velocity $c_{3u}^{\,e}$, the shaft torque is
 
