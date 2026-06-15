@@ -1,7 +1,7 @@
 \section{Experimental Setup}
 \label{sec:experiment}
 
-The experimental setup was designed for three specific configurations: Electric motor driven pump testing, Isolated turbine coupled to a hysteris brake, and integrated turbine and pump testing.
+The experimental setup was designed for three specific configurations: Electric motor driven pump testing, Isolated turbine coupled to a hysteresis brake, and integrated turbine and pump testing.
 
 \subsection{Test Configurations}
 
@@ -31,7 +31,7 @@ The experimental setup was designed for three specific configurations: Electric 
     \label{fig:test-configs}
 \end{figure}
 
-In all three configurations, there is a driving component, the torquemter and a load. \cref{fig:electric-pump-config} shows the electric motor driven pump testing configuration. The electric motor test is used to gather most of the data because the motor is more controllable, repeatable and safer. In this configuration. The second configuration in \cref{fig:turbine-brake-config} connects the turbine to a hysteris brake to test the turbine in isolation. Due to time constraints, this configuration was not tested. The final configuration in \cref{fig:turbopump-config} connects the turbine and pump together to test the performance of the integrated system.
+In all three configurations, there is a driving component, the torquemeter and a load. \cref{fig:electric-pump-config} shows the electric motor driven pump testing configuration. The electric motor test is used to gather most of the data because the motor is more controllable, repeatable and safer. In this configuration. The second configuration in \cref{fig:turbine-brake-config} connects the turbine to a hysteresis brake to test the turbine in isolation. Due to time constraints, this configuration was not tested. The final configuration in \cref{fig:turbopump-config} connects the turbine and pump together to test the performance of the integrated system.
 
 %torqumeter accuracy chain: dsp6001 0.05% VDC accuracy, input from tm306 at 0.02% accuracy, from <0.1% accuracy in tm306 itself. 
 \subsection{Mechanical Layout and Shaft Train}
@@ -55,7 +55,7 @@ Each rotating component sits on its own mount bolted down to this baseplate. The
 
 The reason the shafts had to be aligned was because flexible shaft couplers were used. These tolerate some misalignment at high speeds, an essential requirement for a test rig where two or more shaft have to be mechanically connected.
 
-The alignment of each component to the torquemeter had many challenges. Mounting magnetic dial indicators onto the shafts was not possible due to three reasons. The shafts were made of austenitic stainless steels so they were non-magnetic, the shafts were short and had a low diameter (10-15mm diameter, with maximum stub length of 20mm). A short stub length is highly desirable in rotordyanmics to increase rigidty and increase the first critical speed.
+The alignment of each component to the torquemeter had many challenges. Mounting magnetic dial indicators onto the shafts was not possible due to three reasons. The shafts were made of austenitic stainless steels so they were non-magnetic, the shafts were short and had a low diameter (10-15mm diameter, with maximum stub length of 20mm). A short stub length is highly desirable in rotordynamics to increase rigidity and increase the first critical speed.
 
 \begin{wrapfigure}{r}{0.5\textwidth}
     \centering
@@ -70,7 +70,7 @@ It was decided to use the flat faces of the torquemeter base as the reference fo
 
 
 
-As the TM306 torquemeter's shaft with its riser was machined to be preciscely 80.00 mm from the base plate, this same height was built into the pump and turbine mounts to achieve radial aligment in the vertical direction.
+As the TM306 torquemeter's shaft with its riser was machined to be precisely 80.00 mm from the base plate, this same height was built into the pump and turbine mounts to achieve radial aligment in the vertical direction.
 
 \subsection{Water Circuit}
 
@@ -128,7 +128,7 @@ The main requirement for both valves were so that the range of required flow rat
 % https://tameson.co.uk/pages/ball-valve-size-calculator
 
 
-This requirement is further driven by the $1-3^\circ$ resolution of the servo motors available in the department. Data for Kv against opening angle were extrapolated from online data \todo{add citation}  from 1/8" in to 3/4" in were studied. However, as the data was extrapolated from data of ball valves with larger diameters, they had to be experimentally validated. The flow through a ball valve is also highly dependent on inlet and oulet conditions such as contraction or expansion of pipe diameter at the ports \cite{swagelokMS-06-84}. The size of my pipes were limited to what I could find in spare drawers, adding to the uncertainty.
+This requirement is further driven by the $1-3^\circ$ resolution of the servo motors available in the department. Data for Kv against opening angle were extrapolated from online data \todo{add citation}  from 1/8" in to 3/4" in were studied. However, as the data was extrapolated from data of ball valves with larger diameters, they had to be experimentally validated. The flow through a ball valve is also highly dependent on inlet and outlet conditions such as contraction or expansion of pipe diameter at the ports \cite{swagelokMS-06-84}. The size of my pipes were limited to what I could find in spare drawers, adding to the uncertainty.
 
 
 
@@ -206,7 +206,7 @@ Most components in the electronics system were powered by a DC 24 V 1.2 kW power
         \label{fig:daq-box-interior}
 \end{wrapfigure}
 
-Safety was the top priority in the design of the electronic systsem, and all safety design relies hardware implementation instead of software. The core component is a PILZ PNOZ X3 safety relay wired as a dual channel redundant switch. The control room E-stop button is dual-channel, and the safety relay is designed to be fail safe against relay contact welding. An overspeed trip alarm by the DSP6001 is wired to open one of the two channels if the overspeed is detected. Once tripped, the relay then cuts the supply to every actuator. These include solenoid valves, electric motors, servo valves and the supply pump.
+Safety was the top priority in the design of the electronic system, and all safety design relies hardware implementation instead of software. The core component is a PILZ PNOZ X3 safety relay wired as a dual channel redundant switch. The control room E-stop button is dual-channel, and the safety relay is designed to be fail safe against relay contact welding. An overspeed trip alarm by the DSP6001 is wired to open one of the two channels if the overspeed is detected. Once tripped, the relay then cuts the supply to every actuator. These include solenoid valves, electric motors, servo valves and the supply pump.
 
 
 %This was a deliberate choice so there is only one thing to switch off and so the highest voltage anywhere in the cell stays low. Everything else is derived from the 24 V on the boards. A set of buck converters steps it down to the 5 V logic rail for the microcontrollers and to the minus 9 V and plus 9 V rails the torque op-amp needs. A separate LT3042 linear regulator then generates the quiet 5.11 V rail that acts as both the ADC reference and the pressure transducer excitation, kept off the switching converters so it stays clean. The reason that one rail feeds both the reference and the excitation is the ratiometric cancellation explained in the next section.
@@ -258,6 +258,8 @@ A E-WFS-GE turbine flowmeter with a range of 2 to 45 L/min with a cited accuracy
 
 One ESP32 is dedicated to actuation so the sensing loop is never held up by driving the actuators. It commands the two servos on the inlet and outlet throttle valves, holding each valve angle to the resolution the servo allows, and it drives the two solenoid valves that pilot the Swagelok pneumatic ball valves on the air side. All of this actuation power runs through the PILZ safety relay, so a trip or any loss of power drops every actuator to its safe state, the throttle servos going limp and the spring return air valves closing the supply and venting the manifold.
 
+\todo{write about test sequencing}
+
 \subsubsection{Cavitation Imaging}
 
 \begin{figure}
@@ -287,7 +289,7 @@ One ESP32 is dedicated to actuation so the sensing loop is never held up by driv
 
 The transparent front casing and diffuser allow cavitation to be observed under certain conditions. As bubbles are transparent, the imaging and lighting arrangement is crucial to cavitation visibility and quality. The casing was lit 90 degrees to the camera axis with a high intensity 70W LED as shown in \cref{fig:dark-field}, so that bubble interfaces scatter light toward the camera while the bulk water and background remain dark. The color of the PLA behind the impeller was deliberately printed in black so that it absorbs the light, letting only the bubbles scatter it back to the camera. 
 
-The bright LED was used so that the camera could be set to a very short exposure time and attempt to freeze the motion of the bubbles. However, it was found during testing that the consumer phone camera that was used had a rolling shutter sensor. This means that even with the tested short exposure time of 1/19500s, each row of the camera's sensor is exposed at a slightly different time, so fast moving structures appear geometrically distorted as shown in \cref{fig:rolling-shutter}. There are two ways to improve this. The first is to use a global shutter camera, which exposes the entire sensor at once. The second is to use the LED in a strobe mode, flashing the light for microseconds with the camera's exposure time set to a longer value. This way, the camera sees only the strobe flash and the motion is frozen. This could haev been possible by using the mosfet controllers on the actuator board to drive the LED in strobe mode. However, due to time constraints this was not implemented and is left as a possible future improvement to the experimental setup.
+The bright LED was used so that the camera could be set to a very short exposure time and attempt to freeze the motion of the bubbles. However, it was found during testing that the consumer phone camera that was used had a rolling shutter sensor. This means that even with the tested short exposure time of 1/19500s, each row of the camera's sensor is exposed at a slightly different time, so fast moving structures appear geometrically distorted as shown in \cref{fig:rolling-shutter}. There are two ways to improve this. The first is to use a global shutter camera, which exposes the entire sensor at once. The second is to use the LED in a strobe mode, flashing the light for microseconds with the camera's exposure time set to a longer value. This way, the camera sees only the strobe flash and the motion is frozen. This could have been possible by using the mosfet controllers on the actuator board to drive the LED in strobe mode. However, due to time constraints this was not implemented and is left as a possible future improvement to the experimental setup.
 
 The setup was still useful for the purpose of identifying where and when cavitation occurs, which is arguably more important than getting a perfect image of the bubbles. To synchronize the video with the data, a 12 digit 7-segment display was placed in the camera's field of view, showing the backend's internal experimental timestamp as shown in \cref{fig:digit-display}.
 
@@ -445,7 +447,7 @@ The thermocouple is the one channel I could not recover. Its calibration drifted
     \caption{The electric motor and ESC mounted to the test rig.} % PLACEHOLDER IMAGE: photo of the motor and ESC
     \label{fig:motor-esc}
 \end{wrapfigure}
-A hobby 4 pole 4092 800 Kv brushless DC motor was used to drive the pump. The motor was controlled by a spare unbranded 80 A 6S electronic speed controler (ESC). To mount this motor to test rig, a single piece PLA 3D printed bracket was designed to hold and align the motor to the torquemeter's shaft in the same way as the pump and turbine mounts. Both the motor and the ESC can be seen in the left of the \cref{fig:motor-esc}. Both the ESC and motor consume a lot of power, so cooling solutions were used for both of them. The motor was equipped with a water cooling jacket fed by the water circuit, while the ESC had a fan mounted to the top of its radiator.
+A hobby 4 pole 4092 800 Kv brushless DC motor was used to drive the pump. The motor was controlled by a spare unbranded 80 A 6S electronic speed controller (ESC). To mount this motor to test rig, a single piece PLA 3D printed bracket was designed to hold and align the motor to the torquemeter's shaft in the same way as the pump and turbine mounts. Both the motor and the ESC can be seen in the left of the \cref{fig:motor-esc}. Both the ESC and motor consume a lot of power, so cooling solutions were used for both of them. The motor was equipped with a water cooling jacket fed by the water circuit, while the ESC had a fan mounted to the top of its radiator.
 
 The ESC was powered by the 24 V supply from the electronics box through a contactor driven by a mosfet on the actuator board connected to the safety relay. The system was sized to allow motor driven testing up to 1.2 kW, the maximum power the power supply could deliver. However, during testing it was found that the ESC could not deliver more than 0.45 Nm of torque to the motor, which limited the maximum speed during motor driven pump testing to 9000 RPM at zero flow, which is the lowest torque condition of a pump. During useful experimental testing requiring flow, the maximum characterised pump speed where the ESC did not repeatedly fail was capped at 7500 RPM.
 

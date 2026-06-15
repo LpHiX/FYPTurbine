@@ -1783,9 +1783,46 @@ def fig_pump_map_balje():
 
 
 # =========================================================================== #
+def fig_test_overview():
+    """Campaign procedure: every measurement channel over time, all five ESC
+    throttle runs overlaid. Shows the shared test schedule in one view: a fixed
+    drive speed, the outlet-valve H-Q staircase, and the repeated inlet-valve
+    cavitation sweeps at each held step. The valve rows fall on top of each other
+    because the schedule was identical across runs, which is the point.
+    NOTE: torque is the raw adc_torque_mv channel; verify the DSP6001 1 V /
+    0.25 Nm scaling before quoting absolute Nm."""
+    rows = [
+        ("Outlet pressure [bar]", "pout"),
+        ("Flow [l/s]", "q"),
+        ("Torque [Nm]", "tq"),
+        ("Speed [RPM]", "rpm"),
+        ("Inlet valve [deg]", "in_dem"),
+        ("Outlet valve [deg]", "out_dem"),
+    ]
+    cols = plt.cm.viridis(np.linspace(0, 0.9, len(RUNS)))
+    paths = ep.find_runs(LOGDIR)
+    fig, axes = plt.subplots(len(rows), 1, figsize=(10, 12), sharex=True)
+    for (lbl, tag), c in zip(RUNS.items(), cols):
+        d = ep.load(paths[tag])
+        for ax, (_, key) in zip(axes, rows):
+            ax.plot(d["t"], ep.smooth(d[key]), color=c, lw=0.9,
+                    label=lbl if key == "pout" else None)
+    for ax, (ylabel, _) in zip(axes, rows):
+        ax.set_ylabel(ylabel)
+        ax.margins(x=0)
+    axes[-1].set_xlabel("Time [s]")
+    axes[0].legend(ncol=len(RUNS), fontsize=12, loc="lower center",
+                   bbox_to_anchor=(0.5, 1.02), columnspacing=1.0,
+                   handletextpad=0.4, frameon=False)
+    fig.align_ylabels(axes)
+    fig.tight_layout()
+    return save(fig, "results_test_overview")
+
+
 FIGURES = {
     "pump_map_balje": fig_pump_map_balje,  # intro: Balje N_D map + n_q axis (preferred)
     "pump_map_nq": fig_pump_map_nq,        # intro: SP-8107 map + n_q axis (backup)
+    "test_overview": fig_test_overview,    # campaign procedure: channels x time, runs overlaid
     "theory_hq": fig_theory_hq,            # H-Q + psi-phi pair (keep combined)
     "eta_phi": fig_eta_phi,
     "churning": fig_churning,              # disk_mult corroboration
