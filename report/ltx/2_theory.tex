@@ -11,6 +11,13 @@ Much of the supersonic blading design methodology dates from the 1950s and 60s \
 
 \subsubsection{Euler Turbine Equation}
 
+\begin{wrapfigure}{R}{0.45\textwidth}
+    \centering
+    \includegraphics[width=0.4\textwidth]{veltriangles.png}
+    \caption{Velocity triangles in a conventional pump, adapted from Gulich} % from gulich fig 3.2, adapted to remove some symbols
+    \label{fig:conv-velocity-triangle}
+\end{wrapfigure}
+
 The working principles for pump and turbine design can be derived from the conservation of angular momentum by Newton's second law of motion. In turbomachinery, this is usually expressed in terms of the Euler turbine equation shown in \cref{eq:euler_turbine_equation}, where $c$ is velocity in the inertial frame, $w$ is in the rotatating frame and $u$ is the local circumferential velocity as shown in \cref{fig:conv-velocity-triangle}.
 
 \begin{equation}
@@ -18,12 +25,7 @@ The working principles for pump and turbine design can be derived from the conse
     \label{eq:euler_turbine_equation}
 \end{equation}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{veltriangles.png}
-    \caption{Velocity triangles in a conventional pump, adapted from Gulich} % from gulich fig 3.2, adapted to remove some symbols
-    \label{fig:conv-velocity-triangle}
-\end{figure}
+
 
 
 Rewriting this equation in terms of specific work $Y=P/\rho Q$ per unit mass:
@@ -127,14 +129,15 @@ Back into the ratio:
 \label{eq:disc_loss_specific_speed}
 \end{equation}
 
-This is the reason low specific speed pumps cannot reach high efficiency. The relative disc friction scales as $1/n_q^2$, so halving the specific speed quadruples the share of the input power lost to the disc. As an example point on the size of this, Gülich gives the disc friction as roughly $30\%$ of the useful power of the impeller at $n_q=10$, $\psi\approx1$ and $\mathrm{Re}=10^7$ \cite{gulichCentrifugalPumps2020}. Gulich provides \cref{fig:disc_loss} to show this relationship visually.
-
-\begin{figure}[H]
+\begin{wrapfigure}{R}{0.55\textwidth}
     \centering
-    \includegraphics[width=0.55\textwidth]{disc_loss.png}
+    \includegraphics[width=0.54\textwidth]{disc_loss.png}
     \caption{Disc friction loss vs specific speed $n_q$ after Gülich. At low specific speed the disc friction dominates.} % gulich fig 3.21
     \label{fig:disc_loss}
-\end{figure}
+\end{wrapfigure}
+
+This is the reason low specific speed pumps cannot reach high efficiency. The relative disc friction scales as $1/n_q^2$, so halving the specific speed quadruples the share of the input power lost to the disc. As an example point on the size of this, Gülich gives the disc friction as roughly $30\%$ of the useful power of the impeller at $n_q=10$, $\psi\approx1$ and $\mathrm{Re}=10^7$ \cite{gulichCentrifugalPumps2020}. Gulich provides \cref{fig:disc_loss} to show this relationship visually.
+
 
 The head coefficient in the denominator of \cref{eq:disc_loss_specific_speed} also points the pump designer to design a pump with a higher head coefficient as $P_{RR}\propto\psi^{-5/2}$. For a fixed desired head $H$ and rotational speed $n$, a high head coefficient means a smaller tip speed and thus a smaller diameter can be derived from \cref{eq:head_coefficient}:
 
@@ -146,12 +149,12 @@ Since $P_{RR}\sim r_2^5$ shrinking the diameter collapses the disc friction. Thi
 
 \subsubsection{Hydraulic Losses}
 
-\begin{figure}[H]
+\begin{wrapfigure}{R}{0.55\textwidth}
     \centering
-    \includegraphics[width=0.55\textwidth]{impeller_casing_loss.png}
+    \includegraphics[width=0.54\textwidth]{impeller_casing_loss.png}
     \caption{Breakdown of pump losses against specific speed, after Gülich. At low specific speed the disc friction dominates while the impeller (blade) losses are small.} %  Gulich Fig 3.33 
     \label{fig3.33gulich}
-\end{figure}
+\end{wrapfigure}
 
 \cref{fig3.33gulich} shows the hydraulic loss breakdown against specific speed. At low specific speed the impeller blade losses are small, because the velocities of the flow relative to the blades are low, while the volute and the discharge nozzle losses become the next largest term. 
 
@@ -206,15 +209,14 @@ Another difference between conventional impellers and the barske impeller is the
 
 \subsubsection{Barske Pump Performance}
 
-To predict the performance of a Barske pump, Barske starts by assuming that the flow is nearly a pure forced vortex as shown in \cref{fig:pump-velocity-triangle}. He also assumes the relative velocity $w$ is assumed to be negligable. This turns \cref{eq:pressure_rise} into \cref{eq:pressure_rise_negligible_w}, which is the theoretical static pressure rise of a Barske impeller.
-
-\begin{figure}[H]
+\begin{wrapfigure}{r}{0.52\textwidth}
 \centering
 \includegraphics[width=0.5\textwidth]{forced_vortex_triangles}
 \caption{Velocity triangles in a forced vortex pump}
 \label{fig:pump-velocity-triangle}
-\end{figure}
+\end{wrapfigure}
 
+To predict the performance of a Barske pump, Barske starts by assuming that the flow is nearly a pure forced vortex as shown in \cref{fig:pump-velocity-triangle}. He also assumes the relative velocity $w$ is assumed to be negligable. This turns \cref{eq:pressure_rise} into \cref{eq:pressure_rise_negligible_w}, which is the theoretical static pressure rise of a Barske impeller.
 
 \begin{equation}
     \Delta p_{st} = \frac{\rho}{2}\left(u_2^2-u_1^2\right)
@@ -534,14 +536,16 @@ The design so far is based on 1D mean line theory. The design of the actual blad
 \subsubsection{Method of Characteristics for Supersonic Impulse Blade Design}
 \label{subsec:method_of_characteristics}
 
- Vortex flow is a special type of supersonic flow in which every streamline follows a concentric path around a central point. This flow field was first discovered by A. Busemann \cite{colcloughDesignTurbineBlades1966}, achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. Boxer then first developed the method to transition uniform flow into vortex flow with MOC \cite{boxerApplicationSupersonicVortexflow1952}. This method generates the profile for an inlet Mach number, turning angle and the mach numbers on the blade surfaces. Later analysis will need to be required to choose these desired Mach numbers.
-
-\begin{figure}[H]
+\begin{wrapfigure}{r}{0.6\textwidth}
     \centering
-    \includegraphics[width=0.6\textwidth]{moc_goldman.png}
+    \includegraphics[width=0.55\textwidth]{moc_goldman.png}
     \caption{Typical MOC blade terminology.}
     \label{fig:turbine-blade-terminology}
 \end{figure}
+
+ Vortex flow is a special type of supersonic flow in which every streamline follows a concentric path around a central point. This flow field was first discovered by A. Busemann \cite{colcloughDesignTurbineBlades1966}, achieved by conditions where expansion and compression waves cancel each other to allow shockless rotation of the flow field. The vortex flow is bounded by the two circular arcs of the surfaces of which a desired surface Mach number is achieved. Boxer then first developed the method to transition uniform flow into vortex flow with MOC \cite{boxerApplicationSupersonicVortexflow1952}. This method generates the profile for an inlet Mach number, turning angle and the mach numbers on the blade surfaces. Later analysis will need to be required to choose these desired Mach numbers.
+
+
 
 Turbine blade terminology is based on the blade's upper and lower surfaces as shown in Figure \ref{fig:turbine-blade-terminology}. The top surface is the convex one, and the bottom surface as the concave one. This is in relation to the solid blades themselves as opposed to an alternate designation by the top and bottom of the blade passage. Supersonic vortex flow satisfies the equation:
 

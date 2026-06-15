@@ -12,15 +12,16 @@ Pumps are generally characterized by their flow rate $Q$, the head $H$ and rotor
     n_q = \frac{n \sqrt{Q}}{H^{3/4}} \quad [\text{RPM}, \text{m}^3/\text{s}, \text{m}] \label{eq:specific_speed}
 \end{equation}
 
-Different pump geometries are optimal for different regions of specific speed as can be shown by \cref{fig:pump_type_by_specific_speed}. The radial centrifugal impeller reaches its best efficiency roughly between an $n_q$ of 10 and 40 \cite{gulichCentrifugalPumps2020,huzel}, and rocket engine pumps are normally sized to sit in this band, splitting the head across multiple stages when a single stage would otherwise fall below it. This works great for large rocket engines, but scaling this down to smaller engines becomes increasingly difficult. All rocket engines require high pressures, but smaller rocket engines require less flow rate. To stay in the specific speed according to \cref{eq:specific_speed} that allows for high efficiency in the centrifugal pump requires increasing rotational speed.
-
-\begin{figure}[H]
+\begin{wrapfigure}{r}{0.6\textwidth}
     \centering
-    \includegraphics[width=0.6\textwidth]{pump_map_nq.pdf}
-    \caption{Optimum pump geometry and attainable efficiency against specific speed, with the design point of this thesis at $n_q = \valPumpNqDesign$ marked. Most single-stage rocket engine pumps sit in the radial impeller optimum of $n_q$ 10 to 40.} 
+    \includegraphics[width=0.58\textwidth]{pump_map_nq.pdf}
+    \caption{Optimum pump geometry and attainable efficiency against specific speed. Adapted from NASA SP-8107 \cite{gulichCentrifugalPumps2020} with specific speed in $n_q$ units. } 
     
     \label{fig:pump_type_by_specific_speed}
-\end{figure}
+\end{wrapfigure}
+
+Different pump geometries are optimal for different regions of specific speed as can be shown by \cref{fig:pump_type_by_specific_speed}. The radial centrifugal impeller reaches its best efficiency roughly between an $n_q$ of 10 and 40 \cite{gulichCentrifugalPumps2020,huzel}, and rocket engine pumps are normally sized to sit in this band, splitting the head across multiple stages when a single stage would otherwise fall below it. This works great for large rocket engines, but scaling this down to smaller engines becomes increasingly difficult. All rocket engines require high pressures, but smaller rocket engines require less flow rate. To stay in the specific speed according to \cref{eq:specific_speed} that allows for high efficiency in the centrifugal pump requires increasing rotational speed.
+
 
 \todo{Caption should say adapted from sp 8107 to use nq units, design point also not yet marked}
 

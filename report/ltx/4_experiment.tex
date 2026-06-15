@@ -57,31 +57,47 @@ The reason the shafts had to be aligned was because flexible shaft couplers were
 
 The alignment of each component to the torquemeter had many challenges. Mounting magnetic dial indicators onto the shafts was not possible due to three reasons. The shafts were made of austenitic stainless steels so they were non-magnetic, the shafts were short and had a low diameter (10-15mm diameter, with maximum stub length of 20mm). A short stub length is highly desirable in rotordyanmics to increase rigidty and increase the first critical speed.
 
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.45\textwidth]{shaft_alignment.jpg}
+    \caption{Shaft alignment procedure using the flat faces of the component mounts.} % PLACEHOLDER IMAGE: photo or diagram
+    \label{fig:shaft-alignment}
+\end{wrapfigure}
+
 The shaft couplers were also single piece, so the shaft couplers which do not have a edge true to the shaft axis. This meant that the shaft couplers could not be installed after the shafts were aligned, as the couplers would have to be installed before the shafts were aligned. The space the shaft couplers took up meant it was even more difficult to use the shaft stubs for alignment.
 
 It was decided to use the flat faces of the torquemeter base as the reference for alignment. By designing the pump and turbine mounts to have a similar rectangular base and assuming that each shaft was true to the rectangular base, alignment was finally possible. Angular alignment was achieved by 3D printing a spacer with two parallel edges for the pump or turbine to sit flat against onto the torquemeter. Then, radial misalignment was achieved by designing the face parallel to the shaft to be the parallel to the torquemeter face. A straight edge could then be used as a guide to align the shaft while tightening the mounting bolts. The usage of this alignment block is shown in \cref{fig:shaft-alignment}.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{shaft_alignment.jpg}
-    \caption{Shaft alignment procedure using the flat faces of the component mounts.} % PLACEHOLDER IMAGE: photo or diagram
-    \label{fig:shaft-alignment}
-\end{figure}
+
 
 As the TM306 torquemeter's shaft with its riser was machined to be preciscely 80.00 mm from the base plate, this same height was built into the pump and turbine mounts to achieve radial aligment in the vertical direction.
 
 \subsection{Water Circuit}
 
-\begin{figure}[H]
+\begin{wrapfigure}{r}{0.45\textwidth}
     \centering
-    \includegraphics[width=0.8\textwidth]{water_pid.png}
+    \includegraphics[width=0.42\textwidth]{water_pid.png}
     \caption{P\&ID of the water circuit for the electric motor driven pump test configuration.} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
     \label{fig:water-pid}
-\end{figure}
+\end{wrapfigure}
 
 The water circuit is as follows: A water tank is pumped by the supply pump into an inlet throttle valve then into the experimental pump inlet. The pump outlet is then throttled by an outlet throttle valve before being returned to the water tank. Pressure sensors are placed at the inlet and outlet of the pump to measure the head rise across the pump. Flow rate is measured by a flow meter placed in the inlet line before the inlet throttle valve instead of the return line due to space constraints placed by the blast shield.
 
 \subsubsection{Inlet and Outlet Throttle Valves}
+
+% \begin{figure}[H]
+    % \centering
+    \begin{wrapfigure}{r}{0.42\textwidth}
+        \centering
+        \includegraphics[width=0.4\textwidth]{servo_valves.jpg}
+        \caption{Servo driven throttle valve assembly} % PLACEHOLDER IMAGE: photo/CAD of the 3D printed servo housings
+        \label{fig:servo-valves}
+    \end{wrapfigure}
+    % \hfill % Adds flexible space between figures
+
+    % \caption{Throttle valve characterisation. The extrapolated online ball valve data (dashed) overpredicts the measured flow capacity (solid) for both valves at their respective design pressure drops. The horizontal line is the throat limited maximum flow of the pump.}
+    % \label{fig:valve-characterisation}
+% \end{figure}
 
 The inlet throttle valve allows a reduction in pump inlet pressure to characterise the cavitation behaviour of the pump. The outlet throttle valve allows for a reduction in flow rate to characterise the head and cavitation behaviour of the pump at different flow rates.
 
@@ -104,26 +120,15 @@ The main requirement for both valves were so that the range of required flow rat
 % https://www.engineeringtoolbox.com/ball-valves-flow-coefficients-d_223.html
 % https://tameson.co.uk/pages/ball-valve-size-calculator
 
+
 This requirement is further driven by the $1-3^\circ$ resolution of the servo motors available in the department. Data for Kv against opening angle were extrapolated from online data \todo{add citation}  from 1/8" in to 3/4" in were studied. However, as the data was extrapolated from data of ball valves with larger diameters, they had to be experimentally validated. The flow through a ball valve is also highly dependent on inlet and oulet conditions such as contraction or expansion of pipe diameter at the ports \cite{swagelokMS-06-84}. The size of my pipes were limited to what I could find in spare drawers, adding to the uncertainty.
 
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.42\textwidth}
+    \begin{wrapfigure}{r}{0.42\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{servo_valves.jpg}
-        \caption{Servo driven throttle valve assembly} % PLACEHOLDER IMAGE: photo/CAD of the 3D printed servo housings
-        \label{fig:servo-valves}
-    \end{subfigure}
-    \hfill % Adds flexible space between figures
-    \begin{subfigure}[b]{0.54\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{setup_valve_kv.pdf}
+        \includegraphics[width=0.4\textwidth]{setup_valve_kv.pdf}
         \caption{Extrapolated against measured valve capacity}
         \label{fig:valve-kv-test}
-    \end{subfigure}
-    \caption{Throttle valve characterisation. The extrapolated online ball valve data (dashed) overpredicts the measured flow capacity (solid) for both valves at their respective design pressure drops. The horizontal line is the throat limited maximum flow of the pump.}
-    \label{fig:valve-characterisation}
-\end{figure}
+    \end{wrapfigure}
 
 \cref{fig:valve-kv-test} shows the experimentally measured Kv against opening angle values were lower than expected. However, this worked in my favour as it actually increased the range of useful valve opening angles.
 
@@ -131,17 +136,19 @@ The location chosen for the experiment required a safe test area and a control r
 
 \subsection{Air supply}
 
+\begin{wrapfigure}{R}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.46\textwidth]{turbine_pid.png}
+    \caption{P\&ID of the water and air circuit for the turbopump configuration.} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
+    \label{fig:combined-pid}
+\end{wrapfigure}
+
 Originally, a 100 bar compressed air supply was designed and parts readied to be used to drive the turbine. Unfortunately due to time constraints, the shop air supply within the hypersonics lab was used instead. Details of the 100 bar compressed air supply can be found in \todo{add appendix reference}. The shop air which was limited to 7 barg was connected to partially assembled parts of original feed system. The shop air was connected to a GRT20s-280N100-SSKN-L 0-280 to 0-100 bar regulator with a Kv of 1.5. This regulator fed into the the main 1" valve, teed into a 1/2" vent valve and finally into the turbine inlet.
 
 Both valves were Swagelok pneumatically actuated spring return ball valves. The main valve was the  SS-65TS16-35C with a Cv of 40 and the vent valve was SS-45S8-33C with a Cv of 12. These valves were driven by 2 5/2 solenoid valves connected to the shop air supply. Due to droop in the shop air regulator, maximum turbine inlet pressure at max flow was measured to be 3.1 bara. There was no budget for an air flowmeter. A P\&ID of the combined air supply and water circuit is shown in \cref{fig:combined-pid}.
 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{turbine_pid.png}
-    \caption{P\&ID of the water and air circuit for the turbopump configuration.} % PLACEHOLDER IMAGE: P&ID (Safety Plan P&IDs can be reused)
-    \label{fig:combined-pid}
-\end{figure}
+
 
 % The supply droop deserves a proper explanation because it directly sets the coupled test conditions in \cref{sec:results}. The shop air behaves as a regulated blowdown with a finite supply. When the turbine valve opens, the regulator cannot hold its set pressure at the demanded flow, so the stator pressure sags well below the static setting, and the achievable turbine inlet pressure under flow is roughly 38\% of the design supply. This is a property of the rig, not of the turbine, but it has to be characterised because the turbine match point depends on it.
 
@@ -253,9 +260,25 @@ Two limitations of this arrangement should be stated. The frame rate is orders o
 
 \subsubsection{Instrument Uncertainty}
 
-\cref{tab:instruments} lists every measurement channel with its range and systematic uncertainty. These values feed directly into the uncertainty analysis of \cref{sec:results}, where they are combined with the per point random scatter. The torque chain is the best characterised: the TM306 itself is rated to better than 0.1\% of its 5 Nm range, the DSP6001 analog output adds 0.05\%, and the conditioning chain was designed so the dominant systematic terms cancel, as described in the previous section. Where calibration certificates were not available, cheap cross checks bound the errors instead. The measured efficiency landing close to the design estimate validates the torque scale, the shutoff head scaling with speed squared through the origin bounds the pressure transducer gain error, and the repeatability of the non dimensional head coefficient across five speeds bounds the random error.
+% \cref{tab:instruments} lists every measurement channel with its range and systematic uncertainty. These values feed directly into the uncertainty analysis of \cref{sec:results}, where they are combined with the per point random scatter. The torque chain is the best characterised: the TM306 itself is rated to better than 0.1\% of its 5 Nm range, the DSP6001 analog output adds 0.05\%, and the conditioning chain was designed so the dominant systematic terms cancel, as described in the previous section. Where calibration certificates were not available, cheap cross checks bound the errors instead. The measured efficiency landing close to the design estimate validates the torque scale, the shutoff head scaling with speed squared through the origin bounds the pressure transducer gain error, and the repeatability of the non dimensional head coefficient across five speeds bounds the random error.
 
-% Values MUST stay identical to the UNC dict in data_analysis/thesis_figures.py (six placeholders still to fill from datasheets).
+% % Values MUST stay identical to the UNC dict in data_analysis/thesis_figures.py (six placeholders still to fill from datasheets).
+
+% \subsubsection{Instrument Uncertainty}
+
+\cref{tab:instruments} lists every measurement channel with its range and two separate uncertainty figures. The first is the datasheet specification, the worst case the manufacturer guarantees. The second is the uncertainty I actually achieved after calibrating the channel in place. Both feed the uncertainty analysis of \cref{sec:results}, where the systematic term is combined in quadrature with the per point random scatter.
+
+Most of the sensors are cheap, so their datasheet specifications are loose. The pressure transducers are rated at 3\% of full scale (0.36 bar on the 12 bar
+range) and the flowmeter at 10\% of reading. Calibrating each one against a better reference tightens it substantially, by up to an order of magnitude on the
+pressure channel. The transducers were calibrated against a digital gauge to $\pm 0.01$ bar and the flowmeter against a timed bucket fill to $\pm 3\%$. The pressure transducers however drift with temperature. Each pressure transducer is zeroed to ambient temperature before each test, but when water is flowing the transducer cools and the zero drifts to a measured $\pm 0.05$ bar, which is the uncertainty used in the analysis.
+
+%The point of the two columns is that the headline datasheet number is not what limits the analysis. The in-situ figure is.
+
+The TM306 is the best rated sensor in the rig, with a quoted accuracy of $<0.1\%$ of its 5 Nm range. Using the DSP6001's analog output brings it to $0.02 Nm$ but this loss in accuracy was traded for the convenience of having all channels in the same DAQ system. 
+
+% Where calibration certificates were not available, cheap physical cross checks bound the errors instead. The measured efficiency landing close to the design estimate validates the torque scale. The shutoff head scaling with speed squared through the origin bounds the pressure transducer gain error. The repeatability of the non dimensional head coefficient across five speeds bounds the random error.
+
+The thermocouple is the one channel I could not recover. Its calibration drifted during testing, so the temperature data was discarded and water properties were taken at an assumed ambient value. Temperature does not enter the head or efficiency results, so this only affects the vapour pressure term in the cavitation analysis, where its contribution is small.
 
 \begin{table}[H]
     \centering
@@ -264,7 +287,7 @@ Two limitations of this arrangement should be stated. The frame rate is orders o
     \label{tab:instruments}
     \begin{tabular}{llllll}
         \toprule
-        Quantity & Sensor & Range & Output & Datasheet Uncertainty & Measured Uncertainty\\
+        Quantity & Sensor & Range & Output & Datasheet Unc. & Measured Unc.\\
         \midrule
         Pressure & DC5V 1.2MPa & 0 to 12 bar & 0.5-4.5 V & 3\% F.S. & 0.05 bar \\
         Flow rate & E-WFS-GE  & 2 to 45 L/min & Pulse & $\pm 10\%$ & $\pm 3\%$ \\
@@ -275,7 +298,7 @@ Two limitations of this arrangement should be stated. The frame rate is orders o
     \end{tabular}
 \end{table}
 
-Notes on the measured uncertainty:  Calibrated gains against digital gauge to $\pm 0.05$ bar, verified and calibrated flowmeter with stopwatch and bucket to $\pm 3\%$, torque uncertainty from closed box calibration and ADC resolution to 0.01 Nm, speed uncertainty from closed box calibration and ADC resolution to 5 RPM. The temperature data was not used in the analysis as the thermocouple calibration went off during testing, so the measured uncertainty is not available.
+% Notes on the measured uncertainty:  Calibrated gains against digital gauge to $\pm 0.05$ bar, verified and calibrated flowmeter with stopwatch and bucket to $\pm 3\%$, torque uncertainty from closed box calibration and ADC resolution to 0.01 Nm, speed uncertainty from closed box calibration and ADC resolution to 5 RPM. The temperature data was not used in the analysis as the thermocouple calibration went off during testing, so the measured uncertainty is not available.
 
 % \subsection{Test Envelope and Limitations}
 
