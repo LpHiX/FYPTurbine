@@ -203,7 +203,7 @@ def solve_bl_sasman_cresci(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
     theta_0_c = 0.036 * s0 * max(Re_s0, 10.0)**(-0.2)
     theta_bar_0_c = theta_0_c * (Te0_T0)**3.0
     f_0 = (Me0 * theta_bar_0_c * Re0)**1.268
-    Hi_0 = 1.67
+    Hi_0 = 1.8
 
     s_eval = s_norm[3:]
 

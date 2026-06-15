@@ -780,12 +780,12 @@ def fig_moc_contour():
     moc = moc_design()
     fig, ax = plt.subplots(figsize=(3.4, 3.4))
     Rl, Ru = _draw_passage(ax, moc)
-    ax.annotate(rf"lower (concave) surface, $M_l={moc.mach_lower}$",
-                xy=(0, Rl), xytext=(0, Rl * 1.14), ha="center", fontsize=7,
-                arrowprops=dict(arrowstyle="->", lw=0.7))
-    ax.annotate(rf"upper (convex) surface, $M_u={moc.mach_upper}$",
-                xy=(0, Ru), xytext=(0, (Rl + Ru) / 2), ha="center", fontsize=7,
-                arrowprops=dict(arrowstyle="->", lw=0.7))
+    # ax.annotate(rf"lower (concave) surface, $M_l={moc.mach_lower}$",
+    #             xy=(0, Rl), xytext=(0, Rl * 1.14), ha="center", fontsize=7,
+    #             arrowprops=dict(arrowstyle="->", lw=0.7))
+    # ax.annotate(rf"upper (convex) surface, $M_u={moc.mach_upper}$",
+    #             xy=(0, Ru), xytext=(0, (Rl + Ru) / 2), ha="center", fontsize=7,
+    #             arrowprops=dict(arrowstyle="->", lw=0.7))
     ax.set(xlabel=r"$x/r^{*}_{\!s}$", ylabel=r"$y/r^{*}_{\!s}$")
     return save(fig, "moc_contour_design")
 
