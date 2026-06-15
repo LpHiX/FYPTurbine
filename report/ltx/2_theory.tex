@@ -74,7 +74,14 @@ Using the non-dimensional pump characteristic curve $\psi=f(\phi)$, the performa
     \label{eq:flow_scaling}
 \end{equation}
 
-\todo{not done yet}
+\subsubsection{Cavitation and NPSH}
+Cavitation occurs when the local static pressure of the fluid drops below its vapour pressure, causing the liquid to boil into vapour bubbles. In a pump, this is highly undesirable as the bubbles form and collapse violently repeatedly, eroding the impeller and diffuser surfaces. Additionally, the vapour bubbles are compressible, so they absorb energy that would otherwise be delivered to the fluid, reducing the head and efficiency of the pump. The cavitation behaviour of a pump is characterised by the net positive suction head, NPSH. There are different types of NPSH. At the supply side, $\textrm{NPSH}_a$ stands for net positive suction head available, which the head margin above vapour pressure at the pump inlet. On the pump side, a  $\textrm{NPSH}_r$ is usually specified. Standing for net positive suction head required, it is the minimum NPSH$_a$ at which the pump can operate without cavitation. The standard performance criterion is NPSH$_3$, the available NPSH at which the developed head has dropped 3\% below its fully wetted value at constant speed and flow \cite{gulichCentrifugalPumps2020}. The formula for the general NPSH is given in \cref{eq:npsh}, where $p_{in}$ is the inlet static pressure, $p_{vap}$ is the vapour pressure of the fluid, $\rho$ is the fluid density, $g$ is gravitational acceleration and $v_{in}$ is the inlet velocity.
+
+\begin{equation}
+    \textrm{NPSH} = \frac{p_{in} - p_{vap}}{\rho g} + \frac{v_{in}^2}{2g}
+    \label{eq:npsh}
+\end{equation}
+
 % The head is set by these velocity triangles, which is an inviscid result, so viscosity barely affects it and shows up only later in the friction losses. To first order the head therefore depends only on the shape of the triangle, that is $\psi$ depends only on $\phi$, and every test speed should fall on a single $\psi(\phi)$ curve. Putting this on a formal footing, the six quantities $(Q, H, n, d_2, \rho, \mu)$ carry three independent dimensions and so reduce to three dimensionless groups, $\psi = f(\phi, Re)$, where the weak third parameter is the tip Reynolds number
 
 % \begin{equation}

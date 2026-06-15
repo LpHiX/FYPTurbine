@@ -11,21 +11,63 @@ The experimental campaign was conducted in three phases: commissioning, electric
 
 \subsection{Electric Motor Driven Pump Testing}
 
+Following objective 1 of the thesis, which is to characterise the head-flow, efficiency and cavitation characteristics, a series of runs were conducted with the pump driven by the electric motor. Five high quality runs were conducted at different motor throttle settings, providing a range of shaft speeds up to 8500 RPM. The head flow curve and cavitation characteristics require different testing profiles.
+
+\begin{enumerate}
+    \item To measure the head-flow curve, the outlet valve was swept from fully open to fully closed slowly while the inlet valve was held open to supply the maximum inlet head possibly by the supply pump. This also measures the efficiency curve.
+    \item The cavitation characteristics are determined by the minimum inlet pressure before head breakdown or the NPSH required of the pump at different flow rates. This was measured by sweeping the inlet valve from fully open to fully closed at different outlet valve angles.
+\end{enumerate}
+
+To speed up data collection, these two tests were combined into a single sequence of valve commands, run at different motor throttle settings. The exact test profile is:
+
+\begin{enumerate}
+    \item T+0: Motor throttle is set to a fixed value, outlet valve is fully open $0^\circ$, and the inlet valve is fully open $0^\circ$. The outlet valve then starts closing slowly over 20 seconds.
+    \item T+20: At this point, the outlet valve is fully closed. It is then slowly opened to $10^\circ$.
+    \item T+25: Once the outlet valve is at $10^\circ$, the inlet valve is swept from fully open to fully closed over 20 seconds.
+    \item T+45: The inlet valve is fully closed, and starts opening back up to $0^\circ$ over 5 seconds.
+    \item T+50: The outlet valve is stepped to $20^\circ$ and the inlet valve is swept again from fully open to fully closed over 20 seconds.
+    \item This repeats until the outlet valve is fully closed at $80^\circ$, where the inlet valve is swept one last time from fully open to fully closed over 20 seconds and the test ends with both valves commanded to fully open again and motor shut down.
+\end{enumerate}
+
+\Cref{fig:test_overview} shows the raw channels for all five runs laid over each other against time, the outlet pressure, the flow rate, the shaft torque, the speed, and the two valve positions. Each run is a single ESC throttle setting, displaying the whole electric motor driven pump campaign off this one figure. The two valve rows are the test procedure itself. The two valve traces fall on top of each other across all five runs because the sequence was scripted and identical every time, so any difference between runs comes only from the motor throttle setting.
+
+The first thing the data shows is that everything moves together in the direction it should. A higher throttle setting gives a higher steady speed, and the runs separate cleanly from around 3500 to 7500 RPM with no overlap. The outlet pressure, the flow and the torque are all ordered by speed in the same way, the fastest run highest on every channel and the slowest lowest, and none of them cross over. Within the H-Q test (first 20 seconds of each run) the pressure and the flow move in opposite directions, as the outlet valve closes the pressure rises and the flow falls, which is the head flow trade-off that a pump curve summarises shown directly in time before any curve is drawn \cite{dixonFluidMechanicsThermodynamics1998}. Every channel responds to each valve action coherently, pressure rising as flow falls and torque tracking the load, with nothing flat or lagging or fighting the others, which is the first sign that each sensor is behaving and that the runs are clean enough to compare.
+
+The main limitation of the rig is visible straight away, which is that the shaft speed is not held constant through a run. In a standard head flow test the pump is driven by a closed loop speed controler where the speed is held relatively constant while the discharge valve is swept, so the measured curve belongs to one fixed speed \cite{gulichCentrifugalPumps2020, karassikPumpHandbook2008}. Here the pump is driven open loop by a brushless ESC that sets throttle rather than speed, so the pump shaft speed depends on the motor torque speed curve and speed drops whenever torque is increased. The consequence is that a constant speed characteristic cannot be read straight off the traces. %and every point has to be corrected back to the run nominal speed through the affinity laws before the runs mean anything \cite{dixonFluidMechanicsThermodynamics1998, gulichCentrifugalPumps2020}. This is why I ran the campaign as five separate throttle settings, each giving a roughly constant speed run, rather than as one controlled sweep.
+
+A second limitation is that all of this happens far below the design speed. The fastest H-Q run reaches about 7700 RPM, roughly a third of the 20,000 RPM the pump was designed for, so every measurement is off design. %Testing this slowly also means a low Reynolds number, and since the loss fraction in a pump falls as Reynolds number rises \cite{gulichCentrifugalPumps2020}, the efficiencies measured here sit at the low end of what the machine would reach at speed. The whole campaign is an off design characterisation and that framing carries through the rest of the discussion.
+
+The cavitation part of each run carries its own limitation that the raw data makes obvious. During every inlet sweep the flow drops as the inlet valve closes, which is the flow row dipping in step with the inlet valve, because the single inlet valve lowers the suction pressure and the flow at the same time. A dedicated suction test holds the flow constant while only the suction pressure is reduced \cite{gulichCentrifugalPumps2020, brennenHydrodynamicsPumps2011}, so the coupling here means the pure suction behaviour at a fixed flow cannot be isolated and the breakdown has to be defined against a moving reference rather than a fixed one.
+
+Finally the pressure and flow traces are noticeably noisy. This is not a measurement artifact. Rather, the scatter is consistent with partial emission operation, where the impeller blade gets near the outlet the velocity slightly increases. This is a known source of pressure unsteadiness in this kind of pump \cite{barskeDesignOpenImpeller}. As Barske explains, altering the number of impeller blades can reduce this fluid vibration. It also means a single sample cannot be trusted the data has to be processed to remove the noise. % and the reduction bins the data and takes a median in each bin before anything is read off it. 
+
+Finally, the torque is not zero at standstill. This is caused by the mechanical seal's static friction producing a torque against the motor's rotor and stator trying to reach equilibrium. While spinning, this effect is removed, so the this oddity can be safely ignored.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{results_test_overview.pdf}
+    \caption{Raw electric pump driven pump experimental data over 5 different motor throttle settings}
+    \label{fig:test_overview}
+\end{figure}
+
+\subsection{Data Processing and Uncertainty}
+
+\label{sec:reduction}
+
+To use the raw data to fully characterise the pump at the tested operating conditions, the data has to be processed to remove many effects. First of all, only the points above 75\% of the run's median RPM and throwing away the spin up and spin down. Because the open loop drive lets the speed drift by around 8\% over a single ramp, every surviving point is then corrected back to the median speed which becomes the run reference speed through the affinity laws as described in \cref{sec:theory_scaling}. The head scaled as the square of the speed and the flow scaled linearly with it \cite{lobanoffCentrifugalPumpsDesign1992}. This is the step that turns a run with a drifting speed into a clean characteristic at one reference speed, and it is what makes the five runs in \cref{fig:test_overview} comparable to each other, to the design point and to literature.
+
+The pump is partial emission so the corrected traces are still noisy, around 2\% scatter on head, which is close to the 3\% cavitation breakdown the analysis has to resolve, so no single point can be trusted on its own. To handle this the corrected data are binned in flow, 28 bins for the head curves and 20 for the cavitation sweeps, and within each bin I take the median rather than the mean so that an occasional spike or dropout does not drag the point with it. The scatter that survives the binning is carried as the random uncertainty, taken as the standard error of the median, $1.253\,\sigma/\sqrt{n}$. This binning pulls the 2\% raw scatter down to under 0.1 m on head, well below the 60\% head collapse that marks breakdown, so the breakdown is a clear cliff and not lost in the noise.
+
+The binned head and flow points, together with the reference speed and the impeller geometry, are then formed into the quantities the rest of the chapter plots. The head and flow are made non dimensional as the Gulich head and flow coefficients, $\psi = 2gH/u_2^2$ and $\phi_2 = Q/(\pi d_2 b_2 u_2)$ \cite{gulichCentrifugalPumps2020}, which is the collapse in \cref{fig:dim-hq}. The shaft torque and speed give the input power and the overall efficiency $\eta = \rho g Q H / \tau\omega$, binned in flow the same way, which is \cref{fig:eff-churning}. The suction sweeps are reduced against the inlet pressure to give head against available NPSH and the 3\% breakdown point, which is \cref{fig:npshr}. So the single set of raw channels in \cref{fig:test_overview} feeds every derived figure that follows, through one reduction rather than three.
+
+On top of the random scatter each measured quantity also carries a systematic uncertainty from its instrument, the values listed in \cref{tab:instruments}. The error is propagated with the \texttt{uncertainties} python package. The random and systematic parts are then added in quadrature and the error bars are drawn at twice the combined standard uncertainty, so they are roughly 95\% intervals.% One honest point is that the systematic part is common mode, it shifts a whole curve up or down rather than scattering neighbouring points, so the per point bars slightly overstate how much the points can really move relative to each other. The clean collapse of all five runs onto one non dimensional curve in \cref{fig:dim-hq} is the better evidence that the genuine run to run random scatter is small.
 
 
-The same experimental procedure was followed for each ru
+% All error bars in this chapter follow the same simple scheme. The systematic uncertainty of each instrument comes from \cref{tab:instruments}, the random uncertainty is the standard error of the median within each bin, and the two are combined in quadrature at roughly 95\% confidence, $U_Y = \sqrt{B_Y^2 + (2P_Y)^2}$. Propagation into derived quantities like efficiency and the non dimensional coefficients is done by linear propagation. One design decision from \cref{sec:experiment} matters here: because the pressure transducers and the ADC share the same reference voltage, excitation and gain drift cancel to first order and do not appear as a systematic term. Where error bars are not visible they are smaller than the markers.
 
+\subsection{Pump Head-Flow Characteristics}
 
-
-The ESC which drove the motor in the experiment could not maintain control of the RPM. In literature, performance curve data is usually collected at a constant speed, so the data was adjusted with affinity laws.
-
-Within each run the shaft speed was not perfectly constant, so the data points were adjusted to the run median speed using the affinity laws before binning. The adjustment is small, validated to around 0.2\% on the head coefficient, and it is what allows each run to be treated as a single speed curve.
-
-All error bars in this chapter follow the same simple scheme. The systematic uncertainty of each instrument comes from \cref{tab:instruments}, the random uncertainty is the standard error of the median within each bin, and the two are combined in quadrature at roughly 95\% confidence, $U_Y = \sqrt{B_Y^2 + (2P_Y)^2}$. Propagation into derived quantities like efficiency and the non dimensional coefficients is done by linear propagation. One design decision from \cref{sec:experiment} matters here: because the pressure transducers and the ADC share the same reference voltage, excitation and gain drift cancel to first order and do not appear as a systematic term. Where error bars are not visible they are smaller than the markers.
-
-\subsection{Pump: Head--Flow Characteristics}
-
-There are two main curves that are used to evaluate pump performance: the head-flow curve and the efficiency curve. The head-flow curve shows the achievable head at different flow rates and will be discussed first.
+% There are two main curves that are used to evaluate pump performance: the head-flow curve and the efficiency curve. The head-flow curve shows the achievable head at different flow rates and will be discussed first.
 
 
 % \begin{figure}[H]
@@ -75,35 +117,35 @@ There are two main curves that are used to evaluate pump performance: the head-f
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{theory_HQ_tuned.pdf}
-    \caption{Measured head against flow rate across five speeds (left) and the same data collapsed to head and flow coefficients (right). Dashed lines are Lock's model with literature constants, solid lines are the bounded re-fit with the as-built throat. Vertical dashed lines mark where the synchronised video shows the diffuser throat cavitation clearing. Error bars are systematic and random combined in quadrature at 95\% confidence, smaller than markers where not visible.}
+    \caption{Dimensional and non-dimensional head-flow curves, with two Lock model curves overlayed.}
     \label{fig:dim-hq} % label moved after caption -- before, \cref bound to the section, not the figure
 \end{figure}
 
 
-\todo{add explanation that RPM was not constant, so affinity laws were used to adjust the data to the average rpm}
+% \todo{add explanation that RPM was not constant, so affinity laws were used to adjust the data to the average rpm}
 
 % \cref{fig:dim-hq,fig:non-dim-hq}
 
 \cref{fig:dim-hq} Shows the actual achieved head rise across flow rates at the different RPMs that were tested. Overlayed are solid and dashed lines. Both are theoretical head-flow curves generated from \cref{eq:lock_static_head_flow}. The dashed line is with exactly the parameters from Lock's paper, and the solid line is with the pre-rotation $K_1$ increased from \valLockKOneOriginal to \valLockKOneModified. The dashed vertical dashed line shows the point at a synchronized video camera detected cavitation within the diffuser through the transparent diffuser wall. It can be seen that the original parameters overpredict the head rise, and there are many mechanisms that could be causing this.
 
-The non dimensional view in the right panel carries the headline numbers. The five speeds collapse onto a single curve at a head coefficient of $\psi = \valPumpPsiMeas$ in the operating region, against a design value of \valPumpPsiDesign, so the pump delivers its design head with around 3\% to spare. The collapse itself is the experimental proof of dynamic similarity, and it is what licenses the affinity adjustment within runs and the extrapolation to higher speeds later in this chapter. The diverging tails at high flow coefficient are a rig artifact rather than a breakdown of similarity, because the fixed feed pressure means the maximum achievable flow coefficient falls as speed rises.
+The non dimensional head-flow curve shows the a clear validation of pump theory. The five speeds collapse onto a single curve at a head coefficient of $\psi = \valPumpPsiMeas$ in the operating region, against a design value of \valPumpPsiDesign, so the pump delivers its design head with around 3\% to spare. The collapse itself is the experimental proof of dynamic similarity, and it is what licenses the affinity adjustment within runs and the extrapolation to higher speeds later in this chapter. The diverging tails at high flow coefficient are a rig artifact rather than a breakdown of similarity, because the fixed feed pressure means the maximum achievable flow coefficient falls as speed rises.
 
-The fitted constants need to be defended rather than just stated, because a fitted model proves nothing if the constants are unphysical. The bounded re-fit with the as-built throat diameter fixed at \valPumpThroat{} gives $K_1 = \valLockKOneModified$ and a diffuser loss coefficient of 0.42, both interior to their physical bounds. The excess of $K_1$ over Lock's own 0.15 to 0.20 study has named candidates that are all in Lock's paper: the deliberate prerotation designed in through $d_1 = 1.1 d_0$, the rounding of the printed blade leading edges which Lock notes reduces effective head, and the optimism of his effective radius assumption. The diffuser loss of 0.42 against the clean pipe entry value of 0.194 is consistent with the entry separation mechanism Lock describes at the diffuser mouth. Alternative explanations can be ruled out: an error in the torque or pressure scales would shift the dimensional curves but not change the shape of the droop, and a slip type explanation would move the intercept of the non dimensional curve rather than its slope.
+The difference between the theoreetical Lock model and the fitted curve was done by changing the pre-rotation constant $K_1$ and the diffuser loss coefficient $\zeta_D$. In Lock's own paper \cite{lockForcedVortexPump1966}, he uses pre-rotation factors of around 0.15 to 0.20. However, he does not give any guidelines for this number. It might be unphysical to attribute the loss of predicted head by prerotation, as in his paper he notes that a rounding of the rim blade leading edges reduces effective head. This could be another mechanism by which the predicted head was lower than the measured. The lack of modelling this rounding is a limitation of the model that needs to be addressed. The diffuser loss of 0.42 against the clean pipe entry value of 0.194 could be more consistent with literature. Gulich suggests that a rounded diffuser mouth induces recirculation, exacerbating diffuser loss. Even Lock states himself that the entry to the nozzle is very unfavourable.
 
-The most important feature of \cref{fig:dim-hq} is the high flow cutoff, and here the transparent casing converts a fit into a validation. On every head flow ramp the video shows cavitation in the diffuser throat clearing as the flow falls, frame matched to the data at three flow rates across three runs. With the true throat diameter of \valPumpThroat{} in the model, Lock's vapour pressure cutoff lands on all three video clearing points to within roughly 10\%, and on the measured runout. The history here is worth stating. With the nominal cutwater diameter of \valPumpThroatCutwater{} the model overpredicted the cutoff badly, and it was the systematic disagreement with the video that prompted the CAD section check which found the true minimum area. The model diagnosed a wrong geometry input, which is a stronger validation than agreement on the first try. The remaining discrepancies are also informative. The measured cutoffs sit 5 to 10\% later than predicted, consistent with a small residual flow contraction, and the head begins rolling off slightly before the cavitation clears, which cavitation cannot explain and which points to the same diffuser entry separation responsible for the elevated loss coefficient. Collector losses growing with flow at low specific speed is independently reported, as Khan's volute head loss curves blow up at overload in exactly this way \cite{khanDesignOptimizationLowSpecific}.
+The most important feature of \cref{fig:dim-hq} is the high flow cutoff. Data shows great agreement between actual cavitation being deteced by the camera made possible with the transparent casing. On every head flow ramp the video shows cavitation in the diffuser throat clearing as the flow falls, frame matched to the data at three flow rates across three runs. In the model, Lock's vapour pressure cutoff lands on all three video clearing points to within roughly 10\%. %The remaining discrepancies are also informative. The measured cutoffs sit 5 to 10\% later than predicted, consistent with a small residual flow contraction, and the head begins rolling off slightly before the cavitation clears, which cavitation cannot explain and which points to the same diffuser entry separation responsible for the elevated loss coefficient. Collector losses growing with flow at low specific speed is independently reported, as Khan's volute head loss curves blow up at overload in exactly this way \cite{khanDesignOptimizationLowSpecific}.
 
-The conclusion of this section is then a mechanism, not a fit: the maximum flow of this pump is limited by cavitation in the diffuser throat, established independently by the model and the video.
+% The conclusion of this section is then a mechanism, not a fit: the maximum flow of this pump is limited by cavitation in the diffuser throat, established independently by the model and the video.
 
 \subsection{Pump: Efficiency and Churning}
 
-The overall efficiency is computed from directly measured quantities only,
+The overall efficiency is computed from \cref{eq:eta_definition}.
 
 \begin{equation}
     \eta = \frac{P_{hyd}}{P_{shaft}} = \frac{\rho g Q H}{\tau \omega}
     \label{eq:eta_definition}
 \end{equation}
 
-with the torque measured at the shaft between the drive and the pump, so the drive losses never enter.
+% with the torque measured at the shaft between the drive and the pump, so the drive losses never enter.
 
 The efficiency curve generated by measuring shaft power, subtracting mechanical losses can be shown in the following graph:
 

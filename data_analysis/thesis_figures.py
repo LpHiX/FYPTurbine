@@ -133,7 +133,7 @@ DESIGN_Q_LPS, DESIGN_H_M = 0.3, 203.9    # pump design point
 #     calibration records, then delete this banner. <<<
 # =========================================================================== #
 UNC = dict(
-    p_bar=0.02,     # TODO(Martin): PT systematic [bar]. Placeholder 0.5% FS of 12 bar.
+    p_bar=0.1,     # TODO(Martin): PT systematic [bar]. Placeholder 0.5% FS of 12 bar.
     q_rel=0.03,     # TODO(Martin): flowmeter, fraction of reading. Placeholder 1%.
     tq_nm=0.02,     # TODO(Martin): torque systematic [Nm] incl. tare drift band.
     rpm=5.0,        # TODO(Martin): tacho systematic [rpm].
@@ -362,14 +362,14 @@ def fig_theory_hq():
     cols = plt.cm.viridis(np.linspace(0, 0.9, len(exp_runs())))
     clears = {c["run"]: c for c in hq_throat_clear()}
     for (lbl, e), c in zip(exp_runs().items(), cols):
-        H = u_head(e["H"], e["Hsem"])
+        H = u_head(e["H"], e["Hsem"], sys=False)   # per-point bars: random P only
         plot_data(a1, e["q"], unp.nominal_values(H), yerr=_cover(unp.std_devs(H)),
                   color=c, ms=3, label=f"{lbl} ~{e['N']:.0f} rpm")
         qth = np.linspace(1e-5, e["q"].max() / 1000 * 1.15, 80)
         plot_theory(a1, qth * 1000, lock(qth, e["N"], K_DEFAULT, ETAL_DEFAULT)["H_static"],
                     color=c, alpha=.6)
         plot_tuned(a1, qth * 1000, lock(qth, e["N"], K_FIT, ETAL_FIT)["H_static"], color=c)
-        phi, psi = u_psi_phi(e["q"], e["H"], e["N"], e["Hsem"], e["qsem"])
+        phi, psi = u_psi_phi(e["q"], e["H"], e["N"], e["Hsem"], e["qsem"], sys=False)
         plot_data(a2, unp.nominal_values(phi), unp.nominal_values(psi),
                   yerr=_cover(unp.std_devs(psi)), color=c, ms=3)
         u2 = np.pi * D2 * e["N"] / 60
@@ -415,14 +415,8 @@ def fig_eta_phi():
                 continue
             qc = np.median(Q[s] * 1000)
             ec = np.median(eo[s])
-            sem = 1.253 * np.std(eo[s]) / np.sqrt(s.sum())          # random P
-            rel_sys = np.sqrt(                                       # systematic B
-                (UNC["q_rel"]) ** 2 +
-                (H_SYS_M / max(np.median(H[s]), 1e-3)) ** 2 +
-                (UNC["tq_nm"] / max(np.median(tq[s]), 1e-3)) ** 2 +
-                (UNC["rpm"] / np.median(rpm[s])) ** 2)
-            sig = np.hypot(sem, ec * rel_sys)
-            plot_data(ax, [qc], [ec * 100], yerr=[_cover(sig) * 100], color=c, ms=3)
+            sem = 1.253 * np.std(eo[s]) / np.sqrt(s.sum())          # random P only
+            plot_data(ax, [qc], [ec * 100], yerr=[_cover(sem) * 100], color=c, ms=3)
         qth = np.linspace(1e-5, (np.nanpercentile(Q, 98)) * 1.1, 60)
         et0 = pump().efficiency_lock(qth, RPM=e["N"], D_3=D3, D_inlet=DINLET,
                                      K_factor=K_FIT, eta_losses=ETAL_FIT,
@@ -612,8 +606,12 @@ def fig_coupled_torque():
     frac = float(np.nanmedian((c3u_eff / np.cos(beta)) / c3s))
 
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
-    plot_data(ax, rpm_w[::20], tq_w[::20], yerr=_cover(UNC["tq_nm"]),
-              ms=2, alpha=0.6, color="C0", label="measured (every 20th pt)")
+    # Measured cloud shown as a scatter: its point-to-point spread is the real
+    # variation. The torque systematic is a common-mode calibration/tare offset
+    # that shifts every point together, so it is stated in the caption, not drawn
+    # as a per-point bar on each of the clustered points.
+    ax.plot(rpm_w[::20], tq_w[::20], "o", ms=2, alpha=0.5, color="C0",
+            label="measured (every 20th pt)")
     rr = np.linspace(rpm_w.min(), rpm_w.max(), 40)
     p01_med = float(np.median(p01_w))
     plot_theory(ax, rr, torque_started(rr, p01_med), color="C3",
