@@ -1801,11 +1801,14 @@ def fig_test_overview():
     ]
     cols = plt.cm.viridis(np.linspace(0, 0.9, len(RUNS)))
     paths = ep.find_runs(LOGDIR)
-    fig, axes = plt.subplots(len(rows), 1, figsize=(10, 12), sharex=True)
+    fig, axes = plt.subplots(len(rows), 1, figsize=(7.5, 10), sharex=True)
     for (lbl, tag), c in zip(RUNS.items(), cols):
         d = ep.load(paths[tag])
         for ax, (_, key) in zip(axes, rows):
-            ax.plot(d["t"], ep.smooth(d[key]), color=c, lw=0.9,
+            y = ep.smooth(d[key])
+            if key in ("in_dem", "out_dem"):
+                y = y / 2.0   # servo demand is 2x the physical valve angle
+            ax.plot(d["t"], y, color=c, lw=0.9,
                     label=lbl if key == "pout" else None)
     for ax, (ylabel, _) in zip(axes, rows):
         ax.set_ylabel(ylabel)
