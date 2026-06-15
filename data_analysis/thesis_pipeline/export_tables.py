@@ -40,13 +40,13 @@ TABLES = {
     "tab_design_point": [
         {"key": "pump_rpm_design", "sym": r"$n$", "desc": "design shaft speed"},
         {"key": "pump_q_design", "sym": r"$Q$", "desc": "pump design volume flow rate"},
-        {"key": "pump_head_design", "sym": r"$H$", "desc": "pump design head rise"},
+        # {"key": "pump_head_design", "sym": r"$H$", "desc": "pump design head rise"},
         {"key": "pump_pressure_design", "sym": r"$\Delta p$", "desc": "pump design pressure rise"},
         {"key": "pump_nq_design", "sym": r"$n_q$", "desc": "pump specific speed (rpm, \\unit{\\cubic\\meter\\per\\second}, \\unit{\\meter})"},
         {"key": "turb_power_design", "sym": r"$P$", "desc": "turbine design shaft power"},
         {"key": "turb_p01_design", "sym": r"$p_{01}$", "desc": "turbine design inlet total pressure"},
         {"sym": "--", "desc": "pump working fluid", "val": "water"},
-        {"sym": "--", "desc": "turbine working fluid", "val": "air"},
+        {"sym": "--", "desc": "turbine working fluid", "val": "compressed air"},
     ],
     # Pump design summary — end of the pump design section.
     "tab_pump_design": [

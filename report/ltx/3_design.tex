@@ -1,7 +1,7 @@
 \section{Design}
 \label{sec:design}
 
-The design point for this thesis was chosen from the capabilities of the test rig. The design parameters for the pump and turbine is shown in \cref{tab:design_point} and this section explains how each number was chosen. The RPM limit was set by the maximum speed of the Magtrol TM306 inline torquemeter and the AHB-3 hysteris brake at 20,000 RPM. The pressure rise and flow rate was chosen to study the low specific regime. The supply pump was decided to be Hozelock's JET 3000 K7 Jet pump as it was available in the department and had a published performance curve. At \valPumpMdotDesign, the supply pump had a head of around \valSupplyPumpHeadDesign. Then, the head rise of the pump was chosen to be \valPumpPressureDesign for a specific speed of \valPumpNqDesign.
+The turbopump design point for this thesis was chosen from the capabilities of the test rig. The design parameters for the pump and turbine is shown in \cref{tab:design_point} and this section explains how each number was chosen. The RPM limit was set by the maximum speed of the Magtrol TM306 inline torquemeter and the AHB-3 hysteris brake at 20,000 RPM. The pressure rise and flow rate was chosen to study the low specific regime. The supply pump was decided to be Hozelock's JET 3000 K7 Jet pump as it was available in the department and had a published performance curve. At \valPumpMdotDesign, the supply pump had a head of around \valSupplyPumpHeadDesign. Then, the pressure rise of the pump was chosen to be \valPumpPressureDesign for a specific speed of \valPumpNqDesign.
 
 \begin{table}[H]
   \centering
@@ -24,9 +24,11 @@ Following the global design point parameteres, the pump was sized using the Bars
     \label{fig:barske-geometry}
 \end{figure}
 
- The chain starts from what Barske considers a reasonable inlet velocity. \valPumpUZeroDesign was chosen. Higher inlet velocities lead to higher NPSHR. This fixes the eye diameter $d_0$. The eye is then enlarged to the blade leading edge diameter $d_1$ to allow the deliberate prerotation Barske recommends. The inlet and exit blade heights follow from continuity, and the tip diameter $d_2$ comes from the recovery equation \cref{eq:barske_tip_diameter} with a deliberately conservative recovery coefficient of $k_d = 0.2$. A conservative $k_d$ oversizes the impeller slightly, and the plan was to trim $d_2$ later if the discharge pressure came out too high. The sized values are listed in \cref{tab:pump_design}. The geometry was checked against the constraints: the inlet blade speed stays below 45 m/s, $d_2/d_1 > 1.5$, the NPSH margin against the supply system is positive, and the predicted shaft power of \valPumpPowerDesign{} sits under the 1800 W brake limit.
+ The design starts following \cref{sec:theory_barske_sizing} from what Barske considers a reasonable inlet velocity. \valPumpUZeroDesign was chosen. Higher inlet velocities lead to higher NPSHR. This fixes the eye diameter $d_0$. The eye is then enlarged to the blade leading edge diameter $d_1$ to allow the deliberate prerotation Barske recommends. The inlet and exit blade heights follow from continuity following \cref{eq:blade_height}. The impeller tip diameter $d_2$ comes from the recovery equation \cref{eq:barske_tip_diameter} with a deliberately conservative diffuser recovery coefficient of $k_d = 0.2$. A conservative $k_d$ oversizes the impeller to make sure the desired head is achieved and can be adjusted in future iterations. The sized values are listed in \cref{tab:pump_design}.% The geometry was checked against the constraints: the inlet blade speed stays below 45 m/s, $d_2/d_1 > 1.5$, the NPSH margin against the supply system is positive, and the predicted shaft power of \valPumpPowerDesign sits under the 1800 W brake limit.
 
-It should be stated clearly that the sizing used the Barske model, not Lock's. Lock's refined model was adopted later as the analysis model because it predicts the drooping head curve and the cavitation cutoff that the Barske model cannot, and its comparison against the measured data is in \cref{sec:results}. Rearranging Lock's model into a direct sizing tool is left as future work.
+This geometry is then put into Lock's model to predict the head curve \cref{fig:dim-hq} and NPSHR \cref{fig:npshr} to be compared with experimental data in \cref{sec:results}.
+
+% It should be stated clearly that the sizing used the Barske model, not Lock's. Lock's refined model was adopted later as the analysis model because it predicts the drooping head curve and the cavitation cutoff that the Barske model cannot, and its comparison against the measured data is in \cref{sec:results}. Rearranging Lock's model into a direct sizing tool is left as future work.
 
 \begin{table}[H]
   \centering
@@ -37,57 +39,72 @@ It should be stated clearly that the sizing used the Barske model, not Lock's. L
 
 \subsubsection{Diffuser}
 
-The diffuser is a single conical passage placed tangentially on the annular casing, following Barske's guidance from \cref{sec:theory_barske_sizing}. The throat was sized for a throat velocity of 0.8 to 0.9 of $u_2$, giving $d_3 = \valPumpDThreeSized$, and the exit area was set at 3 to 4 times the throat area, giving $d_4 = \valPumpDFourSized$. Two changes were made to these before the part was made. The throat was opened up to \valPumpThroat, rounding the sized value up. The round-up itself is for manufacturing, so the small passage prints and cleans out reliably, but rounding up rather than down was deliberate. The throat is the most cavitation critical dimension in the pump, and a larger throat runs a lower throat velocity, which raises the cavitation limited maximum flow that the results in \cref{sec:results} show this throat actually sets. The low specific speed optimisation literature points the same way, treating the diffuser throat as a lever to open rather than to minimise \cite{danieliConceptualDesignElectric2023}. The exit was set by packaging, not aerodynamics. The cone sits tangentially on the annular casing, and had to clear the casing wall for the inlet fitting, which pushed the exit diameter out to \valPumpDFourAsbuilt. That over-expands the passage well past Barske's 3 to 4 area ratio guidance, but the extra area is all downstream of the throat on the discharge side, so it costs nothing that matters here. Diffuser recovery is not the limiting loss of this pump. The comparison of this throat sizing against the literature is discussed in \cref{sec:results}.
+The diffuser is a single conical passage placed tangentially on the annular casing, following Barske's guidance from \cref{sec:theory_barske_sizing}. The throat was sized for a throat velocity of 0.8 to 0.9 of $u_2$, giving $d_3 = \valPumpDThreeSized$, and the exit area was set at 3 to 4 times the throat area, giving $d_4 = \valPumpDFourSized$. Two changes were made to these before the part was made. The throat was opened up to \valPumpThroat, rounding the sized value up. The oversize itself is for manufacturing, so the small passage prints and cleans out reliably, but rounding up rather than down was deliberate. The throat is the most cavitation critical dimension in the pump, and a larger throat runs a lower throat velocity, which raises the cavitation limited maximum flow that the results in \cref{sec:results} show this throat actually sets. The low specific speed optimisation literature points the same way, treating the diffuser throat as a lever to open rather than to minimise \cite{danieliConceptualDesignElectric2023}. The diffuser exit was then enlarged to \valPumpDFourAsbuilt for packaging. The cone sits tangentially on the annular casing, and had to clear the casing wall for the inlet fitting. That over-expands the passage well past Barske's 3 to 4 area ratio guidance, but the extra area is all downstream of the throat on the discharge side, so it costs nothing here. The comparison of this throat sizing against the literature is discussed in \cref{sec:results}. \todo{what?}
 
-Barske comments that the number of impeller blades does not seem to be critical, with 3-6 being operated successfully. However, altering the number of blades can be used to elminite fluid vibrations \cite{barske1953}. Lock provides corrections for blades from 1 to 16 \cite{lockfig10A}.
+Barske comments that the number of impeller blades does not seem to be critical, with 3-6 being operated successfully. However, altering the number of blades can be used to elminite fluid vibrations \cite{barskeDesignOpenImpeller}. Lock provides corrections for blades from 1 to 16 \cite{lockForcedVortexPump1966}.
 
 \subsubsection{Mechanical Design}
 
-\todo{this shit is ALL wrong lol}
+After the theoretical Barske pump geometry has been sized to deliver the design head at a desired flow rate, it has to then be translated into a manufacturable assembly that satisfies additional practical requirements. The mechanical design has to survive loading conditions such as high rotational speeds and pressures. Then, it also has to be leak tight, manufacturable and assemblable. A CAD model of the pump assembly that satisfies these requirements is shown in \cref{fig:pump-cad-section}.
 
-The dominant mechanical load is not torque but radial thrust. Because the pump is partial emission, the pressure field around the impeller is asymmetric, and the net radial force this produces governs the shaft and bearing design rather than efficiency considerations. The radial thrust is estimated with the standard projected area form
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pump_mech.png}
+    \caption{Labeled CAD isotropic and section view of the pump assembly} % PLACEHOLDER IMAGE: Fusion export
+    \label{fig:pump-cad-section}
+\end{figure}
 
-\begin{equation}
-    F_R = K_R\, \rho g H\, d_2 b_2
-    \label{eq:radial_thrust}
-\end{equation}
+% The front casing and the diffuser were printed in clear resin and polished. This was a deliberate design decision, enabled by the low test pressures, so that cavitation could be observed directly through the casing wall. The payoff of this decision is the cavitation visualisation in \cref{sec:results}, which turned out to be one of the most valuable measurements of the project.
 
-where $K_R$ is an empirical thrust coefficient and $d_2 b_2$ is the projected impeller discharge area \cite{gulichCentrifugalPumps2020}. For a single tangential collector the unbalance is large compared to a volute pump, and at the design head this force, not the 1.2 Nm of torque, is what loads the bearings. The shaft is a 10 mm solid stainless steel stub, chosen over printed or aluminium options to keep the rotor stiff enough to prevent rotor to stator rubs at the small axial clearance.
+\paragraph{Material Selection} The low pressure rise of \valPumpPressureDesign as a small scale prototype to study rocket engine pumps allowed for a wider and more accomodating material selection criteria. Plastic was chosen for its ability for rapid prototyping and low cost. SLA was chosen instead of FDM for most parts because FDM printing layer by layer creates a pourous surface that will not be leak proof at \valPumpPressureDesign. The pump impeller and were printed in Formlabs Tough 2000 resin for this reason. For this thesis, it was realized that although mechanically weaker than Tough 2000, the Formlabs clear resin was found to be a possible material. The pump casing and inlet were printed in clear resin and polished. This allowed for cavitation visualisation in \cref{sec:results}, which turned out to be one of the most valuable measurements of the project. For the bracket that mounted the pump to the test rig, leakage was not a concern so it was printed in PLA for its rigidty and low cost. The pump shaft had to be made of a stronger material for rotordynamic stability at high rotational speeds and high torque, so it was made of stainless steel and machined on the manual lathe and mill in the Imperial Advanced Hackspace.
 
-The choice of seal came before the model. A rotating shaft has to pass through the casing wall into pressurised water while running at up to \valPumpRpmDesign, and most of the simple options do not survive that. A lip seal wears out fast at this surface speed and holds very little pressure, a clearance or labyrinth seal leaks far too much for a closed water loop where the leakage path is also where the flow is measured, and packing has high friction and needs constant tending. A mechanical face seal is the sensible answer, a spring loaded rotating face running against a stationary face with the only leak path a thin liquid film between two lapped surfaces. The seal fitted is a single spring component seal with a face outer diameter of 28.7 mm, an inner diameter of 20.9 mm and a balance diameter of 19.0 mm, held closed by a 50 N spring. % [VERIFY] seal part designation (59U19?); reconcile the 19.0 mm balance diameter with the 10 mm stub shaft (seal sleeve / stepped seat)
-These dimensions give a balance ratio of $B_r = 1.20$, so the seal is unbalanced and the closing pressure grows faster than the sealed pressure. That is harmless at the low test pressures but it is exactly what drives the heat load at the design point, which is what the friction model is for.
+\paragraph{Sealing} Most rotary seals did not work for this application. A lip seal wears out fast at this surface speed and holds very little pressure, a labyrinth seal could not be reliably used with plastic parts due to printing tolerances, and packing has too high friction. This led to the choice of using a mechanical seal. Mechanical seals consist of a spring loaded rotating face running against a stationary face with the only leak path a thin liquid film between two lapped surfaces. The liquid film greatly reduces the friction between the two faces. A John Crane 59U-14 mechanical seal was used. Mechanical seals operate by pressing a rotating face against a stationary face with a thin liquid film in between \cite{karassikPumpHandbook2008}. For the static seals, two O-rings sized with the \cite{ParkerORingHandbook} were used to seal the inlet against the casing and the casing to the bearing housing. The seal between the inlet and the casing was a piston seal, while the seal between the casing and the bearing housing was a face seal.
 
-The mechanical seal sets its own requirement, and its friction was modelled rather than guessed because it sits between the torquemeter and the impeller, inside every torque measurement of \cref{sec:results}. The net closing pressure on the seal faces is the sealed pressure acting on the hydraulic unbalance of the face, plus the spring:
+\paragraph{Concentricity} Concentricity is of great importance in high speed rotating machinery. The design takes advantages of shoulders and press fits to ensure the concentricity between every interfacing part as shown in \cref{fig:pump-cad-section}. 
 
-\begin{equation}
-    p_f = \Delta p \left(B_r - k\right) + p_{sp}, \qquad
-    B_r = \frac{d_o^2 - d_b^2}{d_o^2 - d_i^2}
-    \label{eq:seal_balance}
-\end{equation}
+% The dominant mechanical load is not torque but radial thrust. Because the pump is partial emission, the pressure field around the impeller is asymmetric, and the net radial force this produces governs the shaft and bearing design rather than efficiency considerations. The radial thrust is estimated with the standard projected area form
 
-where $B_r$ is the seal balance ratio built from the face outer and inner diameters $d_o$, $d_i$ and the balance diameter $d_b$, $k \approx 0.5$ is the pressure profile factor for the fluid film between the faces, and $p_{sp}$ is the spring force over the face area \cite{gulichCentrifugalPumps2020}. % [VERIFY] cite: balance-ratio formulation is standard seal practice (Karassik/Mayer); swap citation if Gulich lacks it
-The friction torque and heat follow as
+% \begin{equation}
+%     F_R = K_R\, \rho g H\, d_2 b_2
+%     \label{eq:radial_thrust}
+% \end{equation}
 
-\begin{equation}
-    \tau_{seal} = p_f\, A_f\, r_m\, f, \qquad
-    P_{seal} = \tau_{seal}\, \omega
-    \label{eq:seal_heat}
-\end{equation}
+% where $K_R$ is an empirical thrust coefficient and $d_2 b_2$ is the projected impeller discharge area \cite{gulichCentrifugalPumps2020}. For a single tangential collector the unbalance is large compared to a volute pump, and at the design head this force, not the 1.2 Nm of torque, is what loads the bearings. The shaft is a 10 mm solid stainless steel stub, chosen over printed or aluminium options to keep the rotor stiff enough to prevent rotor to stator rubs at the small axial clearance.
 
-with $A_f$ the face contact area, $r_m$ the mean face radius and $f$ the face friction coefficient. With the dry running textbook coefficient $f = 0.07$, the model predicts about 0.4 Nm and 860 W of face heating at the 20 bar, 20,000 RPM design point, and about 0.08 Nm and 60 W at the achieved test conditions. The design point heat flux would flash the water film at the faces to steam without an active flush, so the seal is flushed by the pumped water itself. Two parts of this model are tested against data later: the static starting torque, quoted by Karassik at 3 to 5 times the running torque, is compared against the measured stiction band in \cref{sec:results}, and the friction coefficient itself is fitted from the measured loss budget, which returns $f$ well below the dry value because the faces run on a water film.
+% The choice of seal came before the model. A rotating shaft has to pass through the casing wall into pressurised water while running at up to \valPumpRpmDesign, and most of the simple options do not survive that. A lip seal wears out fast at this surface speed and holds very little pressure, a clearance or labyrinth seal leaks far too much for a closed water loop where the leakage path is also where the flow is measured, and packing has high friction and needs constant tending. A mechanical face seal is the sensible answer, a spring loaded rotating face running against a stationary face with the only leak path a thin liquid film between two lapped surfaces. The seal fitted is a single spring component seal with a face outer diameter of 28.7 mm, an inner diameter of 20.9 mm and a balance diameter of 19.0 mm, held closed by a 50 N spring. % [VERIFY] seal part designation (59U19?); reconcile the 19.0 mm balance diameter with the 10 mm stub shaft (seal sleeve / stepped seat)
+% These dimensions give a balance ratio of $B_r = 1.20$, so the seal is unbalanced and the closing pressure grows faster than the sealed pressure. That is harmless at the low test pressures but it is exactly what drives the heat load at the design point, which is what the friction model is for.
 
-Rolling bearing friction was estimated with the SKF four component model, which sums a load dependent rolling term, a sliding term and, for a submerged bearing, a drag term:
+% The mechanical seal sets its own requirement, and its friction was modelled rather than guessed because it sits between the torquemeter and the impeller, inside every torque measurement of \cref{sec:results}. The net closing pressure on the seal faces is the sealed pressure acting on the hydraulic unbalance of the face, plus the spring:
 
-\begin{equation}
-    M_{brg} = M_{rr} + M_{sl} + M_{drag}
-    = \phi_{ish}\,\phi_{rs}\, G_{rr} \left(\nu_l\, n\right)^{0.6} + G_{sl}\, \mu_{sl} + M_{drag}
-    \label{eq:bearing_friction}
-\end{equation}
+% \begin{equation}
+%     p_f = \Delta p \left(B_r - k\right) + p_{sp}, \qquad
+%     B_r = \frac{d_o^2 - d_b^2}{d_o^2 - d_i^2}
+%     \label{eq:seal_balance}
+% \end{equation}
 
-where the $G$ factors carry the bearing geometry and load, the $\phi$ factors are shear heating and starvation corrections, and $\nu_l$ is the lubricant kinematic viscosity \cite{skfRollingBearings}. % [VERIFY] add SKF Rolling Bearings catalogue (model source) to the bib
-For the 61900 deep groove bearings running submerged in water, the model predicts roughly 0.2 W per bearing at test speed and under 4 W at the full design speed. Bearing friction is therefore negligible against the seal and churning losses, a conclusion the shutoff loss decomposition of \cref{sec:results} supports.
+% where $B_r$ is the seal balance ratio built from the face outer and inner diameters $d_o$, $d_i$ and the balance diameter $d_b$, $k \approx 0.5$ is the pressure profile factor for the fluid film between the faces, and $p_{sp}$ is the spring force over the face area \cite{gulichCentrifugalPumps2020}. % [VERIFY] cite: balance-ratio formulation is standard seal practice (Karassik/Mayer); swap citation if Gulich lacks it
+% The friction torque and heat follow as
 
-The front casing and the diffuser were printed in clear resin and polished. This was a deliberate design decision, enabled by the low test pressures, so that cavitation could be observed directly through the casing wall. The payoff of this decision is the cavitation visualisation in \cref{sec:results}, which turned out to be one of the most valuable measurements of the project.
+% \begin{equation}
+%     \tau_{seal} = p_f\, A_f\, r_m\, f, \qquad
+%     P_{seal} = \tau_{seal}\, \omega
+%     \label{eq:seal_heat}
+% \end{equation}
+
+% with $A_f$ the face contact area, $r_m$ the mean face radius and $f$ the face friction coefficient. With the dry running textbook coefficient $f = 0.07$, the model predicts about 0.4 Nm and 860 W of face heating at the 20 bar, 20,000 RPM design point, and about 0.08 Nm and 60 W at the achieved test conditions. The design point heat flux would flash the water film at the faces to steam without an active flush, so the seal is flushed by the pumped water itself. Two parts of this model are tested against data later: the static starting torque, quoted by Karassik at 3 to 5 times the running torque, is compared against the measured stiction band in \cref{sec:results}, and the friction coefficient itself is fitted from the measured loss budget, which returns $f$ well below the dry value because the faces run on a water film.
+
+% Rolling bearing friction was estimated with the SKF four component model, which sums a load dependent rolling term, a sliding term and, for a submerged bearing, a drag term:
+
+% \begin{equation}
+%     M_{brg} = M_{rr} + M_{sl} + M_{drag}
+%     = \phi_{ish}\,\phi_{rs}\, G_{rr} \left(\nu_l\, n\right)^{0.6} + G_{sl}\, \mu_{sl} + M_{drag}
+%     \label{eq:bearing_friction}
+% \end{equation}
+
+% where the $G$ factors carry the bearing geometry and load, the $\phi$ factors are shear heating and starvation corrections, and $\nu_l$ is the lubricant kinematic viscosity \cite{skfRollingBearings}. % [VERIFY] add SKF Rolling Bearings catalogue (model source) to the bib
+% For the 61900 deep groove bearings running submerged in water, the model predicts roughly 0.2 W per bearing at test speed and under 4 W at the full design speed. Bearing friction is therefore negligible against the seal and churning losses, a conclusion the shutoff loss decomposition of \cref{sec:results} supports.
+
+
 
 The pump shaft critical speed was bounded with the same overhung rotor estimate used for the turbine shaft, \cref{eq:overhung_critical}. Treating the 10 mm stainless shaft ($E = 193$ GPa, $I = \pi d^4/64 = 4.9\times10^{-10}$ m$^4$) as a cantilever from the bearing with the impeller mass at the overhang, the first bending speed stays above approximately 45,000 RPM for any plausible combination of overhang length up to 50 mm and impeller mass up to 100 g, a margin of better than 2.2 over the design speed. % [VERIFY] as-built overhang length and impeller mass; tighten the bound with the real values
 The bound is deliberately conservative, since the short stub geometry was chosen exactly to keep this margin large, as discussed in \cref{sec:experiment}.
@@ -99,20 +116,14 @@ The bound is deliberately conservative, since the short stub geometry was chosen
     \label{fig:pump-fea}
 \end{figure}
 
-\subsubsection{Cavitation Prediction}
+% \subsubsection{Cavitation Prediction}
 
-At the design flow rate, the predicted NPSH required is \valPumpNpshrDesign. Compared against the NPSH available from the pressurised supply, this leaves a positive but not generous margin, which is one of the reasons the cavitation behaviour was made a primary measurement objective. The full NPSH against flow rate characterisation, and the visual confirmation of where cavitation actually occurs, are presented in \cref{sec:results}.
+% At the design flow rate, the predicted NPSH required is \valPumpNpshrDesign. Compared against the NPSH available from the pressurised supply, this leaves a positive but not generous margin, which is one of the reasons the cavitation behaviour was made a primary measurement objective. The full NPSH against flow rate characterisation, and the visual confirmation of where cavitation actually occurs, are presented in \cref{sec:results}.
 
 \subsubsection{Manufacturing and As-Built}
 
 The impeller, casing and diffuser were printed by SLA. Additive manufacturing is acceptable for this pump precisely because of the forced vortex operation described in \cref{sec:theory}. With the fluid rotating as a solid body, the relative velocity over the blade surfaces is low, so blade surface finish has little effect on performance and the print finish is sufficient. Two tolerances dominate performance and were flagged for inspection: the axial clearance $s_{ax}$ between the blades and the casing, and the diffuser throat diameter. The as-built throat turned out to matter a great deal, as the true minimum area was found to be the \valPumpThroat{} semicircular passage into the annular casing rather than the \valPumpThroatCutwater{} cone cutwater downstream, and this distinction becomes central to the cavitation analysis in \cref{sec:results}. Full as-built deviation tables are in the appendix.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{placeholder.png}
-    \caption{CAD section view of the as-built pump assembly, showing the impeller, transparent front casing, tangential diffuser and mechanical seal.} % PLACEHOLDER IMAGE: Fusion export
-    \label{fig:pump-cad-section}
-\end{figure}
 
 \subsubsection{Comparison to Conventional Design}
 
