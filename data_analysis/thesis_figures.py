@@ -1018,14 +1018,14 @@ def fig_goldman_validation():
     from quicktests.goldman_exact import (M_from_nu, build_blade_surface,
                                           run_single_case_sasman_cresci)
     gd = GOLDMAN
-    Ml = M_from_nu(np.deg2rad(gd["nu_l_deg"]))
-    Mu = M_from_nu(np.deg2rad(gd["nu_u_deg"]))
+    Ml = 1.68
+    Mu = 2.9
     s_lo_f, Me_lo_f, _ = build_blade_surface(gd["M_in"], Ml, gd["beta_deg"],
                                              side="lower", M_other=Mu)
     s_up_f, Me_up_f, _ = build_blade_surface(gd["M_in"], Mu, gd["beta_deg"],
                                              side="upper", M_other=Ml)
     (s_lo, Hi_lo, _, _, s_up, Hi_up, _, _) = run_single_case_sasman_cresci(
-        gd["M_in"], Ml, Mu, gd["beta_deg"], Re_chord=35000, Hi_0=1.8, theta_0_test=10)
+        gd["M_in"], Ml, Mu, gd["beta_deg"], Re_chord=150000, Hi_0=1.67, theta_0_test=10)
 
     fig, ax = plt.subplots(figsize=(3.1, 2.8))
     plot_tuned(ax, s_lo_f, Me_lo_f, color="C0", label="lower surface")

@@ -669,7 +669,28 @@ Separation occurs in high adverse pressure gradients. In supersonic flow, this h
     \label{fig:goldman-bl-figures}
 \end{figure}
 
-Sasman and Cresci \cite{sasmanCompressibleTurbulentBoundary1966} provides a method to compute the development of the compressible turbulent boundary layer and thus find the incompressible form factor $H_i$ along both surfaces. In this method, the edge Mach number distribution was taken from the MOC blade solution and fed into the their compressible integral method. The boundary layer was started as a turbulent flat plate with $\theta_0/c = 0.036\,\mathrm{Re}_{s_0}^{-1/5}$, using the prandtl $u/U=(y/\delta)^{1/7}$ and $\delta/c = 0.37 \mathrm{Re}^{-1/5}$ \cite{andersonFundamentalsAerodynamics2017}. The Reynolds number $\mathrm{Re}_{s_0}$ is calculated with the blade inlet density $\rho_3$, relative velocity $w_3$ and the chord length $c$. The shape factor $H_{i,0}$ is chosen to the value which the integration relaxes to within the first few percent of chord regardless of the start value. Once this calculation is done, the incompressible form factor $H_i$ can then be used to evaluate if generated blade profile, and thus the chosen surface Mach numbers will lead to separation and where and feed into the design loop. 
+Sasman and Cresci \cite{sasmanCompressibleTurbulentBoundary1966} provides a method to compute the development of the compressible turbulent boundary layer and thus find the incompressible form factor $H_i$ along both surfaces. In this method, the edge Mach number distribution was taken from the MOC blade solution and fed into the their compressible integral method. The boundary layer was started as a turbulent flat plate with $\theta_0/c = 0.036\,\mathrm{Re}_{s_0}^{-1/5}$, using the prandtl $u/U=(y/\delta)^{1/7}$ and $\delta/c = 0.37 \mathrm{Re}^{-1/5}$ \cite{andersonFundamentalsAerodynamics2017}. The Reynolds number $\mathrm{Re}_{s_0}$ is calculated with the blade inlet density $\rho_3$, relative velocity $w_3$ and the chord length $c$. The shape factor $H_{i,0}$ is chosen to the value which the integration relaxes to within the first few percent of chord regardless of the start value. Once this calculation is done, the incompressible form factor $H_i$ can then be used to evaluate if generated blade profile, and thus the chosen surface Mach numbers will lead to separation and where and feed into the design loop. This methodology was implemented in Python and validated against Goldman's published figures, as shown in \cref{fig:code-bl-figures}. 
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.40\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{goldman_validation_hi.pdf}
+        \caption{Attempted reproduction of Goldman's incompressible form factor $H_i$ along the blade surfaces}
+        \label{fig:code-hi-paper}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.40\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{goldman_validation_mach.pdf}
+        \caption{Attempted reproduction of Goldman's distribution of Mach number along the blade surfaces}
+        \label{fig:code-mach-paper}
+    \end{subfigure}
+    \caption{Validation of Sasman and Cresci's method to compute the development of the compressible turbulent boundary layer against Goldman's published figures.}
+    \label{fig:code-bl-figures}
+\end{figure}
+
+\cref{fig:code-bl-figures} a similar $H_i$ and $M$ distribution along the blade surfaces as Goldman's published figures with a few dissimilarities. The first difference is that the fraction of chord the transition arcs taken up in the code is slightly larger than Goldman's published figures. The different edge mach number distribution leads to a different $H_i$ distribution because the boundary layer growth is dependent on the edge mach number distribution. This means that there could be differences in initial conditions or ODE solving approahch. However, the general trend and magnitudes of $H_i$ where the lower surface has a spike in $H_i$ in its deceleration transition arc and the upper surface has a spike in $H_i$ in its deceleration transition arc allows the code to be used with caution even if not fully validated. 
 
 %Once a MOC blade profile is generated and the mach number at every point along the blade is known, a modified momentum-integral equation \cref{eq:modified-momentum-integral} and shape-factor equation can be solved as an initial value problem starting from the leading edge goverened by the following equations:
 
