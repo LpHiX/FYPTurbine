@@ -133,8 +133,8 @@ DESIGN_Q_LPS, DESIGN_H_M = 0.3, 203.9    # pump design point
 #     calibration records, then delete this banner. <<<
 # =========================================================================== #
 UNC = dict(
-    p_bar=0.005,     # TODO(Martin): PT systematic [bar]. Placeholder 0.5% FS of 12 bar.
-    q_rel=0.010,     # TODO(Martin): flowmeter, fraction of reading. Placeholder 1%.
+    p_bar=0.05,     # TODO(Martin): PT systematic [bar]. Placeholder 0.5% FS of 12 bar.
+    q_rel=0.03,     # TODO(Martin): flowmeter, fraction of reading. Placeholder 1%.
     tq_nm=0.001,     # TODO(Martin): torque systematic [Nm] incl. tare drift band.
     rpm=5.0,        # TODO(Martin): tacho systematic [rpm].
     d2_m=0.05e-3,     # TODO(Martin): as-printed vs CAD tip diameter [m] (SLA).

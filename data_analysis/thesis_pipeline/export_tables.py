@@ -68,7 +68,7 @@ TABLES = {
         {"key": "turb_mdot_design", "sym": r"$\dot{m}$", "desc": "design air mass flow rate"},
         {"key": "turb_dmean", "sym": r"$d_m$", "desc": "mean (pitch) diameter"},
         {"key": "turb_blade_height", "sym": r"$b$", "desc": "rotor blade height"},
-        {"key": "turb_doa", "sym": r"$\varepsilon$", "desc": "degree of admission"},
+        {"key": "turb_doa", "sym": r"$\zeta$", "desc": "degree of admission"},
         {"key": "turb_beta3_design", "sym": r"$\beta_3$", "desc": "rotor blade angle (from tangential)"},
         {"key": "turb_nozzles", "sym": r"$z_N$", "desc": "number of nozzles"},
         {"key": "turb_athroat", "sym": r"$A_\mathrm{th}$", "desc": "total nozzle throat area"},

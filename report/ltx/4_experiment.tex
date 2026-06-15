@@ -205,14 +205,14 @@ The custom backend could only send UART signals back and forth to the ESPs at a 
 
 which is a factor of about 5.7, and is why the per bin scatter in the results is small.
 
-The ratiometric arrangement deserves one line of algebra, because it deletes a systematic error term by design. The transducer output is proportional to its excitation voltage, $V_s = k\, p\, V_{exc}$, and the ADC reports the ratio of its input to its reference, $D = V_s / V_{ref}$. With both supplied from the same LT3042 rail, $V_{exc} = V_{ref}$, so
+% The ratiometric arrangement deserves one line of algebra, because it deletes a systematic error term by design. The transducer output is proportional to its excitation voltage, $V_s = k\, p\, V_{exc}$, and the ADC reports the ratio of its input to its reference, $D = V_s / V_{ref}$. With both supplied from the same LT3042 rail, $V_{exc} = V_{ref}$, so
 
-\begin{equation}
-    D = \frac{k\, p\, V_{exc}}{V_{ref}} = k\, p
-    \label{eq:ratiometric}
-\end{equation}
+% \begin{equation}
+%     D = \frac{k\, p\, V_{exc}}{V_{ref}} = k\, p
+%     \label{eq:ratiometric}
+% \end{equation}
 
-and any drift of the shared rail cancels to first order, leaving only the transducer's own nonlinearity and the reference noise.
+% and any drift of the shared rail cancels to first order, leaving only the transducer's own nonlinearity and the reference noise.
 
 Originally, a separate computer running Magtrol's M-Test software was planned to be used to read the torque and RPM from the DSP6001. However, by connecting the DSP6001's analog output for torque and RPM to the MCP3208, the torque and RPM data could be integrated into the same DAQ system as the pressure sensors, allowing for time-exact data synchronisation and simpler data collection.
 
@@ -264,87 +264,89 @@ Two limitations of this arrangement should be stated. The frame rate is orders o
     \label{tab:instruments}
     \begin{tabular}{llllll}
         \toprule
-        Quantity & Sensor & Range & Output & Uncertainty & Source \\
+        Quantity & Sensor & Range & Output & Datasheet Uncertainty & Measured Uncertainty\\
         \midrule
-        Pressure & TODO & TODO & TODO & TODO & TODO \\
-        Flow rate & TODO & TODO & TODO & TODO & TODO \\
-        Torque & TODO & TODO & TODO & TODO & TODO \\
-        Shaft speed & TODO & TODO & TODO & TODO & TODO \\
-        Temperature & TODO & TODO & TODO & TODO & TODO \\
+        Pressure & DC5V 1.2MPa & 0 to 12 bar & 0.5-4.5 V & 3\% F.S. & 0.05 bar \\
+        Flow rate & E-WFS-GE  & 2 to 45 L/min & Pulse & $\pm 10\%$ & $\pm 3\%$ \\
+        Torque & TM306 & -1.6 to 1.6 Nm & 0-5 V & $<0.1\%$ & 0.01 Nm \\
+        Shaft speed & TM306 & 0 to 20,000 RPM & 0-5 V & $<0.1\%$ & 5 RPM \\
+        Temperature & K Type TC & -200 to +1300 °C & MAX31855 output & $\pm 2^{\circ}C$ & N/A \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\subsection{Test Envelope and Limitations}
+Notes on the measured uncertainty:  Calibrated gains against digital gauge to $\pm 0.05$ bar, verified and calibrated flowmeter with stopwatch and bucket to $\pm 3\%$, torque uncertainty from closed box calibration and ADC resolution to 0.01 Nm, speed uncertainty from closed box calibration and ADC resolution to 5 RPM. The temperature data was not used in the analysis as the thermocouple calibration went off during testing, so the measured uncertainty is not available.
 
-The achievable test envelope was set by the drive hardware on the pump side and by the air supply on the turbine side. The electric motor had no speed control loop, only stepped throttle commands to the ESC, and the combination of the ESC current limit and motor torque cap meant pump testing topped out at around 7,500 RPM. On the turbine side, the shop air pressure and its droop under flow settled the coupled shaft at around \valCoupledRpm{} RPM. Conditions above these speeds were not surveyed due to these experimental limitations, and the extrapolation of the measured behaviour towards the design point is handled analytically in \cref{sec:results}.
+% \subsection{Test Envelope and Limitations}
 
-Safety drove three features of the test arrangement that are visible in the data taking: all testing was operated from a separate control room with nobody in the test cell, the rotating assembly was fully enclosed by a blast shield, and a hardware safety relay cuts all actuation power on an overspeed or emergency stop. The shield and the protection system were not bought off a shelf, they were sized by the calculations of the next section.
+% The achievable test envelope was set by the drive hardware on the pump side and by the air supply on the turbine side. The electric motor had no speed control loop, only stepped throttle commands to the ESC, and the combination of the ESC current limit and motor torque cap meant pump testing topped out at around 7,500 RPM. On the turbine side, the shop air pressure and its droop under flow settled the coupled shaft at around \valCoupledRpm{} RPM. Conditions above these speeds were not surveyed due to these experimental limitations, and the extrapolation of the measured behaviour towards the design point is handled analytically in \cref{sec:results}.
 
-\subsection{Containment and Protection System Design}
+% Safety drove three features of the test arrangement that are visible in the data taking: all testing was operated from a separate control room with nobody in the test cell, the rotating assembly was fully enclosed by a blast shield, and a hardware safety relay cuts all actuation power on an overspeed or emergency stop. The shield and the protection system were not bought off a shelf, they were sized by the calculations of the next section.
 
-Experimental turbomachinery has to be designed on the assumption that any rotating component or any non commercial pressure part can fail. The containment hardware was therefore sized from first principles. A note on the operating pressure: these calculations were performed for the original 100 bar stored air system that was later descoped to the 7 bar shop air supply, and the hardware they sized was retained, so the as-tested system carries safety factors far beyond what the 7 bar regime requires.
+% \subsection{Containment and Protection System Design}
 
-\subsubsection{Fragment Energy and Blast Shield Sizing}
+% Experimental turbomachinery has to be designed on the assumption that any rotating component or any non commercial pressure part can fail. The containment hardware was therefore sized from first principles. A note on the operating pressure: these calculations were performed for the original 100 bar stored air system that was later descoped to the 7 bar shop air supply, and the hardware they sized was retained, so the as-tested system carries safety factors far beyond what the 7 bar regime requires.
 
-For the failure of a pressure holding component, the fragment velocity is estimated with the method of Baker \cite{bakerExplosionHazards1983}, developed from simulations of a vessel breaking into sectional fragments and matched to experiment within 10\%. The non-dimensional burst pressure is
+% \subsubsection{Fragment Energy and Blast Shield Sizing}
 
-\begin{equation}
-    \bar{P} = \frac{\left(p_0 - p_e\right)\mathcal{V}}{m_c\, \gamma R T_0}
-    \label{eq:baker_pressure}
-\end{equation}
+% For the failure of a pressure holding component, the fragment velocity is estimated with the method of Baker \cite{bakerExplosionHazards1983}, developed from simulations of a vessel breaking into sectional fragments and matched to experiment within 10\%. The non-dimensional burst pressure is
 
-where $p_0$ is the vessel pressure at failure (the full 100 bar, assuming both the regulator and the burst disc have failed), $p_e$ is atmospheric pressure, $\mathcal{V}$ the vessel volume and $m_c$ the casing mass. The worst case line of Baker's velocity chart is
+% \begin{equation}
+%     \bar{P} = \frac{\left(p_0 - p_e\right)\mathcal{V}}{m_c\, \gamma R T_0}
+%     \label{eq:baker_pressure}
+% \end{equation}
 
-\begin{equation}
-    \log_{10}{\bar{u}} = 0.6 \log_{10}{\bar{P}} + 0.15, \qquad
-    \bar{u} = \frac{u}{\sqrt{K \gamma R T_0}}
-    \label{eq:baker_velocity}
-\end{equation}
+% where $p_0$ is the vessel pressure at failure (the full 100 bar, assuming both the regulator and the burst disc have failed), $p_e$ is atmospheric pressure, $\mathcal{V}$ the vessel volume and $m_c$ the casing mass. The worst case line of Baker's velocity chart is
 
-with $K = 1$ for evenly distributed fragment mass. The only non commercial pressure holding component is the stator, and this procedure gives a fragment velocity of 72 m/s. Assuming the stator splits into two 0.1 kg fragments,
+% \begin{equation}
+%     \log_{10}{\bar{u}} = 0.6 \log_{10}{\bar{P}} + 0.15, \qquad
+%     \bar{u} = \frac{u}{\sqrt{K \gamma R T_0}}
+%     \label{eq:baker_velocity}
+% \end{equation}
 
-\begin{equation}
-    E = \tfrac{1}{2} m u^2 = \tfrac{1}{2} \times 0.1 \times 72^2 = 261 \textrm{ J}
-    \label{eq:fragment_ke}
-\end{equation}
+% with $K = 1$ for evenly distributed fragment mass. The only non commercial pressure holding component is the stator, and this procedure gives a fragment velocity of 72 m/s. Assuming the stator splits into two 0.1 kg fragments,
 
-For the rotating assembly, the bounding energy is the full rotational kinetic energy of the blisk at design speed,
+% \begin{equation}
+%     E = \tfrac{1}{2} m u^2 = \tfrac{1}{2} \times 0.1 \times 72^2 = 261 \textrm{ J}
+%     \label{eq:fragment_ke}
+% \end{equation}
 
-\begin{equation}
-    E = \tfrac{1}{2} J \omega^2 = \tfrac{1}{2} \times 6\times10^{-5} \times 2094^2 = 131 \textrm{ J}
-    \label{eq:blisk_ke}
-\end{equation}
+% For the rotating assembly, the bounding energy is the full rotational kinetic energy of the blisk at design speed,
 
-The main line of defence is a 20 mm Dyneema (UHMWPE composite) ballistic panel on an aluminium extrusion frame. Its capacity is expressed as a specific energy absorption,
+% \begin{equation}
+%     E = \tfrac{1}{2} J \omega^2 = \tfrac{1}{2} \times 6\times10^{-5} \times 2094^2 = 131 \textrm{ J}
+%     \label{eq:blisk_ke}
+% \end{equation}
 
-\begin{equation}
-    SEA = \frac{E}{m}, \qquad E_{max} = SEA \cdot A\, t\, \rho
-    \label{eq:sea}
-\end{equation}
+% The main line of defence is a 20 mm Dyneema (UHMWPE composite) ballistic panel on an aluminium extrusion frame. Its capacity is expressed as a specific energy absorption,
 
-where $A$ is the projected area of the impacting fragment, $t$ the panel thickness and $\rho$ the panel density. The $SEA$ is derived from published $v_{50}$ ballistic limits for fragment simulating projectiles against 20 mm panels \cite{hazellArmour2015}: a 12.7 mm FSP gives 1.84 MJ/kg and a 20 mm FSP gives 1.68 MJ/kg, the latter agreeing with independent flat projectile data. Using the conservative value, the panel can absorb 163 kJ over the stator's projected area and 32.6 kJ over the blisk's, against the fragment energies of \cref{eq:fragment_ke,eq:blisk_ke}. The containment margins are roughly 600 and 250.
+% \begin{equation}
+%     SEA = \frac{E}{m}, \qquad E_{max} = SEA \cdot A\, t\, \rho
+%     \label{eq:sea}
+% \end{equation}
 
-A 15 mm polycarbonate shield additionally separates the turbomachinery from the dynamometer. Its capacity is estimated with the shear plug model \cite{hazellArmour2015}, where the projectile shears a plug of perimeter $s_p$ out of the sheet:
+% where $A$ is the projected area of the impacting fragment, $t$ the panel thickness and $\rho$ the panel density. The $SEA$ is derived from published $v_{50}$ ballistic limits for fragment simulating projectiles against 20 mm panels \cite{hazellArmour2015}: a 12.7 mm FSP gives 1.84 MJ/kg and a 20 mm FSP gives 1.68 MJ/kg, the latter agreeing with independent flat projectile data. Using the conservative value, the panel can absorb 163 kJ over the stator's projected area and 32.6 kJ over the blisk's, against the fragment energies of \cref{eq:fragment_ke,eq:blisk_ke}. The containment margins are roughly 600 and 250.
 
-\begin{equation}
-    E = \int_0^t s_p\, \tau_{pc} \left(t-x\right) dx = \tfrac{1}{2} s_p\, \tau_{pc}\, t^2
-    \label{eq:shear_plug}
-\end{equation}
+% A 15 mm polycarbonate shield additionally separates the turbomachinery from the dynamometer. Its capacity is estimated with the shear plug model \cite{hazellArmour2015}, where the projectile shears a plug of perimeter $s_p$ out of the sheet:
 
-with $\tau_{pc} = 60$ MPa for polycarbonate, conservative because the material strain hardens at impact rates. This gives 2.7 kJ for the stator perimeter and 4.1 kJ for the blisk perimeter, safety factors of 10 and 30 on their own.
+% \begin{equation}
+%     E = \int_0^t s_p\, \tau_{pc} \left(t-x\right) dx = \tfrac{1}{2} s_p\, \tau_{pc}\, t^2
+%     \label{eq:shear_plug}
+% \end{equation}
 
-\subsubsection{Bounding Shaft Torque}
+% with $\tau_{pc} = 60$ MPa for polycarbonate, conservative because the material strain hardens at impact rates. This gives 2.7 kJ for the stator perimeter and 4.1 kJ for the blisk perimeter, safety factors of 10 and 30 on their own.
 
-The rig torque rating was checked against an upper bound from the Euler equation, taking the maximum mass flow, full tangential jet velocity at entry and perfect counter rotation at exit:
+% \subsubsection{Bounding Shaft Torque}
 
-\begin{equation}
-    \tau_{max} = \dot{m}\, r \left(c_{u,in} - c_{u,out}\right)
-    = 0.034 \times 0.05 \times \left(469 + 469\right) = 1.6 \textrm{ Nm}
-    \label{eq:torque_bound}
-\end{equation}
+% The rig torque rating was checked against an upper bound from the Euler equation, taking the maximum mass flow, full tangential jet velocity at entry and perfect counter rotation at exit:
 
-This is an unachievable worst case and still sits well below the 3 Nm rating of the shaft train.
+% \begin{equation}
+%     \tau_{max} = \dot{m}\, r \left(c_{u,in} - c_{u,out}\right)
+%     = 0.034 \times 0.05 \times \left(469 + 469\right) = 1.6 \textrm{ Nm}
+%     \label{eq:torque_bound}
+% \end{equation}
+
+% This is an unachievable worst case and still sits well below the 3 Nm rating of the shaft train.
 
 \subsubsection{Protection System Electronics}
 
@@ -353,20 +355,20 @@ The pneumatic actuators are spring return, chosen so that the de-energised state
 
 The electrical system itself is low risk by construction: everything in the test cell runs at 24 V DC or below from a single supply, the electronics live in an enclosed plastic box protecting them from spray, and the only conductor crossing the test cell boundary is the LAN cable to the control room, which carries no power. The motor ESC and its 24 V supply are the highest energy electrical components, and they are inside the same enclosure boundary with the rotating hardware, behind the shield. % [VERIFY] supply details (single 24V rail assumption) against the as-built electronics
 
-\subsubsection{Overspeed Runaway Transient}
+% \subsubsection{Overspeed Runaway Transient}
 
-The protection system has to act faster than the worst credible overspeed. With a broken shaft leaving only the turbine, blisk and bearings, the angular acceleration under the maximum torque at the 17,000 RPM redline is
+% The protection system has to act faster than the worst credible overspeed. With a broken shaft leaving only the turbine, blisk and bearings, the angular acceleration under the maximum torque at the 17,000 RPM redline is
 
-\begin{equation}
-    \dot\omega = \frac{\tau}{J} = \frac{0.9}{2.74\times10^{-4}} = 3285 \textrm{ rad/s}^2 \approx 31{,}300 \textrm{ RPM/s}
-    \label{eq:runaway_accel}
-\end{equation}
+% \begin{equation}
+%     \dot\omega = \frac{\tau}{J} = \frac{0.9}{2.74\times10^{-4}} = 3285 \textrm{ rad/s}^2 \approx 31{,}300 \textrm{ RPM/s}
+%     \label{eq:runaway_accel}
+% \end{equation}
 
-After the trip, the manifold between the closed valve and the stator continues to blow down through the turbine. In choked flow the mass flow is proportional to the remaining manifold mass, an exponential decay with time constant
+% After the trip, the manifold between the closed valve and the stator continues to blow down through the turbine. In choked flow the mass flow is proportional to the remaining manifold mass, an exponential decay with time constant
 
-\begin{equation}
-    \frac{dm}{dt} = -\dot{m}_0 \frac{m}{m_0} \quad\Rightarrow\quad \tau_{bd} = \frac{m_0}{\dot{m}_0} = 42 \textrm{ ms}
-    \label{eq:blowdown_tau}
-\end{equation}
+% \begin{equation}
+%     \frac{dm}{dt} = -\dot{m}_0 \frac{m}{m_0} \quad\Rightarrow\quad \tau_{bd} = \frac{m_0}{\dot{m}_0} = 42 \textrm{ ms}
+%     \label{eq:blowdown_tau}
+% \end{equation}
 
-for the measured manifold volume. The protection sequence is: overspeed detected at $t=0$, all actuation power cut by the hardware relay at 20 ms, main valve fully closed at 170 ms, manifold vented by around 200 ms. Holding the maximum torque over the full 200 ms overestimates the excursion and still bounds it at 6,260 RPM, so an overspeed tripped at 17,000 RPM peaks below 23,300 RPM, briefly exceeding the 20,000 RPM dynamometer rating within the manufacturer's stated tolerance for transient overuse. Cavitation testing was further speed limited so that the same worst case stays below 19,000 RPM. The venting noise and reaction force calculations that complete the safety case are in \cref{sec:appendix_safety}.
+% for the measured manifold volume. The protection sequence is: overspeed detected at $t=0$, all actuation power cut by the hardware relay at 20 ms, main valve fully closed at 170 ms, manifold vented by around 200 ms. Holding the maximum torque over the full 200 ms overestimates the excursion and still bounds it at 6,260 RPM, so an overspeed tripped at 17,000 RPM peaks below 23,300 RPM, briefly exceeding the 20,000 RPM dynamometer rating within the manufacturer's stated tolerance for transient overuse. Cavitation testing was further speed limited so that the same worst case stays below 19,000 RPM. The venting noise and reaction force calculations that complete the safety case are in \cref{sec:appendix_safety}.
