@@ -182,7 +182,7 @@ The Barske pump, also known as the partial-emission pump \cite{barbernichols}, f
     \label{fig:impeller-comparison}
 \end{figure}
 
-The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications became one of the highest efficiency designs at this specific speed. The barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{something}. The barske impeller is instead designed to induce almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barskeDevelopmentUnconventionalCentrifugal1960} where meridonal or radially outward flow is negligable \cite{barskeDesignOpenImpeller}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses.
+The Barske impeller pump design which was developed for the need for manufacturing simplicity and low specific speed applications \cite{barskeDevelopmentUnconventionalCentrifugal1960} became one of the main centrifugal pump designs at this specific speed. The Barske impeller operates differently to a normal full emission pump. In a conventional centrifugal pump, impeller blade geometry aims to perfectly guide fluid flow along the blade surfaces in a smooth spiral streamline out of the impeller into the volute \cite{gulichCentrifugalPumps2020}. The Barske impeller is instead designed to induce almost a pure forced vortex flow where $u=\omega r$ and the fluid is essentially rotating as a solid body with the impeller \cite{barskeDevelopmentUnconventionalCentrifugal1960} where meridonal or radially outward flow is negligable \cite{barskeDesignOpenImpeller}. This also explains the unimportance of surface finish on the blades, as low relative velocity between the fluid and the impeller means lower friction losses.
 % shrouds stuff page 102 gulich
 Another difference between conventional impellers and the barske impeller is the absence of shrouds. The open impeller choice is to further reduce disc friction losses as in the case of radial impellers, shroud friction far exceeds contributions the contribution of all other components \cite{gulichCentrifugalPumps2020}. Conventional impellers uses shrouds to guide the flow and reduce secondary flows, but as the Barske impeller operates on a wholely different principle, this shroud is not needed. Removing the shrouds also reduces axial thrust loads on the impeller as there is less surface area for the fluid to push against, which assists with sealing and mechanical design of the pump shaft.
 
@@ -779,7 +779,7 @@ However, Goldman notes that for optimum efficiency, the maximum spread of surfac
         \caption{$M_l = 1.05$, $M_u = 1.5$}
         \label{fig:moc-spread-wide}
     \end{subfigure}
-    \caption{The effect of surface Mach number spread on the blade passage, for the same inlet conditions and shared axis scales. A narrow spread produces a sliver of a passage where the boundary layers occupy a large fraction of the width, while a wide spread opens the passage up. This is why efficiency rises with Mach spread until separation or starting limits are hit.}
+    \caption{The effect of surface Mach number spread on the blade passage, for the same inlet conditions. A narrow spread produces thin passage where the boundary layers occupy a large fraction of the width, while a wide spread opens the passage up.}
     \label{fig:moc-spread}
 \end{figure}
 
@@ -787,24 +787,19 @@ However, Goldman notes that for optimum efficiency, the maximum spread of surfac
 
 In \cref{subsec:method_of_characteristics}, the upper and lower surface are mathematically designed to produce no shocks in transitioning the unifrom flow from the nozzle exit into the vortex flow. For no shocks to form, both surfaces must be perfectly parallel to the starting flow. This is problematic because this implies the point where the two surfaces intersect at the leading edge, the angle between the upper and lower surfaces is zero. This creates an impossible to manufacture zero thickness leading edge. Boxer suggests a few methods to solve this issue. He separates design into turbines with a subsonic or supersonic axial velocity component. 
 
-For subsonic axial velocity turbines, either lower or upper surface can be designed with an incidence angle to the inlet flow. Angling the upper convex surface and keeping the lower concave surface parallel to the inlet flow, the compressive oblique shock will be generated along the region between the inlet and the nozzle exit, affecting the flow in the next blade passage. Kantrowitz shows that in steady state a compression shock of equal strength will be created to obtain the steady state condition \cite{kantrowitz}. To solve this, a small angle wedge can be placed shortly after the leading edge to generate a small expansion wave to cancel out the shock. 
+Boxer \cite{boxerApplicationSupersonicVortexflow1952} describes a few finite leading edge treatments depending on the axial velocity component. For subsonic axial velocity turbines, either lower or upper surface can be designed with an incidence angle to the inlet flow. Angling the upper convex surface and keeping the lower concave surface parallel to the inlet flow, the compressive oblique shock will be generated along the region between the inlet and the nozzle exit, affecting the flow in the next blade passage. Kantrowitz shows that in steady state a compression shock of equal strength will be created to obtain the steady state condition \cite{kantrowitzSupersonicAxialFlowCompressor1950}. To solve this, the lowerer concave surface can be angled so that the shock stays within the blade passasge and does not affect the upstream flow as shown in \cref{fig:finite-le}. The oblique comrpession shock can then be designed to intersect the upper surface at an angle to fully cancel out the shock. For supersonic axial velocity turbines, a wedge can be designed on the convex surface with a low enough angle from the design inlet flow so that the shock stays within the blade passage and can be cancelled out by a kink on the concave surface.
 
-Another method is angling the lower concave surface so that the shock stays within the blade passasge and does not affect the upstream flow. The oblique comrpession shock can then be designed to intersect the upper surface at an angle to fully cancel out the shock.
-
-For supersonic axial velocity turbines, a wedge can be designed on the convex surface with a low enough angle from the design inlet flow so that the shock stays within the blade passage and can be cancelled out by a kink on the concave surface.
-
-\todo{figures to explain this}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{placeholder.png}
+    \includegraphics[width=0.6\textwidth]{finite_edge.png}
     \caption{Finite leading edge treatments for supersonic blades: incidence angling of one surface, in passage shock cancellation, and the small wedge used to cancel the resulting compression shock.} % PLACEHOLDER IMAGE: hand sketch
     \label{fig:finite-le}
 \end{figure}
 
 \subsubsection{Nozzle Design}
 
-The nozzle throat sets the stage mass flow. Once the pressure ratio exceeds the critical value the throat chokes, and the mass flow depends only on the throat area and the upstream stagnation state:
+The nozzle is sized with the isentropic choked mass flow equation \cref{eq:choked_massflow}.
 
 \begin{equation}
     \dot{m} = \frac{A_{th}\, p_{01}}{\sqrt{T_{01}}}
@@ -812,33 +807,35 @@ The nozzle throat sets the stage mass flow. Once the pressure ratio exceeds the 
     \label{eq:choked_massflow}
 \end{equation}
 
-This equation does double duty in this thesis. In design it sizes the nozzle throats for the required mass flow, and in the analysis of \cref{sec:results} it is the only available estimate of the air mass flow, since the rig carries no air flowmeter. Its key property is that it is independent of shaft speed and of everything downstream of the throat, which makes it valid whether or not the rotor is operating as intended.
+% This equation does double duty in this thesis. In design it sizes the nozzle throats for the required mass flow, and in the analysis of \cref{sec:results} it is the only available estimate of the air mass flow, since the rig carries no air flowmeter. Its key property is that it is independent of shaft speed and of everything downstream of the throat, which makes it valid whether or not the rotor is operating as intended.
 
-While the throat sets the mass flow, the ratio of the exit area to the throat area sets the exit Mach number, through the isentropic area relation
+While the throat sets the mass flow, the ratio of the exit area to the throat area sets the exit Mach number, through the isentropic area relation \cref{eq:area_mach}.
 
 \begin{equation}
     \frac{A_3}{A_{th}} = \frac{1}{M_3}\left[\frac{2}{\gamma+1}\left(1 + \frac{\gamma-1}{2}M_3^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}
     \label{eq:area_mach}
 \end{equation}
 
-There is no closed form for $M_3$, so \cref{eq:area_mach} is inverted numerically for the supersonic root given the design area ratio. This relation is what links the nozzle geometry to the velocity triangle: the exit Mach number it returns must match the $M_3$ demanded by the inlet swirl of \cref{eq:triangle_inversion,eq:sizing_exit_state}, and the same relation is solved again when the design is re-evaluated for a different working gas, since the area ratio is fixed by the printed hardware but the Mach number and exit velocity are not.
+% There is no closed form for $M_3$, so \cref{eq:area_mach} is inverted numerically for the supersonic root given the design area ratio. This relation is what links the nozzle geometry to the velocity triangle: the exit Mach number it returns must match the $M_3$ demanded by the inlet swirl of \cref{eq:triangle_inversion,eq:sizing_exit_state}, and the same relation is solved again when the design is re-evaluated for a different working gas, since the area ratio is fixed by the printed hardware but the Mach number and exit velocity are not.
 
-Historically, the optimal nozzle design for a ideal inviscid gas was designed with the Method of Characteristics as well. Rao provides a method to achieve this \cite{raonozzledesign}. NASA special pubplication 8120 explains that a single canted parabola closely approximates the ideal nozzle contour and should be used for high performance nozzles. In this paper, the nozzle was a simple conical nozzle with a 7 degree half angle. It can be seen from \todo{add figure 7 from nasa sp8120} that the performance of a conical nozzle for low area ratios lead to a efficiency loss below 2\%.
+Historically, the optimal nozzle design for a ideal inviscid gas was designed with the Method of Characteristics as well. Rao provides a method to achieve this \cite{raoExhaustNozzleContour1958}. NASA special pubplication 8120 explains that a single canted parabola closely approximates the ideal nozzle contour and should be used for high performance nozzles \cite{LiquidRocketEngine1976}. In this thesis, the nozzle was designed as a simple conical nozzle with a $7^\circ$ degree half angle. It can be seen from \cref{fig:conical-nozzle-loss} that the performance of a conical nozzle for low area ratios lead to a efficiency loss below 2\%.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.55\textwidth]{placeholder.png}
-    \caption{Conical against contoured nozzle efficiency as a function of area ratio, reproduced from NASA SP-8120. At the low area ratio of this design the conical penalty is below 2\%.} % PLACEHOLDER IMAGE: SP-8120 Fig. 7 scan
+    \includegraphics[width=0.55\textwidth]{nozzle_eff.png}
+    \caption{Calculated efficiency of a conical nozzle as a function of area ratio from NASA SP-8120 \cite{LiquidRocketEngine1976}}
     \label{fig:conical-nozzle-loss}
 \end{figure}
 
-\subsubsection{Turbopump Matching}
+\todo{maybe talk about weiss nozzle accounting}
 
-When the pump and turbine are coupled on one shaft with no speed control, the system settles where the torques balance:
+% \subsubsection{Turbopump Matching}
 
-\begin{equation}
-    \tau_{\textrm{turbine}}(\omega) = \tau_{\textrm{pump}}(\omega) + \tau_{\textrm{friction}}(\omega)
-    \label{eq:matching}
-\end{equation}
+% When the pump and turbine are coupled on one shaft with no speed control, the system settles where the torques balance:
 
-The two sides have opposite slopes. The pump torque rises with speed, approximately with $\omega^2$ from the affinity laws. The turbine torque falls with speed, because for a fixed supply the jet velocity is fixed, so increasing blade speed reduces the velocity difference that generates the blade force. The intersection of the two curves is the match point. Because the turbine curve falls and the load curve rises, a small disturbance in speed produces a net torque that pushes the shaft back towards the intersection, so the match point is self regulating and no active speed control is needed. This is the behaviour the coupled test in \cref{sec:results} is designed to demonstrate.
+% \begin{equation}
+%     \tau_{\textrm{turbine}}(\omega) = \tau_{\textrm{pump}}(\omega) + \tau_{\textrm{friction}}(\omega)
+%     \label{eq:matching}
+% \end{equation}
+
+% The two sides have opposite slopes. The pump torque rises with speed, approximately with $\omega^2$ from the affinity laws. The turbine torque falls with speed, because for a fixed supply the jet velocity is fixed, so increasing blade speed reduces the velocity difference that generates the blade force. The intersection of the two curves is the match point. Because the turbine curve falls and the load curve rises, a small disturbance in speed produces a net torque that pushes the shaft back towards the intersection, so the match point is self regulating and no active speed control is needed. This is the behaviour the coupled test in \cref{sec:results} is designed to demonstrate.
