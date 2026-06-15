@@ -144,58 +144,61 @@ In conventional shrouded impellers, the back face of the impeller is exposed to 
 % ==================================================================
 \subsection{Turbine Design}
 
-\subsubsection{Design Point and Regime Shift}
+\subsubsection{Architecture Selection} \todo{maybe add a figure?}
+Instead of the conventional axial turbine, a radial inflow cantilever, also called a centripetal impulse turbine was chosen. In this design, the flow enters the rotor radially inward through blades cantilevered off the rim of the disc, instead of passing axially through a bladed wheel. The reason for choosing this architecture in this thesis because it is simpler to manufacture. The turbine blisk can be made with 2.5 axis CNC milling, or in this thesis, additively manufactured without angled overhangs. This trade in manufacturing simplicity is balanced by a slight drop in efficiency as smirnov \cite{smirnovComparisonFourTypes2021} found in his CFD studies compared to axial or radial inflow reaction stages \cite{donnellyDesignExperimentalVerification}. However, the radial inflow cantilever is still a layout proven for small supersonic turboexpanders in this exact power and regime \cite{weissCustomizedORCMicro2020}.The meanline loss model is the same for the axial and the radial inflow cantilever stage \cite{weissCustomizedORCMicro2020}, so this is a packaging choice and not a change to the aerodynamic design method. The established rocket turbopump turbine is an axial flow stage, to the point that the standard NASA design monograph for rocket turbopump turbines treats only axial machines \cite{LiquidRocketEngine1974}, so the choice here of a radial inflow cantilever stage needs justifying. 
 
-Turbine sizing has to satisfy many requirements simultaneously to reach the global requirements of a rotational speed of \valPumpRpmDesign at a power of \valTurbPowerDesign. Parameters such as diameter $d_m$, mass flow through the turbine $\dot{m}$, blade inlet angle $\beta_3$, pressure ratio $p_{01}/p_{02}$ have to be balanced against each other to reach a feasible design point.
+\subsubsection{Design Point and sizing}
 
-The turbine has two operating regimes, and the distinction runs through this section and the results. The design point is \valTurbPowerDesign{} at \valPumpRpmDesign{} on \valTurbPZeroOneDesign{} supply. The test point is what the \todo{what the fuck is this} laboratory shop air could actually deliver, around 2.9 bar absolute at the stator with the pressure drooping under flow, which settled the coupled shaft at around \valCoupledRpm{} RPM. \cref{tab:turbine_design_vs_test} compares the two. The choked supersonic nozzle behaves the same in both regimes because choked flow is speed independent, but the rotor stage similitude parameters were not matched at test, and this difference drives most of the discussion in \cref{sec:results}.
+Turbine sizing has to satisfy many requirements simultaneously to reach the global requirements of a rotational speed of \valPumpRpmDesign at a power of \valTurbPowerDesign. Parameters such as diameter $d_m$, mass flow through the turbine $\dot{m}$, blade inlet angle $\beta_3$, nozzle pressure ratio $p_{01}/p_{3}$ have to be balanced against each other to reach a feasible design point. As explained in \cref{subsec:impulse_turbines}, minmizing inlet angle $\beta_3$ maximizes flow turning and thus specific work. Prelinimary CAD of the radial turbine was used to find that a blade inlet angle of $\beta_3$ was the minimum that could be achieveable geometrically. The pressure ratio $p_{01}/p_{3}$ was chosen so that the design operating point $p_3$ was above the ambient pressure at 1.1 bar. 
 
-\begin{table}[H]
-    \centering
-    \caption{Turbine design point against the achieved test point. The test supply pressure drooped under flow, so the quoted value is representative.}
-    \label{tab:turbine_design_vs_test}
-    \begin{tabular}{lll}
-        \toprule
-        Parameter & Design & Test \\
-        \midrule
-        Shaft speed & \valPumpRpmDesign & $\approx$\valCoupledRpm{} RPM \\
-        Inlet total pressure & \valTurbPZeroOneDesign & $\approx$2.9 bar \\ % [VERIFY V1] exact test p01
-        Inlet total temperature & \valTurbTZeroOneDesign & $\approx$308 K \\
-        Rotor inlet relative Mach $M_{w3}$ & \valTurbMwDesign & \valTurbMwTest \\
-        Blade to jet speed ratio & \valTurbUCThreeDesign & $\approx$0.06 \\
-        Rotor state & started & unstarted \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+% The turbine has two operating regimes, and the distinction runs through this section and the results. The design point is \valTurbPowerDesign{} at \valPumpRpmDesign{} on \valTurbPZeroOneDesign{} supply. The test point is what the \todo{what the fuck is this} laboratory shop air could actually deliver, around 2.9 bar absolute at the stator with the pressure drooping under flow, which settled the coupled shaft at around \valCoupledRpm{} RPM. \cref{tab:turbine_design_vs_test} compares the two. The choked supersonic nozzle behaves the same in both regimes because choked flow is speed independent, but the rotor stage similitude parameters were not matched at test, and this difference drives most of the discussion in \cref{sec:results}.
 
-\subsubsection{Architecture Selection}
+% \begin{table}[H]
+%     \centering
+%     \caption{Turbine design point against the achieved test point. The test supply pressure drooped under flow, so the quoted value is representative.}
+%     \label{tab:turbine_design_vs_test}
+%     \begin{tabular}{lll}
+%         \toprule
+%         Parameter & Design & Test \\
+%         \midrule
+%         Shaft speed & \valPumpRpmDesign & $\approx$\valCoupledRpm{} RPM \\
+%         Inlet total pressure & \valTurbPZeroOneDesign & $\approx$2.9 bar \\ % [VERIFY V1] exact test p01
+%         Inlet total temperature & \valTurbTZeroOneDesign & $\approx$308 K \\
+%         Rotor inlet relative Mach $M_{w3}$ & \valTurbMwDesign & \valTurbMwTest \\
+%         Blade to jet speed ratio & \valTurbUCThreeDesign & $\approx$0.06 \\
+%         Rotor state & started & unstarted \\
+%         \bottomrule
+%     \end{tabular}
+% \end{table}
 
-The established rocket turbopump turbine is an axial flow stage, to the point that the standard NASA design monograph for these turbines treats only axial machines \cite{LiquidRocketEngine1974}, so the choice here of a radial inflow cantilever stage needs justifying. In a radial inflow cantilever, also called a centripetal impulse turbine, the flow enters the rotor radially inward through blades cantilevered off the rim of the disc, instead of passing axially through a bladed wheel. The reason for it is manufacturing and integration. At this scale the whole rotor is a single printed part overhung on the common pump shaft, with no separate turbine bearing, gearing or coupling, and a small nozzle block feeds a short arc of the rim through a compact manifold. An axial wheel would need axial length and a hub that fights the overhung single shaft layout, and is harder to make at good efficiency at this size \cite{smirnovComparisonFourTypes2021}. The radial inflow cantilever is the layout proven for small supersonic turboexpanders in this exact power and manufacturing regime \cite{weissCustomizedORCMicro2020}, and for a compact supersonic rocket turbine of the same kind \cite{donnellyDesignExperimentalVerification}. It costs a few points of efficiency against an axial or a radial inflow reaction stage at the design point \cite{donnellyDesignExperimentalVerification}, which is an acceptable trade for a single stage that is already far off its optimum speed ratio. The supersonic impulse blade itself is the same object either way, it is an axial impulse profile wrapped onto a radial rim \cite{donnellyDesignExperimentalVerification}, and the meanline loss model is the same for the axial and the radial inflow cantilever stage \cite{weissCustomizedORCMicro2020}, so this is a packaging choice and not a change to the aerodynamic design method.
 
-The stage is an impulse stage, for the reasons established in \cref{sec:theory}, and its tolerance to tip clearance matters here because the rotor is printed \cite{LiquidRocketEngine1974}. The central constraint is diameter. Running the stage at the optimum blade to jet speed ratio on a 20,000 RPM shaft would need a mean diameter in the hundreds of millimetres, which does not fit the rig or the shaft dynamics, so the turbine accepts a small diameter and a heavily off optimum speed ratio instead. The small mass flow then cannot fill the annulus at any sensible blade height, so partial admission is used. The degree of admission $\varepsilon = \valTurbDoa$ was chosen by working \cref{eq:turbine_blade_height} backwards, picking the admission fraction that raises the blade height to \valTurbBladeHeight, the smallest height that prints reliably and keeps the aspect ratio sensible.
 
-\subsubsection{Sizing}
+% The stage is an impulse stage, for the reasons established in \cref{subsubsec:impulse_vs_reaction}, and its tolerance to tip clearance matters here because the rotor is printed \cite{LiquidRocketEngine1974}. The central constraint is diameter. Running the stage at the optimum blade to jet speed ratio on a 20,000 RPM shaft would need a mean diameter in the hundreds of millimetres, which does not fit the rig or the shaft dynamics, so the turbine accepts a small diameter and a heavily off optimum speed ratio instead. The small mass flow then cannot fill the annulus at any sensible blade height, so partial admission is used. The degree of admission $\varepsilon = \valTurbDoa$ was chosen by working \cref{eq:turbine_blade_height} backwards, picking the admission fraction that raises the blade height to \valTurbBladeHeight, the smallest height that prints reliably and keeps the aspect ratio sensible.
 
-\todo{this shit is so wrong i dont even know what to say}
 
-The mean line sizing is the inverse design chain of the theory chapter, executed in order. The inputs are the shaft power $P$, speed $n$, mean diameter $d_m$, mass flow $\dot{m}$, nozzle angle $\beta_3$, degree of admission $\varepsilon$, the gas properties and the exit pressure $p_e$. The blade speed follows from the speed and diameter, $u = \omega d_m/2$, and the required specific work from the power, $\Delta h_{\textrm{use}} = P/\dot{m}$. The velocity triangle inversion \cref{eq:triangle_inversion} then fixes the jet the nozzle must deliver, $c_{3u}$, $c_3$ and $c_{3m}$. The nozzle exit static state follows from conservation of energy in the adiabatic nozzle and the isentropic relations:
 
-\begin{equation}
-    T_3 = T_{01} - \frac{c_3^2}{2 c_p}, \qquad
-    a_3 = \sqrt{\gamma R T_3}, \qquad
-    M_3 = \frac{c_3}{a_3}
-    \label{eq:sizing_exit_state}
-\end{equation}
+After setting these constraints at the design rotational speed and desired turbine generated power, contour plots \cref{fig:turbine-design-space} were generated over the $(d_m, \dot{m})$ plane to study the design space for a possible design point. The nozzle exit mach number and blade height are calculated using \cref{eq:triangle_inversion}, \cref{eq:turbine_blade_height} as described in \cref{subsec:impulse_turbines}, with empirical predicited efficiency using Weiss's loss model described in \cref{subsec:weissloss}. Blade height was quickly found to be a limiting constraint as shown in \cref{fig:turbine-design-space} and following NASA's SP-8107 for a minimum height above 3.8mm, the requirement was set to 4mm for manufacturability. Many iterations of these countours were studied with varying degrees of admission $\zeta$ until a feasible design point was found that balanced a minimal mass flow $\dot{m}$ and mean diameter $d_m$ that satisfies all these constraints. Low mass flow is desirable in a rocket turbopump as every bit of mass flow that flows into the gas generator is loss thrust and thus efficiency to the main engine. A lower turbine diameter leads to lower centrifugal stress and thus lower structural mass and also the goal of this thesis which is to study the design of small turbopumps.
 
-\begin{equation}
-    p_3 = \frac{p_{01}}{\left(1 + \frac{\gamma-1}{2} M_3^2\right)^{\frac{\gamma}{\gamma-1}}}, \qquad
-    \rho_3 = \frac{p_3}{R T_3}
-    \label{eq:sizing_exit_pressure}
-\end{equation}
+% \todo{this shit is so wrong i dont even know what to say}
 
-Because the stage is impulse, the rotor takes no static pressure drop, so the nozzle exit static pressure must equal the exit pressure $p_e$. This is a modelling simplification worth stating. A radial inflow cantilever is not strictly an impulse stage, because the flow moves radially inward through the rotor inside the blade centrifugal field, which puts a small static pressure drop across the rotor and a corresponding degree of reaction, and this is why the class is properly called quasi impulse \cite{weissCustomizedORCMicro2020}. Here the blade speed is far below the jet velocity, the same off optimum condition that sets the efficiency, so the centrifugal reaction is small, and the stage is sized as pure impulse throughout with the reaction neglected in both the velocity triangles and the loss model. The near optimum cantilever of Weiss carried a reaction of about 0.13 \cite{weissCustomizedORCMicro2020}, so the simplification is justified only by the low blade to jet speed ratio of this design, and it is carried as a known limitation of the design model. The supply pressure $p_{01}$ is therefore not free: it is iterated until $p_3 = p_e$, which is how the design tool arrives at the required stator supply pressure of \valTurbPZeroOneDesign{} rather than assuming it. The blade height then follows from continuity through the admitted arc, \cref{eq:turbine_blade_height}, and the total nozzle throat area from the choked flow relation \cref{eq:choked_massflow}. Finally the Weiss loss chain of \cref{subsec:weissloss} is wrapped around this ideal chain in an outer loop: the internal power is raised until the shaft power net of the rotor loss and ventilation meets the \valTurbPowerDesign{} target, so the quoted supply pressure already carries the losses.
+% The mean line sizing is the inverse design chain of the theory chapter, executed in order. The inputs are the shaft power $P$, speed $n$, mean diameter $d_m$, mass flow $\dot{m}$, nozzle angle $\beta_3$, degree of admission $\varepsilon$, the gas properties and the exit pressure $p_e$. The blade speed follows from the speed and diameter, $u = \omega d_m/2$, and the required specific work from the power, $\Delta h_{\textrm{use}} = P/\dot{m}$. The velocity triangle inversion \cref{eq:triangle_inversion} then fixes the jet the nozzle must deliver, $c_{3u}$, $c_3$ and $c_{3m}$. The nozzle exit static state follows from conservation of energy in the adiabatic nozzle and the isentropic relations:
 
-With the chain in place, the remaining free choices are the mean diameter and mass flow. These were chosen by sweeping the $(d_m, \dot{m})$ plane with the full model and overlaying the manufacturing and rig constraints: a minimum blade height of 4 mm for reliable printing, a minimum nozzle throat width of 0.5 mm, and a nozzle exit Mach ceiling of 1.8 to keep the rotor inside the validated range of the loss correlations. \cref{fig:turbine-design-space} shows the swept design space, the feasible region, and the selected design point. The chosen $d_m = \valTurbDmean$ and $\dot{m} = \valTurbMdotDesign{} $ sit inside the feasible region with the blade height constraint binding, which is the quantitative version of the statement that the blade height, not the aerodynamics, sizes this machine.
+% \begin{equation}
+%     T_3 = T_{01} - \frac{c_3^2}{2 c_p}, \qquad
+%     a_3 = \sqrt{\gamma R T_3}, \qquad
+%     M_3 = \frac{c_3}{a_3}
+%     \label{eq:sizing_exit_state}
+% \end{equation}
+
+% \begin{equation}
+%     p_3 = \frac{p_{01}}{\left(1 + \frac{\gamma-1}{2} M_3^2\right)^{\frac{\gamma}{\gamma-1}}}, \qquad
+%     \rho_3 = \frac{p_3}{R T_3}
+%     \label{eq:sizing_exit_pressure}
+% \end{equation}
+
+% Because the stage is impulse, the rotor takes no static pressure drop, so the nozzle exit static pressure must equal the exit pressure $p_e$. This is a modelling simplification worth stating. A radial inflow cantilever is not strictly an impulse stage, because the flow moves radially inward through the rotor inside the blade centrifugal field, which puts a small static pressure drop across the rotor and a corresponding degree of reaction, and this is why the class is properly called quasi impulse \cite{weissCustomizedORCMicro2020}. Here the blade speed is far below the jet velocity, the same off optimum condition that sets the efficiency, so the centrifugal reaction is small, and the stage is sized as pure impulse throughout with the reaction neglected in both the velocity triangles and the loss model. The near optimum cantilever of Weiss carried a reaction of about 0.13 \cite{weissCustomizedORCMicro2020}, so the simplification is justified only by the low blade to jet speed ratio of this design, and it is carried as a known limitation of the design model. The supply pressure $p_{01}$ is therefore not free: it is iterated until $p_3 = p_e$, which is how the design tool arrives at the required stator supply pressure of \valTurbPZeroOneDesign{} rather than assuming it. The blade height then follows from continuity through the admitted arc, \cref{eq:turbine_blade_height}, and the total nozzle throat area from the choked flow relation \cref{eq:choked_massflow}. Finally the Weiss loss chain of \cref{subsec:weissloss} is wrapped around this ideal chain in an outer loop: the internal power is raised until the shaft power net of the rotor loss and ventilation meets the \valTurbPowerDesign{} target, so the quoted supply pressure already carries the losses.
+
+% With the chain in place, the remaining free choices are the mean diameter and mass flow. These were chosen by sweeping the $(d_m, \dot{m})$ plane with the full model and overlaying the manufacturing and rig constraints: a minimum blade height of 4 mm for reliable printing, a minimum nozzle throat width of 0.5 mm, and a nozzle exit Mach ceiling of 1.8 to keep the rotor inside the validated range of the loss correlations. \cref{fig:turbine-design-space} shows the swept design space, the feasible region, and the selected design point. The chosen $d_m = \valTurbDmean$ and $\dot{m} = \valTurbMdotDesign{} $ sit inside the feasible region with the blade height constraint binding, which is the quantitative version of the statement that the blade height, not the aerodynamics, sizes this machine.
 
 \begin{figure}[H]
     \centering
@@ -204,29 +207,34 @@ With the chain in place, the remaining free choices are the mean diameter and ma
     \label{fig:turbine-design-space}
 \end{figure}
 
-The mean line sizing gives a mean diameter of \valTurbDmean, a blade speed of \valTurbUDesign{} at design speed, a nozzle exit velocity of \valTurbCThreeDesign{} at Mach \valTurbMThreeDesign, and a rotor inlet relative Mach number of \valTurbMwDesign. The full output is in \cref{tab:turbine_design} and the design point velocity triangles are drawn to scale in \cref{fig:turbine-triangles-design}. The triangles make the off optimum operation visible directly, as the blade speed is small next to the jet velocity and the exit swirl is strongly negative, which is the kinetic energy the stage fails to extract at this speed ratio.
+Following this design procedure, a table of the design point parameters is shown in \cref{tab:turbine_design}.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{turbine_triangles.pdf}
-    \caption{Design point velocity triangles at the rotor inlet and exit, drawn to scale from the sizing output. The exit triangle is the ideal symmetric impulse case. The large negative exit swirl is the direct consequence of operating at a blade to jet speed ratio of \valTurbUCThreeDesign{}, far below the optimum.}
-    \label{fig:turbine-triangles-design}
-\end{figure}
+% The final design point gives a mean diameter of \valTurbDmean, a blade speed of \valTurbUDesign{} at design speed, a nozzle exit velocity of \valTurbCThreeDesign{} at Mach \valTurbMThreeDesign, and a rotor inlet relative Mach number of \valTurbMwDesign. 
+
+%The full output is in \cref{tab:turbine_design} and the design point velocity triangles are drawn to scale in \cref{fig:turbine-triangles-design}. The triangles make the off optimum operation visible directly, as the blade speed is small next to the jet velocity and the exit swirl is strongly negative, which is the kinetic energy the stage fails to extract at this speed ratio.
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.95\textwidth]{turbine_triangles.pdf}
+%     \caption{Design point velocity triangles at the rotor inlet and exit, drawn to scale from the sizing output. The exit triangle is the ideal symmetric impulse case. The large negative exit swirl is the direct consequence of operating at a blade to jet speed ratio of \valTurbUCThreeDesign{}, far below the optimum.}
+%     \label{fig:turbine-triangles-design}
+% \end{figure}
 
 \begin{table}[H]
   \centering
-  \caption{Turbine design summary, generated directly from the design code.}
+  \caption{Turbine design summary}
   \label{tab:turbine_design}
   \input{generated/tables/tab_turbine_design}
 \end{table}
 
-\subsubsection{Nozzle}
 
-The ideal nozzle contour for this application would be a Rao or canted parabola design as described in \cref{sec:theory}. Due to time constraints and the negligible performance difference at this low area ratio, a simple conical nozzle with a 7 degree half angle and rounded corners was used instead. NASA SP-8120 puts the efficiency penalty of a conical contour below 2\% at low area ratios, which is small against the other losses in this stage, so this is a sensible engineering trade and not a compromise of the results. There are \valTurbNozzles{} nozzles with a total throat area of \valTurbAthroat.
+% \subsubsection{Nozzle}
+
+% The ideal nozzle contour for this application would be a Rao or canted parabola design as described in \cref{sec:theory}. Due to time constraints and the negligible performance difference at this low area ratio, a simple conical nozzle with a 7 degree half angle and rounded corners was used instead. NASA SP-8120 puts the efficiency penalty of a conical contour below 2\% at low area ratios, which is small against the other losses in this stage, so this is a sensible engineering trade and not a compromise of the results. There are \valTurbNozzles{} nozzles with a total throat area of \valTurbAthroat.
 
 \subsubsection{Blade Passage Design}
 
-The blade passage was generated with the MoC procedure of \cref{subsec:method_of_characteristics} for an inlet relative Mach number of 1.3 at a blade angle of 75 degrees from axial, with surface Mach numbers $M_l = 1.05$ and $M_u = 1.5$. The choice of this surface Mach pair is the central design decision of the blade. The pair is not free: their mean is fixed near the inlet Mach number and their spread sets the turning the stage needs. The lower bound is separation on the pressure surface, checked with the Sasman and Cresci method of \cref{sec:theory}, and the upper bound is starting, checked with the Goldman criterion derated by the Colclough fit. Following Goldman's observation that efficiency rises with Mach spread, the spread was opened until separation became imminent. \cref{fig:moc-design} shows the result: the as-designed blade with the $H_i$ check touching 2.1 at around 77\% chord on the upper surface, deliberately separation imminent at the design point. The boundary layer displacement correction applied to the printed contour is shown in \cref{fig:moc-displaced}.
+The blade passage was generated with the MoC procedure of \cref{subsec:method_of_characteristics} for an inlet relative Mach number of 1.3, with surface Mach numbers $M_l = 1.05$ and $M_u = 1.5$. $H_i$ check touching 2.1 at around 77\% chord on the upper surface, deliberately separation imminent at the design point. The boundary layer displacement correction applied to the printed contour is shown in \cref{fig:moc-displaced}.
 
 The starting margin was left deliberately thin to maximise loading. The Goldman limit for this passage is $M_{w3} = \valTurbStartLimit$ against a design value of \valTurbMwDesign. The same calculation run off design predicted, before any coupled test took place, that the rotor cannot start below approximately \valTurbStartRpm{} RPM, because at low blade speed the relative inlet Mach number rises above the limit. This prediction is a design stage statement. What happened when the coupled test ran far below this threshold is the subject of \cref{sec:results}.
 
