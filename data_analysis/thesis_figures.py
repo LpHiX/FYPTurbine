@@ -1378,6 +1378,7 @@ def fig_cav_suction():
     fully wetted reference vs NPSHa, one curve per held flow step
     (Q = const), for the two video-validated runs. Successive inlet-pressure
     reduction at constant speed; the 3% head-drop criterion is the line."""
+    from scipy.interpolate import UnivariateSpline
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
     curves = []
     for lbl, mk in zip(CAV_RUNS, ("o", "s")):
@@ -1391,8 +1392,29 @@ def fig_cav_suction():
     cmap = plt.get_cmap("viridis")
     for i, (qr, lbl, mk, s) in enumerate(curves):
         c = cmap(0.05 + 0.85 * i / max(len(curves) - 1, 1))
-        ax.plot(s["cen"], s["Hmed"] / s["H_ref"], marker=mk, ms=2.5, lw=1.0,
-                color=c, label=f"{qr:.2f} l/s ({lbl})")
+        x = unp.nominal_values(s["cen"])
+        y = unp.nominal_values(s["Hmed"] / s["H_ref"])
+        # markers at the actual data points, no connecting line
+        ax.plot(x, y, ls="none", marker=mk, ms=2.5, color=c,
+                label=f"{qr:.2f} l/s ({lbl})")
+        # smoothing (regression) spline shows the trend without honouring
+        # every point: the noisy plateau averages out instead of wiggling,
+        # while the real breakdown drop is preserved
+        order = np.argsort(x)
+        xs, ys = x[order], y[order]
+        keep = np.concatenate(([True], np.diff(xs) > 0))
+        xs, ys = xs[keep], ys[keep]
+        if len(xs) >= 4:
+            # robust point-noise estimate from successive differences,
+            # insensitive to the few large steps at breakdown
+            dy = np.diff(ys)
+            sigma = 1.4826 * np.median(np.abs(dy - np.median(dy))) / np.sqrt(2.0)
+            sigma = max(sigma, 1e-3)
+            spl = UnivariateSpline(xs, ys, k=3, s=len(xs) * sigma ** 2)
+            xd = np.linspace(xs[0], xs[-1], 200)
+            ax.plot(xd, spl(xd), lw=1.0, color=c)
+        elif len(xs) >= 2:
+            ax.plot(xs, ys, lw=1.0, color=c)
     ax.axhline(0.97, color="C3", lw=0.8, ls="--")
     ax.text(0.98, 0.971, "3% head-drop criterion", fontsize=6.5, color="C3",
             transform=ax.get_yaxis_transform(), ha="right", va="bottom")
