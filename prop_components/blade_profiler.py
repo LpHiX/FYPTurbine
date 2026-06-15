@@ -104,7 +104,7 @@ class DisplacedBladeProfiler:
 
         return self.re_chord
         
-    def evaluate_boundary_layers(self, re_chord=None):
+    def evaluate_boundary_layers(self, re_chord=None, Hi_0=1.8, theta_0_test=1):
         """
         Extracts Mach distributions and runs the boundary layer solver.
         """
@@ -147,13 +147,13 @@ class DisplacedBladeProfiler:
         # Lower Surface
         s_lo = self.moc_mach_dist['lower']['s_norm']
         Me_lo = self.moc_mach_dist['lower']['mach']
-        s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_func(s_lo, Me_lo, self.re_chord, M_in, T0=T03)  # relative T0
+        s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_func(s_lo, Me_lo, self.re_chord, M_in, T0=T03, Hi_0=Hi_0, theta_0_test=theta_0_test)  # relative T0
         dstar_lo = Hi_lo * th_lo
         
         # Upper Surface
         s_up = self.moc_mach_dist['upper']['s_norm']
         Me_up = self.moc_mach_dist['upper']['mach']
-        s_up_bl, th_up, Hi_up, Me_up_bl = solve_func(s_up, Me_up, self.re_chord, M_in, T0=T03)  # relative T0
+        s_up_bl, th_up, Hi_up, Me_up_bl = solve_func(s_up, Me_up, self.re_chord, M_in, T0=T03, Hi_0=Hi_0, theta_0_test=theta_0_test)  # relative T0
         dstar_up = Hi_up * th_up
         
         self.bl_results = {

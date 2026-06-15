@@ -1025,7 +1025,7 @@ def fig_goldman_validation():
     s_up_f, Me_up_f, _ = build_blade_surface(gd["M_in"], Mu, gd["beta_deg"],
                                              side="upper", M_other=Ml)
     (s_lo, Hi_lo, _, _, s_up, Hi_up, _, _) = run_single_case_sasman_cresci(
-        gd["M_in"], Ml, Mu, gd["beta_deg"], gd["Re"])
+        gd["M_in"], Ml, Mu, gd["beta_deg"], Re_chord=35000, Hi_0=1.8, theta_0_test=10)
 
     fig, ax = plt.subplots(figsize=(3.1, 2.8))
     plot_tuned(ax, s_lo_f, Me_lo_f, color="C0", label="lower surface")

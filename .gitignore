@@ -539,3 +539,5 @@ TSWLatexianTemp*
 /data/*.log
 /data/rawdata
 /overlapcode
+
+/report/out

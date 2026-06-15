@@ -167,7 +167,7 @@ def bl_ode_sasman_cresci(s, y, Me_fn, dMe_ds_fn, Re0, T0=500.0):
     return [df, dHi]
 
 
-def solve_bl_sasman_cresci(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
+def solve_bl_sasman_cresci(s_norm, Me_arr, Re_chord, M_in, T0=500.0, Hi_0 = 1.8, theta_0_test = 1):
     """
     Solve BL with a Sasman-Cresci closure set.
     Returns: s, theta, Hi, Me (all arrays)
@@ -200,10 +200,10 @@ def solve_bl_sasman_cresci(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
     Re_unit0 = Re_chord * rho_e_rho_in * u_e_u_in / mu_e_mu_in
     Re_s0 = Re_unit0 * s0
 
-    theta_0_c = 0.036 * s0 * max(Re_s0, 10.0)**(-0.2)
+    theta_0_c = 0.036 * s0 * max(Re_s0, 10.0)**(-0.2) * theta_0_test
     theta_bar_0_c = theta_0_c * (Te0_T0)**3.0
     f_0 = (Me0 * theta_bar_0_c * Re0)**1.268
-    Hi_0 = 1.8
+    # Hi_0 = 1.8
 
     s_eval = s_norm[3:]
 
@@ -237,7 +237,7 @@ def solve_bl_sasman_cresci(s_norm, Me_arr, Re_chord, M_in, T0=500.0):
 # Main: replicate Goldman Figures 4, 5, 8, 9
 # ══════════════════════════════════════════════════════════════════════
 
-def run_single_case_sasman_cresci(M_in, M_lower, M_upper, beta_deg, Re_chord):
+def run_single_case_sasman_cresci(M_in, M_lower, M_upper, beta_deg, Re_chord, Hi_0=None, theta_0_test=None):
     """Run Sasman-Cresci BL on both surfaces for one design point."""
     s_lo, Me_lo, _ = build_blade_surface(
         M_in, M_lower, beta_deg, side='lower', M_other=M_upper
@@ -245,9 +245,12 @@ def run_single_case_sasman_cresci(M_in, M_lower, M_upper, beta_deg, Re_chord):
     s_up, Me_up, _ = build_blade_surface(
         M_in, M_upper, beta_deg, side='upper', M_other=M_lower
     )
-
-    s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_bl_sasman_cresci(s_lo, Me_lo, Re_chord, M_in)
-    s_up_bl, th_up, Hi_up, Me_up_bl = solve_bl_sasman_cresci(s_up, Me_up, Re_chord, M_in)
+    if Hi_0 is not None:
+        s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_bl_sasman_cresci(s_lo, Me_lo, Re_chord, M_in, T0=500, Hi_0=Hi_0, theta_0_test=theta_0_test)
+        s_up_bl, th_up, Hi_up, Me_up_bl = solve_bl_sasman_cresci(s_up, Me_up, Re_chord, M_in, T0=500, Hi_0=Hi_0, theta_0_test=theta_0_test)
+    else:
+        s_lo_bl, th_lo, Hi_lo, Me_lo_bl = solve_bl_sasman_cresci(s_lo, Me_lo, Re_chord, M_in)
+        s_up_bl, th_up, Hi_up, Me_up_bl = solve_bl_sasman_cresci(s_up, Me_up, Re_chord, M_in)
 
     return (s_lo_bl, Hi_lo, Me_lo_bl, th_lo,
             s_up_bl, Hi_up, Me_up_bl, th_up)

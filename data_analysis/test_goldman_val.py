@@ -1,0 +1,3 @@
+from thesis_figures import fig_goldman_validation
+
+fig_goldman_validation()
