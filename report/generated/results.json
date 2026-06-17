@@ -13,6 +13,48 @@
     "fmt": ".0f",
     "desc": "specific gas constant, air"
   },
+  "coupled_jet_design": {
+    "val": 470.25625738698625,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "design absolute jet speed at coupled-test inlet temperature"
+  },
+  "coupled_jet_postshock": {
+    "val": 219.30312472546078,
+    "unit": "\\meter\\per\\second",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "jet speed surviving a normal shock ahead of the unstarted rotor"
+  },
+  "coupled_mach_jet": {
+    "val": 1.6675522050258451,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "design absolute jet Mach ahead of the bow shock"
+  },
+  "coupled_mach_postshock": {
+    "val": 0.6491337706889049,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "absolute Mach behind the normal shock (subsonic)"
+  },
+  "coupled_nu": {
+    "val": 0.05711910637286518,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "coupled-test blade-to-jet speed ratio"
+  },
+  "coupled_p01": {
+    "val": 2.9,
+    "unit": "\\bar",
+    "unc": null,
+    "fmt": ".1f",
+    "desc": "measured coupled-test stator inlet total pressure (median, abs)"
+  },
   "coupled_rpm": {
     "val": 5400,
     "unit": "",
@@ -20,12 +62,26 @@
     "fmt": "g",
     "desc": "coupled self-regulated speed [rpm]"
   },
+  "coupled_shock_vratio": {
+    "val": 0.4663481267512204,
+    "unit": "",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "normal-shock velocity ratio V2/V1 at the jet Mach"
+  },
   "coupled_torque": {
-    "val": 0.27,
+    "val": 0.23125680000000004,
     "unit": "\\newton\\meter",
     "unc": null,
     "fmt": ".2f",
-    "desc": "measured coupled shaft torque"
+    "desc": "measured coupled shaft torque (median of coupled window)"
+  },
+  "coupled_torque_pct_unstarted": {
+    "val": 61.47031298348675,
+    "unit": "\\percent",
+    "unc": null,
+    "fmt": ".0f",
+    "desc": "measured torque as a percentage of the unstarted upper-bound line"
   },
   "lock_k1_modified": {
     "val": 0.53,
@@ -615,12 +671,26 @@
     "fmt": ".0f",
     "desc": "rotor-inlet static temperature at design"
   },
+  "turb_torque_started": {
+    "val": 0.8692286989718921,
+    "unit": "\\newton\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "started-jet Euler torque at coupled rpm and p01 (full design jet)"
+  },
   "turb_torque_started_test": {
     "val": 0.87,
     "unit": "\\newton\\meter",
     "unc": null,
     "fmt": ".2f",
     "desc": "started-flow model torque at coupled-test median conditions (fig_coupled_torque started curve at the settled speed) \u2014 the 4x gap vs measured 0.27 is the unstart diagnosis"
+  },
+  "turb_torque_unstarted": {
+    "val": 0.37620891903075937,
+    "unit": "\\newton\\meter",
+    "unc": null,
+    "fmt": ".2f",
+    "desc": "unstarted post-shock-jet Euler torque at coupled rpm and p01"
   },
   "turb_u_c3_design": {
     "val": 0.21435438441861307,

@@ -573,14 +573,22 @@ def fig_coupled_hq():
 
 
 def fig_coupled_torque():
-    """Coupled turbine torque vs speed: measured (markers) vs naive
-    STARTED model (dashed) vs unstarted model (solid + band)."""
+    """Coupled turbine torque vs speed: measured (markers) against two Euler
+    torque lines, tau = mdot * (1 + k_R) * r * (cu - u). Both use the same
+    rotor velocity coefficient k_R; they differ only in the jet speed reaching
+    the blades. The started line uses the full design jet; the unstarted line
+    uses the jet speed surviving a normal shock ahead of the unswallowed rotor."""
     t = turbine_design()
     gam, Rg = TRB["GAM"], TRB["R_GAS"]
     beta = np.deg2rad(TRB["BETA_DEG"]); r_mean = TRB["D_MEAN_MM"] / 2000.0
     A_th, M3, phi_r = t.A_throat, t.M3, t.phi_r
     T3s = T01_TEST / (1 + 0.5 * (gam - 1) * M3 ** 2)
-    a3s = np.sqrt(gam * Rg * T3s); c3s = M3 * a3s; c3us = c3s * np.cos(beta)
+    a3s = np.sqrt(gam * Rg * T3s); c3s = M3 * a3s
+    c3us = c3s * np.cos(beta)                       # started design jet, tangential
+    # Normal shock ahead of the unstarted rotor. The velocity drops by the
+    # density ratio across the shock, V2/V1 = ((g-1)M^2 + 2) / ((g+1)M^2).
+    vratio = ((gam - 1) * M3 ** 2 + 2) / ((gam + 1) * M3 ** 2)
+    c2us = c3us * vratio                            # post-shock jet, tangential
 
     def u_of(rpm):
         return rpm * 2 * np.pi / 60 * r_mean
@@ -589,21 +597,15 @@ def fig_coupled_torque():
         return (A_th * p01 / np.sqrt(T01_TEST) * np.sqrt(gam / Rg)
                 * (2 / (gam + 1)) ** ((gam + 1) / (2 * (gam - 1))))
 
-    def torque_started(rpm, p01):
-        u = u_of(rpm)
-        return choked_mdot(p01) * (1 + phi_r) * u * (c3us - u) / (u / r_mean)
-
-    def torque_unstarted(rpm, p01, jet_frac):
-        u = u_of(rpm); c3e = jet_frac * c3s
-        return choked_mdot(p01) * (1 + phi_r) * u * (c3e * np.cos(beta) - u) / (u / r_mean)
+    def torque(rpm, p01, cu):
+        # Euler torque tau = mdot * (1 + k_R) * r * (cu - u).
+        return choked_mdot(p01) * (1 + phi_r) * r_mean * (cu - u_of(rpm))
 
     w = _coupled_window()
     sel = w["rpm"] > 2000
     rpm_w, tq_w, ptt_w = w["rpm"][sel], w["tq"][sel], w["ptt"][sel]
     p01_w = (ptt_w + 1.01325) * 1e5
-    md_w = choked_mdot(p01_w); omega = rpm_w * 2 * np.pi / 60
-    c3u_eff = (tq_w * omega / md_w) / ((1 + phi_r) * u_of(rpm_w)) + u_of(rpm_w)
-    frac = float(np.nanmedian((c3u_eff / np.cos(beta)) / c3s))
+    p01_med = float(np.median(p01_w))
 
     fig, ax = plt.subplots(figsize=(4.8, 3.2))
     # Measured cloud shown as a scatter: its point-to-point spread is the real
@@ -613,14 +615,10 @@ def fig_coupled_torque():
     ax.plot(rpm_w[::20], tq_w[::20], "o", ms=2, alpha=0.5, color="C0",
             label="measured (every 20th pt)")
     rr = np.linspace(rpm_w.min(), rpm_w.max(), 40)
-    p01_med = float(np.median(p01_w))
-    plot_theory(ax, rr, torque_started(rr, p01_med), color="C3",
-                label=f"started model (design jet {c3s:.0f} m/s)")
-    ax.fill_between(rr, torque_unstarted(rr, p01_med, 0.30),
-                    torque_unstarted(rr, p01_med, 0.40),
-                    color="C2", alpha=0.2, label="unstarted, 30–40% jet")
-    plot_tuned(ax, rr, torque_unstarted(rr, p01_med, frac), color="C2",
-               label=f"unstarted, fitted {frac * 100:.0f}% jet")
+    plot_theory(ax, rr, torque(rr, p01_med, c3us), color="C3",
+                label=f"started jet {c3us:.0f} m/s")
+    plot_tuned(ax, rr, torque(rr, p01_med, c2us), color="C2",
+               label=f"unstarted, post-shock jet {c2us:.0f} m/s")
     ax.set(xlabel="shaft speed [rpm]", ylabel="shaft torque [Nm]", ylim=(0, None))
     ax.legend()
     return save(fig, "results_coupled_torque")

@@ -237,8 +237,56 @@ def build_computed(reg: Registry) -> Registry:
             desc="coupled-test relative inlet Mach (> starting limit -> unstarted)")
     reg.add("turb_start_rpm", 15300, unit="", desc="rotor-starting threshold speed [rpm]")
     reg.add("coupled_rpm", 5400, unit="", desc="coupled self-regulated speed [rpm]")
-    reg.add("coupled_torque", 0.27, unit=r"\newton\meter", fmt=".2f",
-            desc="measured coupled shaft torque")
+    reg.add("coupled_p01", 2.9, unit=r"\bar", fmt=".1f",
+            desc="measured coupled-test stator inlet total pressure (median, abs)")
+
+    # --- coupled-test jet: first-principles normal-shock estimate ---
+    # The unstarted rotor sits behind a detached bow shock; modelled here as a
+    # normal shock at the design absolute jet Mach. Same formulas as
+    # thesis_figures.fig_coupled_torque so prose and figure stay consistent.
+    import numpy as _np
+    import thesis_figures as _tf
+    _t = _tf.turbine_design()
+    _g, _R, _T0 = _tf.TRB["GAM"], _tf.TRB["R_GAS"], _tf.T01_TEST
+    _beta = _np.deg2rad(_tf.TRB["BETA_DEG"]); _r = _tf.TRB["D_MEAN_MM"] / 2000.0
+    _M3 = _t.M3
+    _T3 = _T0 / (1 + 0.5 * (_g - 1) * _M3 ** 2)
+    _c3 = _M3 * _np.sqrt(_g * _R * _T3)                       # design jet speed at test T0
+    _vr = ((_g - 1) * _M3 ** 2 + 2) / ((_g + 1) * _M3 ** 2)   # normal-shock velocity ratio
+    _M2 = _np.sqrt((_M3 ** 2 + 2 / (_g - 1)) / (2 * _g / (_g - 1) * _M3 ** 2 - 1))
+    _c2 = _c3 * _vr                                           # post-shock jet speed
+    _c3u, _c2u = _c3 * _np.cos(_beta), _c2 * _np.cos(_beta)
+    _p01 = 2.9e5
+    _md = (_t.A_throat * _p01 / _np.sqrt(_T0) * _np.sqrt(_g / _R)
+           * (2 / (_g + 1)) ** ((_g + 1) / (2 * (_g - 1))))
+    _u = 5400 * 2 * _np.pi / 60 * _r                          # blade speed at coupled rpm
+    _kR = _t.phi_r                                            # rotor velocity coefficient (Weiss)
+    _torque = lambda cu: _md * (1 + _kR) * _r * (cu - _u)     # Euler torque at coupled rpm/p01
+    reg.add("coupled_jet_design", _c3, unit=r"\meter\per\second", fmt=".0f",
+            desc="design absolute jet speed at coupled-test inlet temperature")
+    reg.add("coupled_jet_postshock", _c2, unit=r"\meter\per\second", fmt=".0f",
+            desc="jet speed surviving a normal shock ahead of the unstarted rotor")
+    reg.add("coupled_mach_jet", _M3, fmt=".2f",
+            desc="design absolute jet Mach ahead of the bow shock")
+    reg.add("coupled_mach_postshock", _M2, fmt=".2f",
+            desc="absolute Mach behind the normal shock (subsonic)")
+    reg.add("coupled_shock_vratio", _vr, fmt=".2f",
+            desc="normal-shock velocity ratio V2/V1 at the jet Mach")
+    reg.add("coupled_nu", _u / _c3, fmt=".2f",
+            desc="coupled-test blade-to-jet speed ratio")
+    reg.add("turb_torque_started", _torque(_c3u), unit=r"\newton\meter", fmt=".2f",
+            desc="started-jet Euler torque at coupled rpm and p01 (full design jet)")
+    reg.add("turb_torque_unstarted", _torque(_c2u), unit=r"\newton\meter", fmt=".2f",
+            desc="unstarted post-shock-jet Euler torque at coupled rpm and p01")
+    # measured coupled torque straight from the data, plus its ratio to the
+    # unstarted upper-bound line (the gap the normal shock cannot close).
+    _w = _tf._coupled_window(); _selm = _w["rpm"] > 2000
+    _tq_meas = float(_np.median(_w["tq"][_selm]))
+    reg.add("coupled_torque", _tq_meas, unit=r"\newton\meter", fmt=".2f",
+            desc="measured coupled shaft torque (median of coupled window)")
+    reg.add("coupled_torque_pct_unstarted", 100 * _tq_meas / _torque(_c2u),
+            unit=r"\percent", fmt=".0f",
+            desc="measured torque as a percentage of the unstarted upper-bound line")
     return reg
 
 

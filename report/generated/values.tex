@@ -4,8 +4,16 @@
 
 \newcommand{\valAirGam}{\num{1.4}\xspace}  % heat capacity ratio, air
 \newcommand{\valAirR}{\qty{287}{\joule\per\kilo\gram\per\kelvin}\xspace}  % specific gas constant, air
+\newcommand{\valCoupledJetDesign}{\qty{470}{\meter\per\second}\xspace}  % design absolute jet speed at coupled-test inlet temperature
+\newcommand{\valCoupledJetPostshock}{\qty{219}{\meter\per\second}\xspace}  % jet speed surviving a normal shock ahead of the unstarted rotor
+\newcommand{\valCoupledMachJet}{\num{1.67}\xspace}  % design absolute jet Mach ahead of the bow shock
+\newcommand{\valCoupledMachPostshock}{\num{0.65}\xspace}  % absolute Mach behind the normal shock (subsonic)
+\newcommand{\valCoupledNu}{\num{0.06}\xspace}  % coupled-test blade-to-jet speed ratio
+\newcommand{\valCoupledPZeroOne}{\qty{2.9}{\bar}\xspace}  % measured coupled-test stator inlet total pressure (median, abs)
 \newcommand{\valCoupledRpm}{\num{5400}\xspace}  % coupled self-regulated speed [rpm]
-\newcommand{\valCoupledTorque}{\qty{0.27}{\newton\meter}\xspace}  % measured coupled shaft torque
+\newcommand{\valCoupledShockVratio}{\num{0.47}\xspace}  % normal-shock velocity ratio V2/V1 at the jet Mach
+\newcommand{\valCoupledTorque}{\qty{0.23}{\newton\meter}\xspace}  % measured coupled shaft torque (median of coupled window)
+\newcommand{\valCoupledTorquePctUnstarted}{\qty{61}{\percent}\xspace}  % measured torque as a percentage of the unstarted upper-bound line
 \newcommand{\valLockKOneModified}{\num{0.53}\xspace}  % modified pre-rotation coefficient
 \newcommand{\valLockKOneOriginal}{\num{0.17}\xspace}  % original pre-rotation coefficient from Lock's paper
 \newcommand{\valPumpBOne}{\qty{6.4}{\milli\meter}\xspace}  % blade height at impeller inlet
@@ -90,7 +98,9 @@
 \newcommand{\valTurbStartRpm}{\num{15300}\xspace}  % rotor-starting threshold speed [rpm]
 \newcommand{\valTurbTZeroOneDesign}{\qty{300}{\kelvin}\xspace}  % design turbine inlet total temperature (air)
 \newcommand{\valTurbTThreeDesign}{\qty{193}{\kelvin}\xspace}  % rotor-inlet static temperature at design
+\newcommand{\valTurbTorqueStarted}{\qty{0.87}{\newton\meter}\xspace}  % started-jet Euler torque at coupled rpm and p01 (full design jet)
 \newcommand{\valTurbTorqueStartedTest}{\qty{0.87}{\newton\meter}\xspace}  % started-flow model torque at coupled-test median conditions (fig_coupled_torque started curve at the settled speed) — the 4x gap vs measured 0.27 is the unstart diagnosis
+\newcommand{\valTurbTorqueUnstarted}{\qty{0.38}{\newton\meter}\xspace}  % unstarted post-shock-jet Euler torque at coupled rpm and p01
 \newcommand{\valTurbUCThreeDesign}{\num{0.214}\xspace}  % blade-jet speed ratio u/c3 at design
 \newcommand{\valTurbUCsDesign}{\num{0.196}\xspace}  % blade-speed ratio u/c_s (isentropic spouting velocity)
 \newcommand{\valTurbUDesign}{\qty{99.5}{\meter\per\second}\xspace}  % mean blade speed at design

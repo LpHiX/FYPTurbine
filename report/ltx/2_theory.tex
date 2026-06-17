@@ -1,7 +1,7 @@
 \section{Literature and Theory}
 \label{sec:theory}
 
-\todo{"recent studies" section for pumps and turbines, in particular, MOC is incredibly old and sudhof, erikson have modernized, state this.}
+% \todo{"recent studies" section for pumps and turbines, in particular, MOC is incredibly old and sudhof, erikson have modernized, state this.}
 
 Much of the supersonic blading design methodology dates from the 1950s and 60s \cite{boxerApplicationSupersonicVortexflow1952, goldmanAnalyticalInvestigationSupersonic1968}. The same analytical core, method of characteristics nozzle and blade passage design remains foundation of current work. Sudhof's 2020 dissertation \cite{sudhofDevelopmentTechniquesSupersonic2020} frames modern developments into design as a paradigm shift. Older methods studied analytical profiles first then checked practical restrictions such as finite leading edge thickness, shock boundary layer interaction afterwards. Modern computational capacity lets the blade be designed and optimised around these restrictions from the start. Griffin and Dorney demonstrated this on a two-stage supersonic turbine, where CFD, response-surface and neural-net optimisation of a conventionally designed baseline gave a measured total-to-static efficiency gain of 9 points \cite{griffinDesignAnalysisTurbines2003}. These methods are still the basis of current small turbine design studies \cite{pengDesignAnalysis152023, abdalhamidDesignAnalysisSinglestage2024}. On the pump side, the Barske architecture is seeing renewed interest \cite{knyazevaDesignFluidDynamics2021}, but literature is still very scarce \cite{danieliConceptualDesignElectric2023}.
 
@@ -162,7 +162,7 @@ Back into the ratio:
 This is the reason low specific speed pumps cannot reach high efficiency. The relative disc friction scales as $1/n_q^2$, so halving the specific speed quadruples the share of the input power lost to the disc. As an example point on the size of this, Gülich gives the disc friction as roughly $30\%$ of the useful power of the impeller at $n_q=10$, $\psi\approx1$ and $\mathrm{Re}=10^7$ \cite{gulichCentrifugalPumps2020}. Gulich provides \cref{fig:disc_loss} to show this relationship visually.
 
 
-The head coefficient in the denominator of \cref{eq:disc_loss_specific_speed} also points the pump designer to design a pump with a higher head coefficient as $P_{RR}\propto\psi^{-5/2}$. For a fixed desired head $H$ and rotational speed $n$, a high head coefficient means a smaller tip speed and thus a smaller diameter can be derived from \cref{eq:head_coefficient}:
+The head coefficient in the denominator of \cref{eq:disc_loss_specific_speed} also points the pump designer to design a pump with a higher head coefficient as $P_{RR}\propto\psi^{-5/2}$. For a fixed desired head $H$ and rotational speed $n$, a high head coefficient means a smaller tip speed and thus a smaller diameter can be derived from \cref{eq:psi_phi}:
 
 \begin{equation}
     u_2 = \sqrt{\frac{2gH}{\psi}} = \frac{\pi d_2 n}{60}
@@ -185,7 +185,7 @@ Since $P_{RR}\sim r_2^5$ shrinking the diameter collapses the disc friction. Thi
 
 %barbernichols https://barber-nichols.com/wp-content/uploads/2019/07/partial_emission_pumps_bridging_efficiency_gap_between_positive_displacement_and_full_emission_pumps.pdf
 
-The Barske pump, also known as the partial-emission pump \cite{barbernichols}, forced vortex pump \cite{lockForcedVortexPump1966} is a type of centrifugal pump found to be effective in these conditions. The Barske Pump is very simple in geometry as shown in \cref{fig:impeller-barske} as compared to a conventional pump such as \cref{fig:impeller-conventional}. The impeller consists of a flat disc with straight radial blades. The volute is swapped for cylindrical (annular) casing, with a divergent diffuser placed tangent to the casing. Because the fluid leaves the impeller at high velocity relative to both the casing and the diffusor, the surface finish becomes a primary concern for efficiency at this scale \cite{lockdesignfeatures}. Gülich also notes that for $n_q<12$ an annular casing can reach higher efficiencies than a volute, the spiral collector of a conventional pump \cite{gulich7.12}, which has the side benefit of being far simpler to manufacture, a real advantage at small scale where tight tolerances are hard to hold. Conversely, as the losses in the impeller are small, the Barske impeller surface finish is not critical and can be left rough.
+The Barske pump, also known as the partial-emission pump \cite{barbernichols}, forced vortex pump \cite{lockForcedVortexPump1966} is a type of centrifugal pump found to be effective in these conditions. The Barske Pump is very simple in geometry as shown in \cref{fig:impeller-barske} as compared to a conventional pump such as \cref{fig:impeller-conventional}. The impeller consists of a flat disc with straight radial blades. The volute is swapped for cylindrical (annular) casing, with a divergent diffuser placed tangent to the casing. Because the fluid leaves the impeller at high velocity relative to both the casing and the diffusor, the surface finish becomes a primary concern for efficiency at this scale \cite{lockForcedVortexPump1966}. Gülich also notes that for $n_q<12$ an annular casing can reach higher efficiencies than a volute, the spiral collector of a conventional pump \cite{gulichCentrifugalPumps2020}, which has the side benefit of being far simpler to manufacture, a real advantage at small scale where tight tolerances are hard to hold. Conversely, as the losses in the impeller are small, the Barske impeller surface finish is not critical and can be left rough.
 
 \label{subsec:barske}
 
@@ -229,6 +229,7 @@ Another difference between conventional impellers and the barske impeller is the
 % with $\psi$ and $\phi_2$ the head and flow coefficients of \cref{eq:psi_phi}. The difficulty at low specific speed is now visible in the equation rather than asserted. The duty fixes a high target $\psi$ at a very low $\phi_2$, which \cref{eq:head_with_slip} can only meet by pushing $\beta_{2B}$ towards the radial and the blade count up, while continuity $\phi_2 = Q/(\pi d_2 b_2 u_2)$ at the same low flow and large diameter simultaneously drives the outlet width $b_2$ towards zero. The closure does have a root, but it lands on geometry that is either unmanufacturable or outside the validity range of \cref{eq:wiesner_slip}, whose own limit on the blade loading is $\varepsilon_{lim} = \exp(-8.16\sin\beta_{2B}/z)$. This is what motivates the forced vortex Barske architecture, which abandons the attached blade-guided flow model entirely and so removes the slip factor from the design process.
 
 % As conventional impellers are rarely designed at this specific speed, empirical correlations fitted around conventional impellers  $b_2 = 0.31$ mm on a 24 mm impeller \cite{kimDevelopmentUltraLowSpecific2022}. That is exactly the corner of \cref{eq:head_with_slip} described above: a root exists, but the practical failure of the conventional architecture at this scale is manufacturability and suction robustness rather than pure mathematics. This is explored further with the design attempt in \cref{sec:appendix_conventional} and \cref{sec:results}.
+\newpage
 
 \subsubsection{Barske Pump Performance}
 
@@ -306,7 +307,7 @@ Barske assumes that the disc friction losses can be approximated as a circular d
 
 \begin{equation}
     P_{RR} [\mathrm{W}] = 1956\times\rho\nu^{0.2}\left(\frac{n}{1000}\right)^{2.8}\left(d_2^{4.6}+4.6d_1^{3.6}b_1\right)
-    \cref{eq:barske_disc_friction}
+    \label{eq:barske_disc_friction}
 \end{equation}
 
 As the hydraulic efficiency is defined as the useful power out of the pump over the total power into the pump, efficiency can be defined as:
@@ -749,7 +750,7 @@ It is important to note that Goldman provides another set of equations in his NA
 \subsubsection{Supersonic Starting}
 \label{subsec:supersonic_starting}
 
-On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passage must be able to "swallow" this shock, allowing the shock to move through the whole passage. \todo{make sure this explains at standstill}
+On startup before the turbine passage runs supersonically, a detached bow shock stands ahead of the leading edges. The flow behind this normal shock is subsonic and has lost a significant amount of total pressure. For the turbine to operate nominally with supersonic flow, the passage must be able to "swallow" this shock, allowing the shock to move through the whole passage.
 
 To do so, the post shock flow with a reduced total pressure must have enough of a flow area pass the required mass flow similar to the choked flow condition. A similar condition is the unstart of a supersonic wind tunnel or a supersonic internal intake. However, Boxer notes that due to the large velocity gradient between the channel walls due to the turning, the flow cannot be assumed one directional as are the case in the provided examples. Goldman provides the condition \cite{goldmanAnalyticalInvestigationSupersonic1968} accounting for the "reduction of mass flow due to curvilinear flow" to calculate the maximum inlet design mach number to ensure starting as:
 
@@ -885,7 +886,7 @@ Historically, the optimal nozzle design for a ideal inviscid gas was designed wi
 
 
 
-\todo{maybe talk about weiss nozzle accounting}
+% \todo{maybe talk about weiss nozzle accounting}
 
 % \subsubsection{Turbopump Matching}
 
